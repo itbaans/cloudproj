@@ -59,37 +59,37 @@ const TextEditor = () => {
       });
     }
   }, []);
+// To be implmemnted with the backend
+  // // Save instantly on every keystroke
+  // useEffect(() => {
+  //   if (!editorContent) return;
 
-  // Save instantly on every keystroke
-  useEffect(() => {
-    if (!editorContent) return;
+  //   setSavedHTML(editorContent); // Save it
+  //   console.log("Saved after keystroke:", editorContent);
 
-    setSavedHTML(editorContent); // Save it
-    console.log("Saved after keystroke:", editorContent);
+  //   // backend call
+  //   fetch("http://localhost:5000/note/save", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ html: editorContent }),
+  //   });
+  // }, [editorContent]);
 
-    // backend call
-    fetch("http://localhost:5000/note/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ html: editorContent }),
-    });
-  }, [editorContent]);
+  // // Save when tab/window is closed
+  // useEffect(() => {
+  //   const handleBeforeUnload = () => {
+  //     if (quillInstance.current) {
+  //       const html = quillInstance.current.root.innerHTML;
+  //       console.log("💾 Forced save on unload:", html);
 
-  // Save when tab/window is closed
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (quillInstance.current) {
-        const html = quillInstance.current.root.innerHTML;
-        console.log("💾 Forced save on unload:", html);
+  //       // Optional: sync before exit
+  //       // navigator.sendBeacon("/api/save", JSON.stringify({ html }));
+  //     }
+  //   };
 
-        // Optional: sync before exit
-        // navigator.sendBeacon("/api/save", JSON.stringify({ html }));
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, []);
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
+  //   return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  // }, []);
 
   return (
     <div style={{
