@@ -7,10 +7,10 @@ const TextEditor = () => {
   const editorRef = useRef(null);
   const quillInstance = useRef(null);
 
-  const [savedHTML, setSavedHTML] = useState("");     // Last saved version
+  const [savedHTML, setSavedHTML] = useState("");      // Last saved version
   const [editorContent, setEditorContent] = useState(""); // Current editor text
 
-  // Setup fonts and sizes
+  // Setup fonts
   const Font = Quill.import("formats/font");
   Font.whitelist = [
     "arial", "verdana", "georgia", "courier-new",
@@ -19,28 +19,30 @@ const TextEditor = () => {
   ];
   Quill.register(Font, true);
 
+  // Setup font sizes
   const Size = Quill.import("formats/size");
   Size.whitelist = [
     "10px", "12px", "14px", "16px", "18px", "24px", "32px", "48px"
   ];
   Quill.register(Size, true);
 
-  // Initialize Quill once
+  // Initialize Quill
   useEffect(() => {
     if (editorRef.current && !quillInstance.current) {
       quillInstance.current = new Quill(editorRef.current, {
         theme: "snow",
         modules: {
-          toolbar: "#custom-toolbar",
+          toolbar: "#custom-toolbar"
         },
         formats: [
-          "font", "size", "color", "background",
-          "bold", "italic", "underline", "strike",
-          "align", "list", "link", "image"
+            "font", "size", "color", "background",
+  "bold", "italic", "underline", "strike",
+  "align", "list", "link", "image",
+  "blockquote", "code-block", "direction", "indent"
         ]
       });
 
-      // Format application fix
+      // Apply current format when pressing Enter
       quillInstance.current.on("selection-change", (range) => {
         if (range && range.length === 0) {
           const format = quillInstance.current.getFormat(range.index - 1);
@@ -50,34 +52,38 @@ const TextEditor = () => {
         }
       });
 
-      // Track live content
+      // Save editor content immediately after each change
       quillInstance.current.on("text-change", () => {
         const html = quillInstance.current.root.innerHTML;
-        setEditorContent(html);
+        setEditorContent(html); // 🔁 Triggers save useEffect
       });
     }
   }, []);
 
-  // Debounced autosave (2 seconds)
+  // Save instantly on every keystroke
   useEffect(() => {
     if (!editorContent) return;
 
-    const timeout = setTimeout(() => {
-      console.log("🔄 Autosaving...");
-      setSavedHTML(editorContent); // Replace with API call if needed
-    }, 2000);
+    setSavedHTML(editorContent); // Save it
+    console.log("Saved after keystroke:", editorContent);
 
-    return () => clearTimeout(timeout);
+    // backend call
+    fetch("http://localhost:5000/note/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ html: editorContent }),
+    });
   }, [editorContent]);
 
-  // Save before closing tab or refresh
+  // Save when tab/window is closed
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (quillInstance.current) {
         const html = quillInstance.current.root.innerHTML;
         console.log("💾 Forced save on unload:", html);
-        // Use sendBeacon if saving to backend
-        // navigator.sendBeacon("/api/save", JSON.stringify({ htmlContent: html }));
+
+        // Optional: sync before exit
+        // navigator.sendBeacon("/api/save", JSON.stringify({ html }));
       }
     };
 

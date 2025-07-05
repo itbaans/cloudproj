@@ -31,3 +31,21 @@
 .ql-toolbar button {
   margin-right: 0px;
 }
+
+#custom-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  
+  gap: 20px; /* gap between groups */
+  padding: 8px;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+}
+
+/* Each group is a flex row */
+#custom-toolbar .toolbar-group {
+  /*display: flex;*/
+  align-items: center;
+  gap: 0px; /* gap between items within group */
+}

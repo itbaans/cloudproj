@@ -12,7 +12,7 @@ import SignUp from '../Authentication/SignUp';
 
 function App() {
   return (
-    <Login></Login>
+    <Screen></Screen>
   );
 }
 
