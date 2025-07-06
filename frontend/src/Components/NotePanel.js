@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { FormControl } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { FormControl, Button } from "react-bootstrap";
 import {
   FaSortAlphaDown,
   FaSortAlphaUp,
   FaSortAmountDown,
   FaSortAmountUp,
+  FaRegStickyNote,
 } from "react-icons/fa";
-
 // Format date as "Jun 20"
 const formatDate = (date) => {
   return date.toLocaleDateString("en-US", {
@@ -17,15 +17,28 @@ const formatDate = (date) => {
 
 function NotePanel() {
   // Simulated notes
-  const initialNotes = Array.from({ length: 100 }, (_, i) => ({
-    id: i + 1,
-    title: `Note ${i + 1}`,
-    createdAt: new Date(2024, 0, 1 + i),
-    updatedAt: new Date(2024, 5, Math.floor(Math.random() * 28) + 1),
-  }));
 
+  const [notes, setNotes] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("newest");
+  const [selectedNoteId, setSelectedNoteId] = useState(null);
+
+    useEffect(() => {
+    // Fetch notes from backend
+    const fetchNotes = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/note/all");
+        if (!response.ok) throw new Error("Failed to fetch notes");
+        const data = await response.json();
+        setNotes(data);
+      } catch (err) {
+        console.error("Error loading notes:", err);
+      }
+    };
+
+    fetchNotes();
+  }, []);
+
 
   const cycleSortOption = () => {
     const options = ["az", "za", "newest", "oldest"];
@@ -48,7 +61,7 @@ function NotePanel() {
     }
   };
 
-  const filteredNotes = initialNotes
+  const filteredNotes = notes
     .filter((note) =>
       note.title.toLowerCase().includes(searchQuery.toLowerCase())
     )
@@ -60,11 +73,16 @@ function NotePanel() {
       return 0;
     });
 
+  const handleNewNote = () => {
+    // Later: implement actual note creation logic
+    alert("Create new note (functionality not yet implemented)");
+  };
+
   return (
     <div>
       <div
         className="d-flex flex-column bg-light vh-100 border-end"
-        style={{ width: "180px" }}
+        style={{ width: "18rem" }}
       >
         {/* Title + sort icon */}
         <div className="d-flex justify-content-between align-items-center px-2 mb-2">
@@ -88,24 +106,47 @@ function NotePanel() {
           />
         </div>
 
+        {/* New+ Button */}
+        <div className="px-3 mb-2">
+          <Button
+            variant="success"
+            size="sm"
+            className="w-50 d-flex justify-content-center
+            align-items-center gap-2"
+            onClick={handleNewNote}
+            style={{height: "3rem"}}
+          >
+            <FaRegStickyNote />
+            <span>New+</span>
+          </Button>
+        </div>
+
+        {/* Display selected ID (debug) */}
+        <div>
+          <h1>{selectedNoteId}</h1>
+        </div>
+
         {/* Scrollable note list */}
         <div className="flex-grow-1 overflow-auto" style={{ fontSize: "0.6rem" }}>
           {filteredNotes.map((note) => (
             <div
               key={note.id}
-              className="px-2 py-2 bg-white border"
+              className={`px-3 py-3 border ${
+                selectedNoteId === note.id ? "bg-primary text-white" : "bg-white"
+              }`}
               style={{ cursor: "pointer", whiteSpace: "normal" }}
               title={note.title}
+              onClick={() => setSelectedNoteId(note.id)}
             >
               <div
                 className="fw-semibold text-truncate"
-                style={{ fontSize: "0.65rem", lineHeight: "1rem" }}
+                style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
               >
                 {note.title}
               </div>
               <div
                 className="text-muted"
-                style={{ fontSize: "0.6rem", lineHeight: "0.9rem" }}
+                style={{ fontSize: "0.7rem", lineHeight: "0.9rem" }}
               >
                 {formatDate(note.updatedAt)}
               </div>
