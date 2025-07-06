@@ -11,5 +11,7 @@ router.get("/load/:noteId",verifyToken, notesController.getNoteContent);
 router.post("/create", verifyToken, notesController.createNewNote);
 // delete note
 router.delete("/remove/:noteId", verifyToken, notesController.deleteNote);
+// get all notes of user
+router.get("/all", verifyToken, notesController.getAllUserNotes);
 
 module.exports = router;

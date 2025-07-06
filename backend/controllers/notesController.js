@@ -22,7 +22,7 @@ const updateNoteContent = async (req, res) => {
       note: updatedNote,
     });
   } catch (err) {
-    console.error("Error updating note content:", err);
+    console.error("Error:", err);
     res.status(500).json({ error: "Internal server error." });
   }
 };
@@ -43,10 +43,31 @@ const getNoteContent = async (req, res) => {
       note: getNote,
     });
   } catch (err) {
-    console.error("Error updating note content:", err);
+    console.error("Error", err);
     res.status(500).json({ error: "Internal server error." });
   }
 };
+
+const getAllUserNotes = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const getNotes = await notesModel.findAllNotesByUserID(userId);
+
+    // if (!getNote) {
+    //   return res.status(200).json({ error: "Note not found" });
+    // }
+
+    res.status(200).json({
+      message: "Notes found successfully",
+      note: getNotes,
+    });
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
 
 const createNewNote = async (req, res) => {
   const userId = req.user.userId;
@@ -82,4 +103,5 @@ module.exports = {
   getNoteContent,
   createNewNote,
   deleteNote,
+  getAllUserNotes
 };

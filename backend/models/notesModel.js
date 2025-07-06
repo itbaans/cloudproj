@@ -9,10 +9,10 @@ const findNoteByUserID = async (userId, noteId) => {
   return result.rows[0];
 };
 
-// Get all names and ids of book, but dont get the content
+// Get all names and ids of notes, but dont get the content
 const findAllNotesByUserID = async (userId) => {
   const result = await pool.query(
-    "SELECT note_name, title FROM notes WHERE user_id = $1",
+    "SELECT id, note_name, updated_at, created_at  FROM notes WHERE user_id = $1",
     [userId]
   );
   return result.rows;
