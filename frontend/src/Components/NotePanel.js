@@ -7,6 +7,9 @@ import {
   FaSortAmountUp,
   FaRegStickyNote,
 } from "react-icons/fa";
+
+import { API_BASE_URL } from "../App/config";
+
 // Format date as "Jun 20"
 const formatDate = (date) => {
   return date.toLocaleDateString("en-US", {
@@ -23,11 +26,11 @@ function NotePanel() {
   const [sortOption, setSortOption] = useState("newest");
   const [selectedNoteId, setSelectedNoteId] = useState(null);
 
-    useEffect(() => {
+  useEffect(() => {
     // Fetch notes from backend
     const fetchNotes = async () => {
       try {
-        const response = await fetch("http://localhost:5000/note/all");
+        const response = await fetch(`${API_BASE_URL}/note/all`);
         if (!response.ok) throw new Error("Failed to fetch notes");
         const data = await response.json();
         setNotes(data);
@@ -38,7 +41,6 @@ function NotePanel() {
 
     fetchNotes();
   }, []);
-
 
   const cycleSortOption = () => {
     const options = ["az", "za", "newest", "oldest"];
@@ -63,7 +65,7 @@ function NotePanel() {
 
   const filteredNotes = notes
     .filter((note) =>
-      note.title.toLowerCase().includes(searchQuery.toLowerCase())
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()),
     )
     .sort((a, b) => {
       if (sortOption === "az") return a.title.localeCompare(b.title);
@@ -114,7 +116,7 @@ function NotePanel() {
             className="w-50 d-flex justify-content-center
             align-items-center gap-2"
             onClick={handleNewNote}
-            style={{height: "3rem"}}
+            style={{ height: "3rem" }}
           >
             <FaRegStickyNote />
             <span>New+</span>
@@ -127,12 +129,17 @@ function NotePanel() {
         </div>
 
         {/* Scrollable note list */}
-        <div className="flex-grow-1 overflow-auto" style={{ fontSize: "0.6rem" }}>
+        <div
+          className="flex-grow-1 overflow-auto"
+          style={{ fontSize: "0.6rem" }}
+        >
           {filteredNotes.map((note) => (
             <div
               key={note.id}
               className={`px-3 py-3 border ${
-                selectedNoteId === note.id ? "bg-primary text-white" : "bg-white"
+                selectedNoteId === note.id
+                  ? "bg-primary text-white"
+                  : "bg-white"
               }`}
               style={{ cursor: "pointer", whiteSpace: "normal" }}
               title={note.title}
