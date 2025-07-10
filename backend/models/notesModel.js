@@ -25,7 +25,7 @@ const findNoteByNoteID = async (noteId) => {
 
 const CreateNote = async (userId) => {
   const result = await pool.query(
-    "INSERT INTO notes (user_id) VALUES ($1) RETURNING *",
+    "INSERT INTO notes (user_id) VALUES ($1) RETURNING id, note_name, updated_at, created_at",
     [userId]
   );
   return result.rows[0];
@@ -39,7 +39,7 @@ const LoadHTMLByNoteID = async (noteId, userId) => {
   return result.rows[0];
 };
 
-const SaveHTMLInNoteID = async (noteId, htmlContent, userId) => {
+const SaveHTMLInNoteID = async (htmlContent, noteId, userId) => {
   const result = await pool.query(
     "UPDATE notes SET content_html = $1, updated_at = NOW() WHERE id = $2 AND user_id = $3 RETURNING *",
     [htmlContent, noteId, userId]

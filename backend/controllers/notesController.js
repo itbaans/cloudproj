@@ -2,24 +2,26 @@ const notesModel = require("../models/notesModel");
 
 const updateNoteContent = async (req, res) => {
   const { noteId } = req.params;
-  const { htmlContent } = req.body;
+  const { ContentHTML } = req.body;
   const userId = req.user.userId;
 
-  if (!htmlContent) {
+  if (!ContentHTML) {
     return res
       .status(400)
       .json({ error: "Missing HTML content in request body." });
   }
   try {
-    const updatedNote = await notesModel.SaveHTMLInNoteID(noteId, htmlContent, userId);
+    const updatedNote = await notesModel.SaveHTMLInNoteID(
+      ContentHTML,
+      noteId,
+      userId,
+    );
 
     if (!updatedNote) {
-      return res.status(404).json({ error: "Note not found" });
-    }
-
+  return res.status(404).json({ error: "Note not found" });
+}
     res.status(200).json({
       message: "Note content updated successfully.",
-      note: updatedNote,
     });
   } catch (err) {
     console.error("Error:", err);
@@ -37,11 +39,7 @@ const getNoteContent = async (req, res) => {
     if (!getNote) {
       return res.status(404).json({ error: "Note not found" });
     }
-
-    res.status(200).json({
-      message: "Note found successfully",
-      note: getNote,
-    });
+    res.status(200).json(getNote);
   } catch (err) {
     console.error("Error", err);
     res.status(500).json({ error: "Internal server error." });
@@ -54,41 +52,43 @@ const getAllUserNotes = async (req, res) => {
   try {
     const getNotes = await notesModel.findAllNotesByUserID(userId);
 
-    // if (!getNote) {
-    //   return res.status(200).json({ error: "Note not found" });
-    // }
+    const formattedNotes = getNotes.map((note) => ({
+      id: note.id,
+      title: note.note_name, // frontend expects 'title'
+      updatedAt: note.updated_at,
+      createdAt: note.created_at,
+    }));
 
-    res.status(200).json({
-      message: "Notes found successfully",
-      note: getNotes,
-    });
+    res.status(200).json(formattedNotes); //
   } catch (err) {
     console.error("Error:", err);
     res.status(500).json({ error: "Internal server error." });
   }
 };
 
-
 const createNewNote = async (req, res) => {
   const userId = req.user.userId;
   try {
     const createNote = await notesModel.CreateNote(userId);
 
-    res.status(200).json({
-      message: "Note created successfully",
-      note: createNote,
-    });
+    const note = {
+      id: createNote.id,
+      title: createNote.note_name,
+      updated_at: createNote.updated_at,
+      created_at: createNote.created_at,
+    };
+    res.status(200).json(note);
   } catch (err) {
     res.status(500).json({ error: "Internal server error." });
   }
 };
 
-const deleteNote = async (req,res) => {
-    const { noteId } = req.params;
-    const userId = req.user.userId;
+const deleteNote = async (req, res) => {
+  const { noteId } = req.params;
+  const userId = req.user.userId;
 
-    try {
-    const  deleteNote = await notesModel.DeleteNote(noteId, userId);
+  try {
+    const deleteNote = await notesModel.DeleteNote(noteId, userId);
 
     res.status(200).json({
       message: "Note delete successfully",
@@ -97,11 +97,11 @@ const deleteNote = async (req,res) => {
   } catch (err) {
     res.status(500).json({ error: "Internal server error." });
   }
-}
+};
 module.exports = {
   updateNoteContent,
   getNoteContent,
   createNewNote,
   deleteNote,
-  getAllUserNotes
+  getAllUserNotes,
 };
