@@ -3,9 +3,11 @@ import { useState } from "react";
 import { Container, Form, Button, Alert } from "react-bootstrap";
 import { FaGoogle, FaLinkedin, FaGithub } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "./AuthContext"
 
 function Login() {
 
+  const { login, token } = useAuth();
 
   const [formData, setFormData] = useState({
     usernameOrEmail: "", // username or email
@@ -47,7 +49,7 @@ function Login() {
 
       // Optional: store token
       if (result.token) {
-        localStorage.setItem("token", result.token);
+        login(result.token);
       }
       navigate('/screen');
       
