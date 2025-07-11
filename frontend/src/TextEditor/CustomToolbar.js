@@ -4,23 +4,28 @@ import "./CustomToolbar.css";
 const CustomToolbar = () => {
   return (
     <div id="custom-toolbar" className="custom-toolbar-expanded">
-      
+      {/*  Undo/Redo */}
+      <div className="toolbar-group">
+        <button className="ql-undo">↶</button>
+        <button className="ql-redo">↷</button>
+      </div>
+
       {/* Font Options */}
       <div className="toolbar-group">
         <select className="ql-font" defaultValue="sans-serif">
-          <option value="sans-serif">Sans-serif</option>
-          <option value="serif">Serif</option>
-          <option value="monospace">Mono</option>
           <option value="arial">Arial</option>
           <option value="verdana">Verdana</option>
           <option value="georgia">Georgia</option>
-          <option value="courier-new">Courier</option>
-          <option value="times-new-roman">Times</option>
+          <option value="courier-new">Courier New</option>
+          <option value="times-new-roman">Times New Roman</option>
           <option value="lucida">Lucida</option>
           <option value="impact">Impact</option>
           <option value="tahoma">Tahoma</option>
-          <option value="palatino">Palatino</option>
           <option value="trebuchet">Trebuchet</option>
+          <option value="palatino">Palatino</option>
+          <option value="monospace">Monospace</option>
+          <option value="sans-serif">Sans Serif</option>
+          <option value="serif">Serif</option>
         </select>
 
         <select className="ql-size" defaultValue="14px">
@@ -78,6 +83,27 @@ const CustomToolbar = () => {
         <button className="ql-link" />
         <button className="ql-image" />
       </div>
+
+      {/*<div className="toolbar-group export-dropdown">
+        <select  key={Date.now()}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === "pdf")
+              window.dispatchEvent(new CustomEvent("export-pdf"));
+            if (value === "docx")
+              window.dispatchEvent(new CustomEvent("export-docx"));
+            if (value === "txt")
+              window.dispatchEvent(new CustomEvent("export-txt"));
+            e.target.selectedIndex = 0; // Reset to "Export As"
+          }}
+        >
+          <option>Export As</option>
+          <option value="pdf">PDF</option>
+          <option value="docx">DOCX</option>
+          <option value="txt">Text</option>
+        </select>
+      </div>*/}
+
     </div>
   );
 };

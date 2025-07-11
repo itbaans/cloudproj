@@ -1,8 +1,10 @@
 # Text Editor
 
-- Text Editor files are in the `TextEditor` folder  
-- Size to be decided in further iterations  
-- Backend APIs not developed  
-- Editor has a custom toolbar and styling  
-- App folder contains an instance of the editor  
-- More work to be done  
+More Text Editor changes:
+
+-Added undo and redo
+-Reverted to quill 1.3.7 for stability and better inline formatting
+-Custom Toolbar is almost ready with optimum features
+
+To work on:
+- Final CSS formatting on elements after backend integration pending on notes-api-branch

@@ -2,9 +2,12 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 import { Container, Form, Button, Alert } from "react-bootstrap";
 import { FaGoogle, FaLinkedin, FaGithub } from "react-icons/fa";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "./AuthContext"
 
 function Login() {
 
+  const { login, token } = useAuth();
 
   const [formData, setFormData] = useState({
     usernameOrEmail: "", // username or email
@@ -13,10 +16,7 @@ function Login() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
-  const handleOAuthLogin = (provider) => {
-    window.location.href = `https://your-backend.com/auth/${provider}`;
-  };
+  const navigate = useNavigate("/screen");
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -33,7 +33,6 @@ function Login() {
     const { usernameOrEmail, password  } = formData;
       
     try {
-      
       const response = await fetch("http://localhost:5000/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -50,13 +49,10 @@ function Login() {
 
       // Optional: store token
       if (result.token) {
-        localStorage.setItem("token", result.token);
+        login(result.token);
       }
-
-      // Redirect to dashboard or notes page
-      setTimeout(() => {
-        window.location.href = "/notes";
-      }, 1000);
+      navigate('/screen');
+      
     } catch (err) {
       setError(err.message);
     }
@@ -102,34 +98,9 @@ function Login() {
         </Button>
 
         <hr />
-        <p className="text-muted">Or sign in with</p>
-
-        <div className="d-flex justify-content-center gap-3 mb-3">
-          <Button
-            variant="light"
-            onClick={() => handleOAuthLogin("google")}
-            className="border rounded-circle p-3"
-          >
-            <FaGoogle size={24} />
-          </Button>
-          <Button
-            variant="light"
-            onClick={() => handleOAuthLogin("linkedin")}
-            className="border rounded-circle p-3"
-          >
-            <FaLinkedin size={24} />
-          </Button>
-          <Button
-            variant="light"
-            onClick={() => handleOAuthLogin("github")}
-            className="border rounded-circle p-3"
-          >
-            <FaGithub size={24} />
-          </Button>
-        </div>
-
+        
         <p className="mt-4 text-center">
-          Don’t have an account? <a href="/signup">Sign up</a>
+          Don’t have an account? <Link to="/signup">Sign up</Link>
         </p>
       </Form>
     </Container>

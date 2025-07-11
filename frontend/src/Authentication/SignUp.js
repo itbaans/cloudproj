@@ -2,6 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 import { Container, Form, Button, Alert } from "react-bootstrap";
 import { FaGoogle, FaLinkedin, FaGithub } from "react-icons/fa";
+import { useNavigate, Link } from "react-router-dom";
 
 function SignUp() {
   const [formData, setFormData] = useState({
@@ -12,10 +13,6 @@ function SignUp() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
-  const handleOAuthSignup = (provider) => {
-    window.location.href = `https://your-backend.com/auth/${provider}`;
-  };
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -71,7 +68,7 @@ function SignUp() {
         {success && <Alert variant="success">{success}</Alert>}
 
         <Form.Group className="mb-3" controlId="formBasicName">
-          <Form.Label>Full Name</Form.Label>
+          <Form.Label>Username</Form.Label>
           <Form.Control
             name="name"
             type="text"
@@ -122,35 +119,8 @@ function SignUp() {
           Create Account
         </Button>
 
-        <hr />
-        <p className="text-muted">Or sign up with</p>
-
-        <div className="d-flex justify-content-center gap-3 mb-3">
-          <Button
-            variant="light"
-            onClick={() => handleOAuthSignup("google")}
-            className="border rounded-circle p-3"
-          >
-            <FaGoogle size={24} />
-          </Button>
-          <Button
-            variant="light"
-            onClick={() => handleOAuthSignup("linkedin")}
-            className="border rounded-circle p-3"
-          >
-            <FaLinkedin size={24} />
-          </Button>
-          <Button
-            variant="light"
-            onClick={() => handleOAuthSignup("github")}
-            className="border rounded-circle p-3"
-          >
-            <FaGithub size={24} />
-          </Button>
-        </div>
-
         <p className="mt-4 text-center">
-          Already have an account? <a href="/login">Login</a>
+          Already have an account? <Link to="/login">Login</Link>
         </p>
       </Form>
     </Container>
