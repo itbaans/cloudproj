@@ -2,7 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import CustomToolbar from "./CustomToolbar";
-import SettingsModule from "./SettingsModule"
+import { useAuth } from "../Authentication/AuthContext";
+import { useNote } from "../Components/NoteContext";
+import { API_BASE_URL } from "../App/config";
+import SettingsModule from './SettingsModule'
 
 const TextEditor = () => {
   const editorRef = useRef(null);
@@ -11,6 +14,10 @@ const TextEditor = () => {
   const [savedHTML, setSavedHTML] = useState(""); // Last saved version
   const [editorContent, setEditorContent] = useState(""); // Current editor text
   // Setup fonts
+
+const { token } = useAuth();
+const { selectedNoteId } = useNote(); 
+
   const Font = Quill.import("formats/font");
   Font.whitelist = [
     "arial",
@@ -138,37 +145,50 @@ const TextEditor = () => {
 
 
   }, []);
-  // To be implmemnted with the backend
+  useEffect(() => {
+    if (!selectedNoteId) return;
+    const fetchNoteHTML = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/note/load/${selectedNoteId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch notes");
+
+        const ContentHTML = await response.json();
+        if (quillInstance.current) {
+          quillInstance.current.root.innerHTML = ContentHTML.content_html; // set in Quill
+        }
+      } catch (err) {
+        console.error("Error loading notes:", err);
+      }
+    };
+
+    fetchNoteHTML();
+  }, [selectedNoteId, token]);
+
+  // Backend LOAD and SAVE features here
+
   // // Save instantly on every keystroke
-  // useEffect(() => {
-  //   if (!editorContent) return;
+  useEffect(() => {
+    if (!editorContent) return;
 
-  //   setSavedHTML(editorContent); // Save it
-  //   console.log("Saved after keystroke:", editorContent);
-
-  //   // backend call
-  //   fetch("http://localhost:5000/note/save", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ html: editorContent }),
-  //   });
-  // }, [editorContent]);
-
-  // // Save when tab/window is closed
-  // useEffect(() => {
-  //   const handleBeforeUnload = () => {
-  //     if (quillInstance.current) {
-  //       const html = quillInstance.current.root.innerHTML;
-  //       console.log("💾 Forced save on unload:", html);
-
-  //       // Optional: sync before exit
-  //       // navigator.sendBeacon("/api/save", JSON.stringify({ html }));
-  //     }
-  //   };
-
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
-  //   return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  // }, []);
+    fetch(`${API_BASE_URL}/note/save/${selectedNoteId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ ContentHTML: editorContent }),
+    });
+  }, [editorContent]);
 
   return (
     <div

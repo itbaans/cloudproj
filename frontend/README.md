@@ -7,4 +7,5 @@ More Text Editor changes:
 -Custom Toolbar is almost ready with optimum features
 
 To work on:
-- Final CSS formatting on elements after backend integration pending on notes-api-branch
+- Better Styling to be done
+- Work more on settings dropdown

@@ -68,11 +68,11 @@
   gap: 0px; /* gap between items within group */
 }
 
-.export-dropdown {
+.settings-dropdown {
   margin-left: auto;
 }
 
-.export-dropdown select {
+.settings-dropdown select {
   background: none;
   border: none;
   font-size: 14px;

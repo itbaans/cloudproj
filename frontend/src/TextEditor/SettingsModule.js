@@ -1,6 +1,9 @@
 // SettingsModule.js - Custom Quill plugin
 import Quill from "quill";
-import { MoreHorizontal } from "react-icons/fi"; // React icon
+import { FiMoreHorizontal } from "react-icons/fi"; // React icon
+import ReactDOMServer from "react-dom/server";
+import { useAuth } from "../Authentication/AuthContext";
+import { useNote } from "../Components/NoteContext";
 
 class SettingsModule {
   constructor(quill, options) {
@@ -25,7 +28,9 @@ class SettingsModule {
     wrapper.style.position = "relative";
 
     const button = document.createElement("button");
-    button.innerHTML = "⋮"; // Vertical ellipsis
+
+    const iconHTML = ReactDOMServer.renderToString(<FiMoreHorizontal />);
+    button.innerHTML = iconHTML;
     button.style.cssText = `
       font-size: 18px;
       padding: 4px 8px;
