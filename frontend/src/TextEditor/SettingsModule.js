@@ -40,6 +40,7 @@ class SettingsModule {
     `;
 
     const menu = document.createElement("div");
+    
     menu.className = "settings-menu";
     menu.style.cssText = `
       display: none;

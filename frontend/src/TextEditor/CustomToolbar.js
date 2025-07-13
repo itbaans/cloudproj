@@ -2,6 +2,33 @@ import React from "react";
 import "./CustomToolbar.css";
 
 const CustomToolbar = () => {
+  const fonts = [
+    { label: "Arial", value: "arial" },
+    { label: "Verdana", value: "verdana" },
+    { label: "Georgia", value: "georgia" },
+    { label: "Courier New", value: "courier-new" },
+    { label: "Times New Roman", value: "times-new-roman" },
+    { label: "Lucida", value: "lucida" },
+    { label: "Impact", value: "impact" },
+    { label: "Tahoma", value: "tahoma" },
+    { label: "Trebuchet", value: "trebuchet" },
+    { label: "Palatino", value: "palatino" },
+    { label: "Monospace", value: "monospace" },
+    { label: "Sans Serif", value: "sans-serif" },
+    { label: "Serif", value: "serif" },
+  ];
+
+  const fontSizes = [
+    { label: "10", value: "10px" },
+    { label: "12", value: "12px" },
+    { label: "14", value: "14px" },
+    { label: "16", value: "16px" },
+    { label: "18", value: "18px" },
+    { label: "24", value: "24px" },
+    { label: "32", value: "32px" },
+    { label: "48", value: "48px" },
+  ];
+
   return (
     <div id="custom-toolbar" className="custom-toolbar-expanded">
       {/*  Undo/Redo */}
@@ -13,30 +40,20 @@ const CustomToolbar = () => {
       {/* Font Options */}
       <div className="toolbar-group">
         <select className="ql-font" defaultValue="sans-serif">
-          <option value="arial">Arial</option>
-          <option value="verdana">Verdana</option>
-          <option value="georgia">Georgia</option>
-          <option value="courier-new">Courier New</option>
-          <option value="times-new-roman">Times New Roman</option>
-          <option value="lucida">Lucida</option>
-          <option value="impact">Impact</option>
-          <option value="tahoma">Tahoma</option>
-          <option value="trebuchet">Trebuchet</option>
-          <option value="palatino">Palatino</option>
-          <option value="monospace">Monospace</option>
-          <option value="sans-serif">Sans Serif</option>
-          <option value="serif">Serif</option>
+          {fonts.map((font) => (
+            <option key={font.value} value={font.value}>
+              {font.label}
+            </option>
+          ))}
         </select>
 
+        {/* Font Sizes*/}
         <select className="ql-size" defaultValue="14px">
-          <option value="10px">10</option>
-          <option value="12px">12</option>
-          <option value="14px">14</option>
-          <option value="16px">16</option>
-          <option value="18px">18</option>
-          <option value="24px">24</option>
-          <option value="32px">32</option>
-          <option value="48px">48</option>
+          {fontSizes.map((size) => (
+            <option key={size.value} value={size.value}>
+              {size.label}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -103,7 +120,6 @@ const CustomToolbar = () => {
           <option value="txt">Text</option>
         </select>
       </div>*/}
-
     </div>
   );
 };
