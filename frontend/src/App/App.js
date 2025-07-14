@@ -10,18 +10,25 @@ import Screen from './Screen';
 import Login from '../Authentication/Login';
 import SignUp from '../Authentication/SignUp';
 import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
+import Dashboard from '../Components/Dashboard';
+import RightDashboardBar from "../Components/RightDashboardBar";
 function App() {
   const isLoggedIn = !!localStorage.getItem("token");
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Navigate to={isLoggedIn ? "/screen" : "/login"} />} />
-        <Route path="/login" element={isLoggedIn ? <Navigate to="/screen" /> : <Login />} />
-        <Route path="/signup" element={isLoggedIn ? <Navigate to="/screen" /> : <SignUp />} />
-        <Route path="/screen" element={isLoggedIn ? <Screen /> : <Navigate to="/login" />} />
-      </Routes>
-    </Router>
-  );
+  //   <Router>
+  //     <Routes>
+  //       <Route path="/" element={<Navigate to={isLoggedIn ? "/screen" : "/login"} />} />
+  //       <Route path="/login" element={isLoggedIn ? <Navigate to="/screen" /> : <Login />} />
+  //       <Route path="/signup" element={isLoggedIn ? <Navigate to="/screen" /> : <SignUp />} />
+  //       <Route path="/screen" element={isLoggedIn ? <Screen /> : <Navigate to="/login" />} />
+  //     </Routes>
+  //   </Router>
+  // );
+    <Screen></Screen>
+    // <Dashboard></Dashboard>
+    // <RightDashboardBar></RightDashboardBar>
+    
+    );
 }
 
 export default App;

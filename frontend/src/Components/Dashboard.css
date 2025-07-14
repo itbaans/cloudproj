@@ -1,0 +1,29 @@
+.note-card {
+  width: 300px;
+  min-height: 180px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.note-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.notes-scroll {
+  overflow-x: auto;
+}
+
+.notes-flex {
+  display: flex;
+  gap: 1rem;
+  width: max-content;
+}
+
+.note-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+  
