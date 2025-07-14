@@ -5,6 +5,7 @@ import CustomToolbar from "./CustomToolbar";
 import { useAuth } from "../Authentication/AuthContext";
 import { useNote } from "../Components/NoteContext";
 import { API_BASE_URL } from "../App/config";
+import SettingsModule from './SettingsModule'
 
 const TextEditor = () => {
   const editorRef = useRef(null);
@@ -12,9 +13,11 @@ const TextEditor = () => {
 
   const [savedHTML, setSavedHTML] = useState(""); // Last saved version
   const [editorContent, setEditorContent] = useState(""); // Current editor text
-  const { token } = useAuth();
-  const { selectedNoteId } = useNote();
-  // Setup fonts and sizes
+  // Setup fonts
+
+const { token } = useAuth();
+const { selectedNoteId } = useNote(); 
+
   const Font = Quill.import("formats/font");
   Font.whitelist = [
     "arial",
@@ -33,6 +36,7 @@ const TextEditor = () => {
   ];
   Quill.register(Font, true);
 
+  // Setup font sizes
   const Size = Quill.import("formats/size");
   Size.whitelist = [
     "10px",
@@ -46,13 +50,14 @@ const TextEditor = () => {
   ];
   Quill.register(Size, true);
 
-  // Initialize Quill once
+  // Initialize Quill
   useEffect(() => {
     if (editorRef.current && !quillInstance.current) {
       quillInstance.current = new Quill(editorRef.current, {
         theme: "snow",
         modules: {
           toolbar: "#custom-toolbar",
+          settings: true
         },
         formats: [
           "font",
@@ -67,27 +72,79 @@ const TextEditor = () => {
           "list",
           "link",
           "image",
+          "blockquote",
+          "code-block",
+          "direction",
+          "indent",
         ],
       });
 
-      // Format application fix
-      quillInstance.current.on("selection-change", (range) => {
-        if (range && range.length === 0) {
-          const format = quillInstance.current.getFormat(range.index - 1);
-          Object.entries(format).forEach(([key, value]) => {
-            quillInstance.current.format(key, value);
-          });
-        }
-      });
+    const undoButton = document.querySelector(".ql-undo");
+    const redoButton = document.querySelector(".ql-redo");
 
-      // Track live content
-      quillInstance.current.on("text-change", () => {
-        const html = quillInstance.current.root.innerHTML;
-        setEditorContent(html);
-      });
+    if (undoButton) {
+      undoButton.addEventListener("click", () => quillInstance.current.history.undo());
     }
-  }, []);
+    if (redoButton) {
+      redoButton.addEventListener("click", () => quillInstance.current.history.redo());
+    }
 
+      // Making sure that after "enter" options are still active and displayed
+      var keyboard = quillInstance.current.getModule("keyboard");
+      delete keyboard.bindings[13];
+    }
+
+    const quill = quillInstance.current;
+
+  const exportAsPDF = () => {
+    import("html2pdf.js").then((html2pdf) => {
+      html2pdf.default()
+        .from(quill.root.innerHTML)
+        .set({
+          margin: 0.5,
+          filename: "document.pdf",
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+        })
+        .save();
+    });
+  };
+
+  const exportAsDocx = () => {
+    import("html-docx-js/dist/html-docx").then((htmlDocx) => {
+      const doc = htmlDocx.default.asBlob(quill.root.innerHTML);
+      const url = URL.createObjectURL(doc);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "document.docx";
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+  };
+
+  const exportAsText = () => {
+    const text = quill.getText();
+    const blob = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "document.txt";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  window.addEventListener("export-pdf", exportAsPDF);
+  window.addEventListener("export-docx", exportAsDocx);
+  window.addEventListener("export-txt", exportAsText);
+
+  return () => {
+    window.removeEventListener("export-pdf", exportAsPDF);
+    window.removeEventListener("export-docx", exportAsDocx);
+    window.removeEventListener("export-txt", exportAsText);
+  };
+
+
+  }, []);
   useEffect(() => {
     if (!selectedNoteId) return;
     const fetchNoteHTML = async () => {
@@ -142,10 +199,10 @@ const TextEditor = () => {
         boxSizing: "border-box",
       }}
     >
-      {/*Here I want to implement a frontend feature to change the name of the file and to use this as a standard heading at the same time*/}
       <h2>#Note_Name API#</h2>
 
       <CustomToolbar />
+
       <div
         ref={editorRef}
         style={{
