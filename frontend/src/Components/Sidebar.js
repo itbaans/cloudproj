@@ -15,7 +15,8 @@ function Sidebar({ notebooks = [], onNotebookSelect }) {
   };
 
   const handleNavigation = (name) => {
-
+    setActiveSection(name);
+    navigate(`/${name}`);
   }
 
   return (
@@ -43,8 +44,8 @@ function Sidebar({ notebooks = [], onNotebookSelect }) {
         <ListGroup variant="flush" className="text-center">
           <ListGroup.Item
             action
-            active={activeSection === 'Home'}
-            onClick={() => setActiveSection('Home')}
+            active={activeSection === 'home'}
+            onClick={() => handleNavigation('home')}
             className="py-3 px-3 mb-3 border rounded-3"
             style={{ fontSize: '1.0rem' }}
           >
@@ -53,7 +54,7 @@ function Sidebar({ notebooks = [], onNotebookSelect }) {
           <ListGroup.Item
             action
             active={activeSection === 'notes'}
-            onClick={() => setActiveSection('notes')}
+            onClick={() => handleNavigation('notes')}
             className="py-3 px-3 mb-3 border rounded-3"
             style={{ fontSize: '1.0rem' }}
           >
