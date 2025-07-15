@@ -4,6 +4,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
   // Sample notes data
+  // ONLY A TEST DASHBOARD, NOT THE ONE IM WORKING ON
   const notes = [
     {
       id: 1,
@@ -75,7 +76,7 @@ const Dashboard = () => {
         `}
       </style>
       
-      <div className="min-vh-100 bg-light vw-100">
+      <div className="min-vh-100 bg-light">
         {/* Header */}
         <div className="bg-white border-bottom sticky-top">
           <div className="container-fluid py-3">

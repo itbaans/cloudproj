@@ -1,16 +1,23 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { ListGroup } from 'react-bootstrap';
-import { useState } from 'react';
-import { FaUserCircle } from 'react-icons/fa';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  FaUserCircle, 
+  FaHome, 
+  FaStickyNote, 
+  FaSignOutAlt,
+  FaBook
+} from 'react-icons/fa';
+import './sidebar.css';
+import {useAuth} from '../Authentication/AuthContext'
 
-function Sidebar({ notebooks = [], onNotebookSelect }) {
-  const [activeSection, setActiveSection] = useState('Home');
+function Sidebar() {
+  const [activeSection, setActiveSection] = useState('home');
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
 
   const handleLogout = () => {
-    // Clear token, session, etc.
-    localStorage.removeItem('token');
+    logout();
     navigate('/login');
   };
 
@@ -20,58 +27,59 @@ function Sidebar({ notebooks = [], onNotebookSelect }) {
   }
 
   return (
-    <div
-      className="d-flex flex-column justify-content-between bg-light vh-100 border-end px-2 pt-2 pb-3"
-      style={{ width: '160px', fontSize: '0.8rem' }}
-    >
-      <div>
-        {/* App Title */}
-        <div className="text-center fw-bold mb-3" style={{ fontSize: '0.9rem' }}>
-          Note-taker
+    <div className="sidebar">
+      <div className="sidebar-header">
+        <div className="logo-container">
+          <FaBook className="logo-icon" />
+          <h1 className="logo-text">Notes</h1>
         </div>
-
+      </div>
+      
+      <div className="sidebar-content">
         {/* User Profile Section */}
-        <div
-          className="d-flex flex-column align-items-center mb-4 cursor-pointer"
-          onClick={() => navigate('/user')}
-          style={{ cursor: 'pointer' }}
-        >
-          <FaUserCircle size={48} className="mb-1 text-secondary" />
-          <div className="fw-semibold">John Doe</div>
+        <div className="user-profile" onClick={() => navigate('/user')}>
+          <div className="avatar-container">
+            <FaUserCircle className="user-avatar" />
+          </div>
+          <div className="user-info">
+            <div className="user-name">John Doe</div>
+            <div className="user-status">Premium</div>
+          </div>
         </div>
 
-        {/* Section Selectors */}
-        <ListGroup variant="flush" className="text-center">
-          <ListGroup.Item
-            action
-            active={activeSection === 'home'}
-            onClick={() => handleNavigation('home')}
-            className="py-3 px-3 mb-3 border rounded-3"
-            style={{ fontSize: '1.0rem' }}
-          >
-            Home
-          </ListGroup.Item>
-          <ListGroup.Item
-            action
-            active={activeSection === 'notes'}
-            onClick={() => handleNavigation('notes')}
-            className="py-3 px-3 mb-3 border rounded-3"
-            style={{ fontSize: '1.0rem' }}
-          >
-            Notes
-          </ListGroup.Item>
-  
-        </ListGroup>
+        {/* Navigation Menu */}
+        <nav className="nav-menu">
+          <div className="menu-label">MENU</div>
+          <ul>
+            <li 
+              className={`nav-item ${activeSection === 'home' ? 'active' : ''}`}
+              onClick={() => handleNavigation('home')}
+            >
+              <div className="nav-item-content">
+                <FaHome className="nav-icon" />
+                <span>Dashboard</span>
+              </div>
+              {activeSection === 'home' && <div className="active-indicator"></div>}
+            </li>
+            <li 
+              className={`nav-item ${activeSection === 'notes' ? 'active' : ''}`}
+              onClick={() => handleNavigation('notes')}
+            >
+              <div className="nav-item-content">
+                <FaStickyNote className="nav-icon" />
+                <span>My Notes</span>
+              </div>
+              {activeSection === 'notes' && <div className="active-indicator"></div>}
+            </li>
+          </ul>
+        </nav>
       </div>
 
-      {/* Logout Button at Bottom */}
-      <div className="text-center">
-        <button
-          className="btn btn-link text-danger fw-bold p-0"
-          onClick={handleLogout}
-          style={{ fontSize: '0.85rem' }}
-        >
-          Logout
+      {/* Logout Button */}
+      <div className="logout-container">
+        <button className="logout-button" onClick={handleLogout}>
+          <FaSignOutAlt className="logout-icon" />
+          <span>Logout</span>
         </button>
       </div>
     </div>

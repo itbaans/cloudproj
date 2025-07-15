@@ -2,7 +2,7 @@
 import './App.css';
 import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Login from '../Authentication/Login';
 import SignUp from '../Authentication/SignUp';
 import Screen from './Screen';
@@ -20,9 +20,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to={isLoggedIn ? "/notes" : "/login"} />} />
-        <Route path="/login" element={isLoggedIn ? <Navigate to="/notes" /> : <Login />} />
-        <Route path="/signup" element={isLoggedIn ? <Navigate to="/notes" /> : <SignUp />} />
+        <Route path="/" element={<Navigate to={isLoggedIn ? "/home" : "/login"} />} />
+        <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
+        <Route path="/signup" element={isLoggedIn ? <Navigate to="/home" /> : <SignUp />} />
 
         {isLoggedIn && (
           <Route element={<Layout />}>

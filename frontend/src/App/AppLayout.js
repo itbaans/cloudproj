@@ -8,7 +8,7 @@ const Layout = () => {
   const { isLoggedIn } = useAuth();
 
   return (
-    <div className="container-fluid d-flex flex-row">
+    <div className="d-flex flex-row gap-0">
       {isLoggedIn && <Sidebar />}
       <main className="main-content">
         <Outlet />
