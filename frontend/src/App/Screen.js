@@ -4,10 +4,9 @@ import TextEditor from "../TextEditor/TextEditor";
 
 function Screen(){
 return(
-    <div className="container-fluid d-flex flex-row ">
-    <Sidebar></Sidebar>
-    <NotePanel></NotePanel>
-    <TextEditor></TextEditor>
+    <div className="container-fluid d-flex flex-row">
+        <NotePanel></NotePanel>
+        <TextEditor></TextEditor>
 </div>
 )
 }
