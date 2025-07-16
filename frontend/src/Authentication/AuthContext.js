@@ -1,6 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode"; // ✅ correct import
-
+import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { jwtDecode } from "jwt-decode";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -22,6 +21,8 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
+  const isLoggedIn = useMemo(() => !!token && isTokenValid(token), [token]);
+
   const login = (newToken) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
@@ -33,7 +34,7 @@ export const AuthProvider = ({ children }) => {
   };
   console.log(isTokenValid(token));
   return (
-    <AuthContext.Provider value={{ token, login, logout, isLoggedIn: !!token && isTokenValid(token) }}>
+    <AuthContext.Provider value={{ token, login, logout, isLoggedIn}}>
       {children}
     </AuthContext.Provider>
   );

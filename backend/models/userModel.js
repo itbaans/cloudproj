@@ -66,8 +66,6 @@ const updateLastLogin = async (userId) => {
   );
 };
 
-
-
 module.exports = {
   findUserByUsername,
   findUserByEmail,

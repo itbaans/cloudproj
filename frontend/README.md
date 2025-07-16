@@ -1,11 +1,6 @@
-# Text Editor
+Changes so far:
 
-More Text Editor changes:
-
--Added undo and redo
--Reverted to quill 1.3.7 for stability and better inline formatting
--Custom Toolbar is almost ready with optimum features
-
-To work on:
-- Better Styling to be done
-- Work more on settings dropdown
+1, Sidebar navigation and sidebar css
+2, Signup password security and css changes
+3, login changes
+4, logout functunality in sidebar 
