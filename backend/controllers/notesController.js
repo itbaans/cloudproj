@@ -29,6 +29,35 @@ const updateNoteContent = async (req, res) => {
   }
 };
 
+const updateNoteName = async (req, res) => {
+  const { noteId } = req.params;
+  const { noteName } = req.body;
+  const userId = req.user.userId;
+
+  if (!noteName) {
+    return res
+      .status(400)
+      .json({ error: "Missing HTML content in request body." });
+  }
+  try {
+    const updatedName = await notesModel.SaveNewNameInNoteID(
+      noteName,
+      noteId,
+      userId,
+    );
+
+    if (!updatedName) {
+  return res.status(404).json({ error: "Note not found" });
+}
+    res.status(200).json({
+      message: "Note name updated successfully.",
+    });
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
 const getNoteContent = async (req, res) => {
   const { noteId } = req.params;
   const userId = req.user.userId;
@@ -54,7 +83,7 @@ const getAllUserNotes = async (req, res) => {
 
     const formattedNotes = getNotes.map((note) => ({
       id: note.id,
-      title: note.note_name, // frontend expects 'title'
+      note_name: note.note_name, // frontend expects 'title'
       updatedAt: note.updated_at,
       createdAt: note.created_at,
     }));
@@ -73,7 +102,7 @@ const createNewNote = async (req, res) => {
 
     const note = {
       id: createNote.id,
-      title: createNote.note_name,
+      note_name: createNote.note_name,
       updated_at: createNote.updated_at,
       created_at: createNote.created_at,
     };
@@ -104,4 +133,5 @@ module.exports = {
   createNewNote,
   deleteNote,
   getAllUserNotes,
+  updateNoteName
 };

@@ -47,6 +47,15 @@ const SaveHTMLInNoteID = async (htmlContent, noteId, userId) => {
   return result.rows[0];
 };
 
+const SaveNewNameInNoteID = async (noteName, noteId, userId) => {
+  const result = await pool.query(
+    "UPDATE notes SET note_name = $1, updated_at = NOW() WHERE id = $2 AND user_id = $3 RETURNING *",
+    [noteName, noteId, userId]
+  );
+  return result.rows[0];
+};
+
+
 const DeleteNote = async (noteId, userId) => {
   const result = await pool.query(
     "DELETE FROM notes Where id = $1 AND user_id = $2 RETURNING *",
@@ -71,4 +80,5 @@ module.exports = {
   SaveHTMLInNoteID,
   CreateNote,
   DeleteNote,
+  SaveNewNameInNoteID
 };

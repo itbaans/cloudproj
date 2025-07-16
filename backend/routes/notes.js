@@ -14,4 +14,6 @@ router.delete("/remove/:noteId", verifyToken, notesController.deleteNote);
 // get all notes of user
 router.get("/all", verifyToken, notesController.getAllUserNotes);
 
+router.put("/name/:noteId", verifyToken, notesController.updateNoteName);
+
 module.exports = router;
