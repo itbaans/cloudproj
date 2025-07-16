@@ -1,32 +1,42 @@
 import { useState, useEffect } from "react";
-import { Button } from "react-bootstrap";
-import { FaRegStickyNote } from "react-icons/fa";
+import { FaRegStickyNote, FaSearch } from "react-icons/fa";
+import "./NotePanel.css"; // Import the CSS file
 
 import { API_BASE_URL } from "../App/config";
 import { useAuth } from "../Authentication/AuthContext";
 import { useNote } from "./NoteContext";
 
-// Format date as "Jun 20"
+// Format date as "x minutes/hours/days ago"
 const formatDate = (date) => {
   const parsedDate = new Date(date);
-  return parsedDate.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+  const now = new Date();
+  const diff = Math.floor((now - parsedDate) / 1000); // diff in seconds
+
+  if (diff < 5) return "just now";
+  if (diff < 60) return `${diff} second${diff !== 1 ? "s" : ""} ago`;
+  if (diff < 3600)
+    return `${Math.floor(diff / 60)} minute${Math.floor(diff / 60) !== 1 ? "s" : ""} ago`;
+  if (diff < 86400)
+    return `${Math.floor(diff / 3600)} hour${Math.floor(diff / 3600) !== 1 ? "s" : ""} ago`;
+  if (diff < 2592000)
+    return `${Math.floor(diff / 86400)} day${Math.floor(diff / 86400) !== 1 ? "s" : ""} ago`;
+  if (diff < 31536000)
+    return `${Math.floor(diff / 2592000)} month${Math.floor(diff / 2592000) !== 1 ? "s" : ""} ago`;
+  return `${Math.floor(diff / 31536000)} year${Math.floor(diff / 31536000) !== 1 ? "s" : ""} ago`;
 };
 
 function NotePanel() {
   const [notes, setNotes] = useState([]);
-  // const [selectedNoteId, setSelectedNoteId] = useState(null);
- const { selectedNoteId, setSelectedNoteId } = useNote();
+  const { selectedNoteId, setSelectedNoteId } = useNote();
+  const { selectedNoteName, setSelectedNoteName } = useNote();
   const [hasSelectedInitialNote, setHasSelectedInitialNote] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isCreatingNote, setIsCreatingNote] = useState(false);
 
   const { token } = useAuth();
   console.log(selectedNoteId);
 
   useEffect(() => {
-    
     const fetchNotes = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/note/all`, {
@@ -42,6 +52,7 @@ function NotePanel() {
         setNotes(data);
         if (!hasSelectedInitialNote && data.length > 0) {
           setSelectedNoteId(data[0].id);
+          setSelectedNoteName(data[0].note_name);
           setHasSelectedInitialNote(true);
         }
       } catch (err) {
@@ -50,9 +61,12 @@ function NotePanel() {
     };
 
     fetchNotes();
-  }, [token]);
+  }, [token, hasSelectedInitialNote, setSelectedNoteId, selectedNoteName]);
 
   const handleNewNote = async () => {
+    if (isCreatingNote) return;
+    
+    setIsCreatingNote(true);
     try {
       const response = await fetch(`${API_BASE_URL}/note/create`, {
         method: "POST",
@@ -67,90 +81,88 @@ function NotePanel() {
       const newNote = await response.json();
       const normalized = {
         id: newNote.id,
-        title: newNote.title,
+        note_name: newNote.note_name,
         updatedAt: newNote.updated_at,
       };
-      console.log(normalized);
 
       setNotes((prev) => [normalized, ...prev]);
       setSelectedNoteId(normalized.id);
     } catch (err) {
       console.error("Error creating new note:", err);
       alert("Failed to create new note");
+    } finally {
+      setIsCreatingNote(false);
     }
   };
 
+  const handleNoteContext = async (note) => {
+    setSelectedNoteId(note.id);
+    setSelectedNoteName(note.note_name);
+  };
+
+  const filteredNotes = notes.filter((note) =>
+    note.note_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div>
-      <div
-        className="d-flex flex-column bg-light vh-100 border-end"
-        style={{ width: "18rem" }}
-      >
-        {/* Header */}
-        <div className="px-2 mb-2 fw-bold" style={{ fontSize: "1rem" }}>
-          Notes
-        </div>
+    <div className="note-panel">
+      {/* Header */}
+      <div className="note-panel-header">
+        <h2 className="note-panel-note_name">Notes</h2>
+      </div>
+
+      <div className="note-panel-content">
         {/* Search feature */}
-        <div className="px-3 mb-2">
+        <div className="search-container">
           <input
             type="text"
-            className="form-control form-control-sm"
+            className="search-input"
             placeholder="Search notes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ fontSize: "0.75rem" }}
           />
         </div>
 
-        {/* New+ Button */}
-        <div className="px-3 mb-2">
-          <Button
-            variant="success"
-            size="sm"
-            className="w-50 d-flex justify-content-center align-items-center gap-2"
+        {/* New Note Button */}
+        <div className="new-note-container">
+          <button
+            className="new-note-button"
             onClick={handleNewNote}
-            style={{ height: "3rem" }}
+            disabled={isCreatingNote}
           >
-            <FaRegStickyNote />
-            <span>New+</span>
-          </Button>
+            <FaRegStickyNote className="new-note-icon" />
+            <span>{isCreatingNote ? "Creating..." : "New Note"}</span>
+          </button>
         </div>
 
-        {/* Scrollable note list */}
-        <div
-          className="flex-grow-1 overflow-auto"
-          style={{ fontSize: "0.6rem" }}
-        >
-          {notes
-            .filter((note) =>
-              note.title.toLowerCase().includes(searchQuery.toLowerCase()),
-            )
-            .map((note) => (
+        {/* Notes List */}
+        <div className="notes-list-container">
+          {filteredNotes.length === 0 ? (
+            <div className="empty-state">
+              <FaRegStickyNote className="empty-state-icon" />
+              <div className="empty-state-text">
+                {searchQuery ? "No notes found" : "No notes yet"}
+              </div>
+              <div className="empty-state-subtext">
+                {searchQuery 
+                  ? "Try adjusting your search terms" 
+                  : "Create your first note to get started"
+                }
+              </div>
+            </div>
+          ) : (
+            filteredNotes.map((note) => (
               <div
                 key={note.id}
-                className={`px-3 py-3 border ${
-                  selectedNoteId === note.id
-                    ? "bg-primary text-white"
-                    : "bg-white"
-                }`}
-                style={{ cursor: "pointer", whiteSpace: "normal" }}
-                title={note.title}
-                onClick={() => setSelectedNoteId(note.id)}
+                className={`note-item ${selectedNoteId === note.id ? "active" : ""}`}
+                onClick={() => handleNoteContext(note)}
+                note_name={note.note_name}
               >
-                <div
-                  className="fw-semibold text-truncate"
-                  style={{ fontSize: "0.75rem", lineHeight: "1rem" }}
-                >
-                  {note.title}
-                </div>
-                <div
-                  className="text-muted"
-                  style={{ fontSize: "0.7rem", lineHeight: "0.9rem" }}
-                >
-                  {formatDate(note.updatedAt)}
-                </div>
+                <div className="note-note_name">{note.note_name}</div>
+                <div className="note-date">{formatDate(note.updatedAt)}</div>
               </div>
-            ))}
+            ))
+          )}
         </div>
       </div>
     </div>

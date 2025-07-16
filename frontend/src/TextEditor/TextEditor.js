@@ -5,18 +5,20 @@ import CustomToolbar from "./CustomToolbar";
 import { useAuth } from "../Authentication/AuthContext";
 import { useNote } from "../Components/NoteContext";
 import { API_BASE_URL } from "../App/config";
-import SettingsModule from './SettingsModule'
+import SettingsModule from "./SettingsModule";
+import EditableHeading from "./EditableHeading";
 
 const TextEditor = () => {
   const editorRef = useRef(null);
   const quillInstance = useRef(null);
 
-  const [savedHTML, setSavedHTML] = useState(""); // Last saved version
+  const initialRender = useRef(true);
   const [editorContent, setEditorContent] = useState(""); // Current editor text
   // Setup fonts
 
-const { token } = useAuth();
-const { selectedNoteId } = useNote(); 
+  const { token } = useAuth();
+  const { selectedNoteId } = useNote();
+  const { selectedNoteName, setSelectedNoteName } = useNote();
 
   const Font = Quill.import("formats/font");
   Font.whitelist = [
@@ -57,7 +59,7 @@ const { selectedNoteId } = useNote();
         theme: "snow",
         modules: {
           toolbar: "#custom-toolbar",
-          settings: true
+          settings: true,
         },
         formats: [
           "font",
@@ -79,15 +81,19 @@ const { selectedNoteId } = useNote();
         ],
       });
 
-    const undoButton = document.querySelector(".ql-undo");
-    const redoButton = document.querySelector(".ql-redo");
+      const undoButton = document.querySelector(".ql-undo");
+      const redoButton = document.querySelector(".ql-redo");
 
-    if (undoButton) {
-      undoButton.addEventListener("click", () => quillInstance.current.history.undo());
-    }
-    if (redoButton) {
-      redoButton.addEventListener("click", () => quillInstance.current.history.redo());
-    }
+      if (undoButton) {
+        undoButton.addEventListener("click", () =>
+          quillInstance.current.history.undo(),
+        );
+      }
+      if (redoButton) {
+        redoButton.addEventListener("click", () =>
+          quillInstance.current.history.redo(),
+        );
+      }
 
       // Making sure that after "enter" options are still active and displayed
       var keyboard = quillInstance.current.getModule("keyboard");
@@ -96,55 +102,71 @@ const { selectedNoteId } = useNote();
 
     const quill = quillInstance.current;
 
-  const exportAsPDF = () => {
-    import("html2pdf.js").then((html2pdf) => {
-      html2pdf.default()
-        .from(quill.root.innerHTML)
-        .set({
-          margin: 0.5,
-          filename: "document.pdf",
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-        })
-        .save();
-    });
-  };
+    const exportAsPDF = () => {
+      import("html2pdf.js").then((html2pdf) => {
+        html2pdf
+          .default()
+          .from(quill.root.innerHTML)
+          .set({
+            margin: 0.5,
+            filename: "document.pdf",
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+          })
+          .save();
+      });
+    };
 
-  const exportAsDocx = () => {
-    import("html-docx-js/dist/html-docx").then((htmlDocx) => {
-      const doc = htmlDocx.default.asBlob(quill.root.innerHTML);
-      const url = URL.createObjectURL(doc);
+    const exportAsDocx = () => {
+      import("html-docx-js/dist/html-docx").then((htmlDocx) => {
+        const doc = htmlDocx.default.asBlob(quill.root.innerHTML);
+        const url = URL.createObjectURL(doc);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "document.docx";
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+    };
+
+    const exportAsText = () => {
+      const text = quill.getText();
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "document.docx";
+      link.download = "document.txt";
       link.click();
       URL.revokeObjectURL(url);
-    });
-  };
+    };
 
-  const exportAsText = () => {
-    const text = quill.getText();
-    const blob = new Blob([text], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "document.txt";
-    link.click();
-    URL.revokeObjectURL(url);
-  };
+    window.addEventListener("export-pdf", exportAsPDF);
+    window.addEventListener("export-docx", exportAsDocx);
+    window.addEventListener("export-txt", exportAsText);
 
-  window.addEventListener("export-pdf", exportAsPDF);
-  window.addEventListener("export-docx", exportAsDocx);
-  window.addEventListener("export-txt", exportAsText);
-
-  return () => {
-    window.removeEventListener("export-pdf", exportAsPDF);
-    window.removeEventListener("export-docx", exportAsDocx);
-    window.removeEventListener("export-txt", exportAsText);
-  };
-
-
+    return () => {
+      window.removeEventListener("export-pdf", exportAsPDF);
+      window.removeEventListener("export-docx", exportAsDocx);
+      window.removeEventListener("export-txt", exportAsText);
+    };
   }, []);
+
+  useEffect(() => {
+    const quill = quillInstance.current;
+    if (!quill) return;
+
+    const handleChange = () => {
+      const html = quill.root.innerHTML;
+      setEditorContent(html);
+    };
+
+    quill.on("text-change", handleChange);
+
+    return () => {
+      quill.off("text-change", handleChange);
+    };
+  }, []);
+
   useEffect(() => {
     if (!selectedNoteId) return;
     const fetchNoteHTML = async () => {
@@ -161,7 +183,7 @@ const { selectedNoteId } = useNote();
         );
 
         if (!response.ok) throw new Error("Failed to fetch notes");
-
+        initialRender.current = true;
         const ContentHTML = await response.json();
         if (quillInstance.current) {
           quillInstance.current.root.innerHTML = ContentHTML.content_html; // set in Quill
@@ -174,12 +196,32 @@ const { selectedNoteId } = useNote();
     fetchNoteHTML();
   }, [selectedNoteId, token]);
 
+  const handleSaveNoteName = async (newNoteName) => {
+    setSelectedNoteName(newNoteName);
+
+    try {
+      await fetch(`${API_BASE_URL}/note/name/${selectedNoteId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ noteName: newNoteName }),
+      });
+    } catch (err) {
+      console.error("Failed to update note title:", err);
+    }
+  };
+
   // Backend LOAD and SAVE features here
 
   // // Save instantly on every keystroke
   useEffect(() => {
     if (!editorContent) return;
-
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    }
     fetch(`${API_BASE_URL}/note/save/${selectedNoteId}`, {
       method: "PUT",
       headers: {
@@ -199,7 +241,7 @@ const { selectedNoteId } = useNote();
         boxSizing: "border-box",
       }}
     >
-      <h2>#Note_Name API#</h2>
+      <EditableHeading value={selectedNoteName} onSave={handleSaveNoteName} />
 
       <CustomToolbar />
 
