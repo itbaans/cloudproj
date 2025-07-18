@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
+import "./EditableHeading.css"; // Import the CSS file
 
 const EditableHeading = ({ value, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(value);
   const inputRef = useRef(null);
-
 
   useEffect(() => {
     setText(value); // Update if note changes
@@ -13,7 +13,7 @@ const EditableHeading = ({ value, onSave }) => {
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
-      inputRef.current.select();
+      // inputRef.current.select();
     }
   }, [isEditing]);
 
@@ -22,25 +22,31 @@ const EditableHeading = ({ value, onSave }) => {
     if (text !== value) onSave(text);
   };
 
-  return isEditing ? (
-    <input
-      ref={inputRef}
-      className="text-2xl font-bold border-b border-gray-300 outline-none mb-4"
-      value={text}
-      onChange={(e) => setText(e.target.value)}
-      onBlur={handleSave}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === "Escape") handleSave();
-      }}
-    />
-  ) : (
-    <h2
-      className="text-2xl font-bold cursor-pointer mb-4"
-      onClick={() => setIsEditing(true)}
-    >
-      {text || "Untitled"}
-    </h2>
-  );
+  return (
+  <div className="editable-heading-wrapper">
+    {isEditing ? (
+      <input
+        ref={inputRef}
+        className="editable-heading-input"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={handleSave}
+        spellCheck={false}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleSave();
+        }}
+      />
+    ) : (
+      <div
+        className="editable-heading-display"
+        onClick={() => setIsEditing(true)}
+        title="Click to rename"
+      >
+        {text}
+      </div>
+    )}
+  </div>
+);
 };
 
 export default EditableHeading;

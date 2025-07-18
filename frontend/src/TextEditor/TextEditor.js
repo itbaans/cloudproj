@@ -239,10 +239,13 @@ const TextEditor = () => {
         width: "100%",
         maxWidth: "100%",
         boxSizing: "border-box",
+        height: "100%",
       }}
     >
-      <EditableHeading value={selectedNoteName} onSave={handleSaveNoteName} />
-
+      
+     <EditableHeading value={selectedNoteName} onSave={handleSaveNoteName} />
+  
+    
       <CustomToolbar />
 
       <div
