@@ -68,6 +68,10 @@ const Dashboard = ({
     { value: "orange", label: "Orange", color: "#FFF3E0" },
   ];
 
+
+
+
+
   const filteredAndSortedNotes = useMemo(() => {
     let filtered = notes;
 
@@ -84,6 +88,7 @@ const Dashboard = ({
     if (filterColor !== "all") {
       filtered = filtered.filter((note) => note.color === filterColor);
     }
+    
 
     // Apply sorting
     const sorted = [...filtered].sort((a, b) => {
