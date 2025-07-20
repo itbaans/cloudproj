@@ -17,9 +17,11 @@ const TextEditor = () => {
   // Setup fonts
 
   const { token } = useAuth();
-  const { selectedNoteId } = useNote();
+  const { selectedNoteId, setSelectedNoteId } = useNote();
   const { selectedNoteName, setSelectedNoteName } = useNote();
-
+  const selectedNoteIdRef = useRef(selectedNoteId);
+  const { refreshNotes, setRefreshNotes } = useNote();
+  const autosave = useRef(false);
   const Font = Quill.import("formats/font");
   Font.whitelist = [
     "arial",
@@ -36,6 +38,7 @@ const TextEditor = () => {
     "sans-serif",
     "serif",
   ];
+
   Quill.register(Font, true);
 
   // Setup font sizes
@@ -52,9 +55,15 @@ const TextEditor = () => {
   ];
   Quill.register(Size, true);
 
-  // Initialize Quill
+  // Initialize Quill only when selectedNoteId exists
   useEffect(() => {
-    if (editorRef.current && !quillInstance.current) {
+    if (selectedNoteId && editorRef.current && !quillInstance.current) {
+      quillInstance.current = null;
+      if (editorRef.current) {
+        editorRef.current.innerHTML = "";
+      }
+
+      Quill.register("modules/settings", SettingsModule);
       quillInstance.current = new Quill(editorRef.current, {
         theme: "snow",
         modules: {
@@ -100,56 +109,81 @@ const TextEditor = () => {
       delete keyboard.bindings[13];
     }
 
-    const quill = quillInstance.current;
+    // Cleanup Quill instance when no note is selected
+    if (!selectedNoteId && quillInstance.current) {
+      quillInstance.current = null;
+      if (editorRef.current) {
+        editorRef.current.innerHTML = "";
+      }
+    }
 
-    const exportAsPDF = () => {
-      import("html2pdf.js").then((html2pdf) => {
-        html2pdf
-          .default()
-          .from(quill.root.innerHTML)
-          .set({
-            margin: 0.5,
-            filename: "document.pdf",
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-          })
-          .save();
+    const handleDeleteNote = async () => {
+      const idToDelete = selectedNoteIdRef.current;
+      if (!idToDelete) return;
+      try {
+        await fetch(`${API_BASE_URL}/note/remove/${idToDelete}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setSelectedNoteId(null);
+        // trigger a refetch
+        setRefreshNotes((prev) => !prev);
+      } catch (err) {
+        console.error("Failed to delete note", err);
+      }
+    };
+
+    const handleGetDocumentName = (e) => {
+      window.dispatchEvent(
+        new CustomEvent("document-name-response", {
+          detail: {
+            name: `${selectedNoteName}`,
+          },
+        }),
+      );
+    };
+
+    const handleSave = () => {
+      const idToSave = selectedNoteIdRef.current;
+      if (!editorContent || !idToSave) return;
+      console.log(editorContent);
+      fetch(`${API_BASE_URL}/note/save/${idToSave}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ContentHTML: editorContent }),
       });
+      setRefreshNotes((prev) => !prev);
     };
 
-    const exportAsDocx = () => {
-      import("html-docx-js/dist/html-docx").then((htmlDocx) => {
-        const doc = htmlDocx.default.asBlob(quill.root.innerHTML);
-        const url = URL.createObjectURL(doc);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "document.docx";
-        link.click();
-        URL.revokeObjectURL(url);
-      });
+    const handleChangeAutoSave = () => {
+      autosave.current = !autosave.current;
+      window.dispatchEvent(
+        new CustomEvent("autosave-changed", {
+          detail: autosave.current ? "On" : "Off",
+        }),
+      );
+      if (autosave.current)
+        handleSave();
     };
 
-    const exportAsText = () => {
-      const text = quill.getText();
-      const blob = new Blob([text], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "document.txt";
-      link.click();
-      URL.revokeObjectURL(url);
-    };
-
-    window.addEventListener("export-pdf", exportAsPDF);
-    window.addEventListener("export-docx", exportAsDocx);
-    window.addEventListener("export-txt", exportAsText);
-
+    window.addEventListener("auto-save", handleChangeAutoSave);
+    window.addEventListener("manual-save", handleSave);
+    window.addEventListener("delete-note", handleDeleteNote);
+    window.addEventListener("get-document-name", handleGetDocumentName);
     return () => {
-      window.removeEventListener("export-pdf", exportAsPDF);
-      window.removeEventListener("export-docx", exportAsDocx);
-      window.removeEventListener("export-txt", exportAsText);
+      window.removeEventListener("auto-save", handleChangeAutoSave);
+      window.removeEventListener("manual-save", handleSave);
+      window.removeEventListener("delete-note", handleDeleteNote);
+      window.removeEventListener("get-document-name", handleGetDocumentName);
     };
-  }, []);
+  }, [selectedNoteId, token, editorContent, selectedNoteName, refreshNotes, autosave.current]);
 
   useEffect(() => {
     const quill = quillInstance.current;
@@ -165,10 +199,15 @@ const TextEditor = () => {
     return () => {
       quill.off("text-change", handleChange);
     };
-  }, []);
+  }, [selectedNoteId]);
+
+  useEffect(() => {
+    selectedNoteIdRef.current = selectedNoteId;
+  }, [selectedNoteId]);
 
   useEffect(() => {
     if (!selectedNoteId) return;
+    console.log(selectedNoteId);
     const fetchNoteHTML = async () => {
       try {
         const response = await fetch(
@@ -208,16 +247,15 @@ const TextEditor = () => {
         },
         body: JSON.stringify({ noteName: newNoteName }),
       });
+      // trigger a refetch
+      setRefreshNotes((prev) => !prev); // toggle to re-run effect
     } catch (err) {
       console.error("Failed to update note title:", err);
     }
   };
 
-  // Backend LOAD and SAVE features here
-
-  // // Save instantly on every keystroke
-  useEffect(() => {
-    if (!editorContent) return;
+  const handleSave = () => {
+    if (!editorContent || !selectedNoteId) return;
     if (initialRender.current) {
       initialRender.current = false;
       return;
@@ -230,32 +268,84 @@ const TextEditor = () => {
       },
       body: JSON.stringify({ ContentHTML: editorContent }),
     });
-  }, [editorContent]);
+    setRefreshNotes((prev) => !prev); 
+  };
+
+  // autosave on every keystroke
+  useEffect(
+    () => {
+      if (!autosave.current) return;
+      if (initialRender.current) {
+        initialRender.current = false;
+        return;
+      }
+      handleSave();
+    },
+    [editorContent],
+    [autosave.current],
+  );
+
+  // Show message when no note is selected
+  if (!selectedNoteId) {
+    return (
+      <div
+        style={{
+          padding: "1rem",
+          width: "100%",
+          maxWidth: "80rem",
+          boxSizing: "border-box",
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#f8f9fa",
+        }}
+      >
+        <div
+          style={{
+            textAlign: "center",
+            color: "#6c757d",
+            fontSize: "1.2rem",
+          }}
+        >
+          <h3 style={{ marginBottom: "0.5rem", color: "#495057" }}>
+            No Note Selected
+          </h3>
+          <p style={{ margin: 0 }}>
+            Please select a note from the sidebar to start editing
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
       style={{
+        display: "flex",
+        flexDirection: "column",
         padding: "1rem",
         width: "100%",
-        maxWidth: "100%",
+        height: "100vh",
         boxSizing: "border-box",
-        height: "100%",
+        overflow: "hidden",
       }}
     >
-      
-     <EditableHeading value={selectedNoteName} onSave={handleSaveNoteName} />
-  
-    
-      <CustomToolbar />
+      <div style={{ flexShrink: 0 }}>
+        <EditableHeading value={selectedNoteName} onSave={handleSaveNoteName} />
+      </div>
+
+      <div style={{ flexShrink: 0 }}>
+        <CustomToolbar />
+      </div>
 
       <div
         ref={editorRef}
         style={{
-          height: "calc(100vh - 250px)",
-          marginBottom: "1rem",
+          flex: 1,
           width: "100%",
-          maxWidth: "100%",
           overflow: "auto",
+          minHeight: 0, // Important for flex child to shrink properly
         }}
       />
     </div>

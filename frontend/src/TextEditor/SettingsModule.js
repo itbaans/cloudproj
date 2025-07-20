@@ -1,64 +1,71 @@
 // SettingsModule.js - Custom Quill plugin
-import Quill from "quill";
-import { FiMoreHorizontal } from "react-icons/fi"; // React icon
+import { IoMenu } from "react-icons/io5";
 import ReactDOMServer from "react-dom/server";
-import { useAuth } from "../Authentication/AuthContext";
-import { useNote } from "../Components/NoteContext";
+import './SettingsModule.css';
 
 class SettingsModule {
   constructor(quill, options) {
     this.quill = quill;
     this.options = options;
     this.toolbar = quill.getModule("toolbar");
+
+    this.menu = null;
+    this.button = null;
+    this.wrapper = null;
+    this.autosaveItem = null; // Reference to the autosave menu item
+    this.autosaveStatus = "Off"; // Track current autosave status
     this.init();
   }
 
   init() {
     setTimeout(() => {
       this.addSettingsDropdown();
+      this.setupEventListeners();
     }, 100);
   }
+  
+  setupEventListeners() {
+    // Listen for autosave status changes
+    window.addEventListener("autosave-changed", this.handleAutosaveChanged);
+  }
 
+  handleAutosaveChanged = (e) => {
+    this.autosaveStatus = e.detail; // "On" or "Off"
+    this.updateAutosaveLabel();
+  };
+
+  updateAutosaveLabel() {
+    if (this.autosaveItem) {
+      this.autosaveItem.textContent = `AutoSave: ${this.autosaveStatus}`;
+    }
+  }
+
+  updateDocumentName(newName) {
+    this.options.documentName = newName;
+  }
 
   addSettingsDropdown() {
     const toolbar = document.querySelector("#custom-toolbar");
     if (!toolbar || toolbar.querySelector(".settings-dropdown")) return;
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "toolbar-group settings-dropdown";
-    wrapper.style.position = "relative";
+    this.wrapper = document.createElement("div");
+    this.wrapper.className = "toolbar-group settings-dropdown";
+    this.wrapper.style.position = "relative";
 
-    const button = document.createElement("button");
+    this.button = document.createElement("button");
+    const iconHTML = ReactDOMServer.renderToString(<IoMenu />);
+    this.button.innerHTML = iconHTML;
 
-    const iconHTML = ReactDOMServer.renderToString(<FiMoreHorizontal />);
-    button.innerHTML = iconHTML;
-    button.style.cssText = `
-      font-size: 18px;
-      padding: 4px 8px;
-      cursor: pointer;
-      background: none;
-      border: none;
-    `;
-
-    const menu = document.createElement("div");
-    
-    menu.className = "settings-menu";
-    menu.style.cssText = `
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 32px;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-      z-index: 1000;
-    `;
+    this.menu = document.createElement("div");
+    this.menu.className = "settings-menu";
+    this.menu.style.display = "none";
 
     const items = [
-      { label: "Export as PDF", value: "pdf" },
-      { label: "Export as DOCX", value: "docx" },
-      { label: "Export as Text", value: "txt" },
+      { label: `AutoSave: ${this.autosaveStatus}`, value: 'autosave', isAutosave: true },
+      { label: "Save", value: 'save'},
+      { label: "Save as PDF", value: "pdf" },
+      { label: "Save as DOCX", value: "docx" },
+      { label: "Save as Text", value: "txt" },
       { separator: true },
       { label: "Delete Note", value: "delete" },
     ];
@@ -66,61 +73,109 @@ class SettingsModule {
     items.forEach((item) => {
       if (item.separator) {
         const hr = document.createElement("hr");
-        hr.style.margin = "4px 0";
-        menu.appendChild(hr);
+        hr.style.margin = "0px 0";
+        this.menu.appendChild(hr);
       } else {
         const opt = document.createElement("div");
         opt.textContent = item.label;
         opt.dataset.value = item.value;
-        opt.style.cssText = `
-          padding: 6px 12px;
-          cursor: pointer;
-          white-space: nowrap;
-        `;
-        opt.addEventListener("click", () => {
-          menu.style.display = "none";
+        
+        // Store reference to autosave item for easy updates
+        if (item.isAutosave) {
+          this.autosaveItem = opt;
+        }
+        
+        if (item.value === "delete") {
+          opt.classList.add("danger-item");
+        }
+        
+        opt.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.closeMenu();
           this.handleOption(item.value);
         });
-        menu.appendChild(opt);
+        this.menu.appendChild(opt);
       }
     });
 
-    button.addEventListener("click", () => {
-      menu.style.display = menu.style.display === "none" ? "block" : "none";
+    this.button.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.toggleMenu();
     });
 
-    wrapper.appendChild(button);
-    wrapper.appendChild(menu);
-    toolbar.appendChild(wrapper);
+    document.addEventListener("click", this.handleClickOutside);
+
+    this.wrapper.appendChild(this.button);
+    this.wrapper.appendChild(this.menu);
+    toolbar.appendChild(this.wrapper);
+  }
+
+  toggleMenu() {
+    const isOpen = this.menu.style.display === "block";
+    this.menu.style.display = isOpen ? "none" : "block";
+  }
+
+  closeMenu() {
+    if (this.menu) this.menu.style.display = "none";
+  }
+
+  handleClickOutside = (e) => {
+    if (
+      this.menu &&
+      this.button &&
+      !this.wrapper.contains(e.target)
+    ) {
+      this.closeMenu();
+    }
+  };
+
+  getDocumentNameViaEvent() {
+    return new Promise((resolve) => {
+      const handleResponse = (e) => {
+        window.removeEventListener("document-name-response", handleResponse);
+        resolve(e.detail.name);
+      };
+
+      window.addEventListener("document-name-response", handleResponse);
+      window.dispatchEvent(new CustomEvent("get-document-name"));
+    });
   }
 
   handleOption(option) {
     const content = this.quill.root.innerHTML;
     const text = this.quill.getText();
 
-    switch (option) {
-      case "pdf":
-        this.exportAsPDF(content);
-        break;
-      case "docx":
-        this.exportAsDocx(content);
-        break;
-      case "txt":
-        this.exportAsText(text);
-        break;
-      case "delete":
-        window.dispatchEvent(new CustomEvent("delete-note"));
-        break;
-    }
+    this.getDocumentNameViaEvent().then((name) => {
+      switch (option) {
+        case "autosave":
+          window.dispatchEvent(new CustomEvent("auto-save"));
+          break;
+        case "save":
+          window.dispatchEvent(new CustomEvent("manual-save"));
+          break;
+        case "pdf":
+          this.exportAsPDF(content, name);
+          break;
+        case "docx":
+          this.exportAsDocx(content, name);
+          break;
+        case "txt":
+          this.exportAsText(text, name);
+          break;
+        case "delete":
+          window.dispatchEvent(new CustomEvent("delete-note"));
+          break;
+      }
+    });
   }
 
-  exportAsPDF(content) {
+  exportAsPDF(content, name) {
     import("html2pdf.js").then((html2pdf) => {
       html2pdf.default()
         .from(content)
         .set({
           margin: 0.5,
-          filename: "document.pdf",
+          filename: `${name}.pdf`,
           html2canvas: { scale: 2 },
           jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
         })
@@ -128,28 +183,32 @@ class SettingsModule {
     });
   }
 
-  exportAsDocx(content) {
+  exportAsDocx(content, name) {
     import("html-docx-js/dist/html-docx").then((htmlDocx) => {
       const doc = htmlDocx.default.asBlob(content);
       const url = URL.createObjectURL(doc);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "document.docx";
+      link.download = `${name}.docx`;
       link.click();
       URL.revokeObjectURL(url);
     });
   }
 
-  exportAsText(text) {
+  exportAsText(text, name) {
     const blob = new Blob([text], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "document.txt";
+    link.download = `${name}.txt`;
     link.click();
     URL.revokeObjectURL(url);
   }
+
+  destroy() {
+    document.removeEventListener("click", this.handleClickOutside);
+    window.removeEventListener("autosave-changed", this.handleAutosaveChanged);
+  }
 }
 
-Quill.register("modules/settings", SettingsModule);
 export default SettingsModule;

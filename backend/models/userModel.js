@@ -4,6 +4,16 @@ const pool = require('../db2');
  * Find a user by username and email
  * Returns user row if found, or undefined if not.
  */
+
+const findUserByUserId = async (userId) => {
+  const result = await pool.query(
+    'SELECT username, email, joined_at FROM users WHERE id = $1',
+    [userId]
+  );
+  return result.rows[0];
+};
+
+
 const findUserByUsername = async (username) => {
   const result = await pool.query(
     'SELECT 1 FROM users WHERE username = $1',
@@ -67,6 +77,7 @@ const updateLastLogin = async (userId) => {
 };
 
 module.exports = {
+  findUserByUserId,
   findUserByUsername,
   findUserByEmail,
   findUserByUsernameOrEmail,

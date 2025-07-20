@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
-import { FaRegStickyNote, FaSearch } from "react-icons/fa";
-import "./NotePanel.css"; // Import the CSS file
+import {
+  FaRegStickyNote,
+  FaSortAlphaDown,
+  FaSortAlphaUp,
+  FaSortAmountDown,
+  FaSortAmountUpAlt,
+} from "react-icons/fa";
+import "./NotePanel.css";
 
 import { API_BASE_URL } from "../App/config";
 import { useAuth } from "../Authentication/AuthContext";
@@ -10,7 +16,7 @@ import { useNote } from "./NoteContext";
 const formatDate = (date) => {
   const parsedDate = new Date(date);
   const now = new Date();
-  const diff = Math.floor((now - parsedDate) / 1000); // diff in seconds
+  const diff = Math.floor((now - parsedDate) / 1000);
 
   if (diff < 5) return "just now";
   if (diff < 60) return `${diff} second${diff !== 1 ? "s" : ""} ago`;
@@ -25,16 +31,37 @@ const formatDate = (date) => {
   return `${Math.floor(diff / 31536000)} year${Math.floor(diff / 31536000) !== 1 ? "s" : ""} ago`;
 };
 
+// Helper function to sort notes
+const sortNotes = (notes, sortOption) => {
+  return [...notes].sort((a, b) => {
+    switch (sortOption) {
+      case "latest":
+        return new Date(b.updatedAt) - new Date(a.updatedAt);
+      case "oldest":
+        return new Date(a.updatedAt) - new Date(b.updatedAt);
+      case "a-z":
+        return a.note_name.localeCompare(b.note_name);
+      case "z-a":
+        return b.note_name.localeCompare(a.note_name);
+      default:
+        return 0;
+    }
+  });
+};
+
 function NotePanel() {
   const [notes, setNotes] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState("latest");
+  const [isCreatingNote, setIsCreatingNote] = useState(false);
+  const [hasSelectedInitialNote, setHasSelectedInitialNote] = useState(false);
+
   const { selectedNoteId, setSelectedNoteId } = useNote();
   const { selectedNoteName, setSelectedNoteName } = useNote();
-  const [hasSelectedInitialNote, setHasSelectedInitialNote] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isCreatingNote, setIsCreatingNote] = useState(false);
+
+  const { refreshNotes, setRefreshNotes } = useNote();
 
   const { token } = useAuth();
-  console.log(selectedNoteId);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -50,9 +77,14 @@ function NotePanel() {
         if (!response.ok) throw new Error("Failed to fetch notes");
         const data = await response.json();
         setNotes(data);
+
         if (!hasSelectedInitialNote && data.length > 0) {
-          setSelectedNoteId(data[0].id);
-          setSelectedNoteName(data[0].note_name);
+          // Sort the notes first, then select the first one from the sorted list
+          const sortedData = sortNotes(data, sortOption);
+          const firstNote = sortedData[0];
+          
+          setSelectedNoteId(firstNote.id);
+          setSelectedNoteName(firstNote.note_name);
           setHasSelectedInitialNote(true);
         }
       } catch (err) {
@@ -61,12 +93,12 @@ function NotePanel() {
     };
 
     fetchNotes();
-  }, [token, hasSelectedInitialNote, setSelectedNoteId, selectedNoteName]);
+  }, [token, hasSelectedInitialNote, setSelectedNoteId, setSelectedNoteName, refreshNotes, sortOption]);
 
   const handleNewNote = async () => {
     if (isCreatingNote) return;
-    
     setIsCreatingNote(true);
+
     try {
       const response = await fetch(`${API_BASE_URL}/note/create`, {
         method: "POST",
@@ -87,6 +119,8 @@ function NotePanel() {
 
       setNotes((prev) => [normalized, ...prev]);
       setSelectedNoteId(normalized.id);
+      setSelectedNoteName(normalized.note_name);
+      setRefreshNotes((prev) => !prev); // toggle to re-run effect
     } catch (err) {
       console.error("Error creating new note:", err);
       alert("Failed to create new note");
@@ -95,7 +129,7 @@ function NotePanel() {
     }
   };
 
-  const handleNoteContext = async (note) => {
+  const handleNoteContext = (note) => {
     setSelectedNoteId(note.id);
     setSelectedNoteName(note.note_name);
   };
@@ -104,26 +138,63 @@ function NotePanel() {
     note.note_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const sortedNotes = sortNotes(filteredNotes, sortOption);
+
+  // ICON + TOOLTIP HANDLING
+  const sortOrderLabels = {
+    latest: "Sort by Latest",
+    oldest: "Sort by Oldest",
+    "a-z": "Sort A → Z",
+    "z-a": "Sort Z → A",
+  };
+
+  const getSortIcon = () => {
+    switch (sortOption) {
+      case "latest":
+        return <FaSortAmountDown title={sortOrderLabels[sortOption]} />;
+      case "oldest":
+        return <FaSortAmountUpAlt title={sortOrderLabels[sortOption]} />;
+      case "a-z":
+        return <FaSortAlphaDown title={sortOrderLabels[sortOption]} />;
+      case "z-a":
+        return <FaSortAlphaUp title={sortOrderLabels[sortOption]} />;
+      default:
+        return <FaSortAmountDown />;
+    }
+  };
+
+  const handleSortToggle = () => {
+    const order = ["latest", "oldest", "a-z", "z-a"];
+    const currentIndex = order.indexOf(sortOption);
+    const nextIndex = (currentIndex + 1) % order.length;
+    setSortOption(order[nextIndex]);
+  };
+
   return (
     <div className="note-panel">
-      {/* Header */}
       <div className="note-panel-header">
         <h2 className="note-panel-note_name">Notes</h2>
       </div>
 
       <div className="note-panel-content">
-        {/* Search feature */}
-        <div className="search-container">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search notes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        {/* Search + Sort */}
+        <div className="search-filter-row">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search notes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+
+          <div className="filter-controls">
+            <button className="sort-icon-button" onClick={handleSortToggle}>
+              {getSortIcon()}
+            </button>
+          </div>
         </div>
 
-        {/* New Note Button */}
+        {/* New Note */}
         <div className="new-note-container">
           <button
             className="new-note-button"
@@ -137,21 +208,20 @@ function NotePanel() {
 
         {/* Notes List */}
         <div className="notes-list-container">
-          {filteredNotes.length === 0 ? (
+          {sortedNotes.length === 0 ? (
             <div className="empty-state">
               <FaRegStickyNote className="empty-state-icon" />
               <div className="empty-state-text">
                 {searchQuery ? "No notes found" : "No notes yet"}
               </div>
               <div className="empty-state-subtext">
-                {searchQuery 
-                  ? "Try adjusting your search terms" 
-                  : "Create your first note to get started"
-                }
+                {searchQuery
+                  ? "Try adjusting your search terms"
+                  : "Create your first note to get started"}
               </div>
             </div>
           ) : (
-            filteredNotes.map((note) => (
+            sortedNotes.map((note) => (
               <div
                 key={note.id}
                 className={`note-item ${selectedNoteId === note.id ? "active" : ""}`}
