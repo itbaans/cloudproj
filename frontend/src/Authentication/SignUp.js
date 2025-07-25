@@ -1,129 +1,266 @@
-import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
-import { Container, Form, Button, Alert } from "react-bootstrap";
-import { FaGoogle, FaLinkedin, FaGithub } from "react-icons/fa";
+import { Eye, EyeOff, Check, X } from "lucide-react";
+import "./Auth.css";
 import { useNavigate, Link } from "react-router-dom";
+import { API_BASE_URL } from "../App/config";
 
 function SignUp() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
-
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+
+  const passwordRules = {
+    length: {
+      test: (pwd) => pwd.length >= 8,
+      message: "At least 8 characters",
+    },
+    uppercase: {
+      test: (pwd) => /[A-Z]/.test(pwd),
+      message: "One uppercase letter",
+    },
+    lowercase: {
+      test: (pwd) => /[a-z]/.test(pwd),
+      message: "One lowercase letter",
+    },
+    number: { test: (pwd) => /\d/.test(pwd), message: "One number" },
+    special: {
+      test: (pwd) => /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
+      message: "One special character",
+    },
+  };
+
+  const checkPasswordStrength = (password) =>
+    Object.values(passwordRules).filter((rule) => rule.test(password)).length;
+
+  const getPasswordStrength = (password) => {
+    const strength = checkPasswordStrength(password);
+    if (strength <= 2) return { label: "Weak", color: "#ef4444", percent: 25 };
+    if (strength === 3) return { label: "Fair", color: "#f59e0b", percent: 50 };
+    if (strength === 4) return { label: "Good", color: "#3b82f6", percent: 75 };
+    if (strength === 5)
+      return { label: "Strong", color: "#10b981", percent: 100 };
+    return { label: "Very Weak", color: "#dc2626", percent: 10 };
+  };
+
+  const isPasswordValid = (password) =>
+    Object.values(passwordRules).every((rule) => rule.test(password));
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
-
     const { name, email, password, confirmPassword } = formData;
 
-    if (password !== confirmPassword) {
+    if (!isPasswordValid(password))
+      return setError("Password does not meet the required criteria.");
+    if (password !== confirmPassword)
       return setError("Passwords do not match.");
-    }
 
     try {
-      const response = await fetch("http://localhost:5000/auth/signup", {
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: name, email, password }),
       });
 
       const result = await response.json();
-
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(result.error || "Something went wrong.");
-      }
 
       setSuccess("Account created successfully. Redirecting...");
-      // Optionally redirect
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 2000);
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       setError(err.message);
     }
   };
 
+  const passwordStrength = getPasswordStrength(formData.password);
+
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Form
-        className="p-4 border rounded shadow-sm text-center"
-        style={{ minWidth: "320px", maxWidth: "400px", width: "100%" }}
-        onSubmit={handleSubmit}
-      >
-        <h2 className="mb-4">Sign Up</h2>
+    <div className="signup-container">
+      <div className="form-wrapper">
+        <h2 className="title">Sign Up</h2>
 
-        {error && <Alert variant="danger">{error}</Alert>}
-        {success && <Alert variant="success">{success}</Alert>}
+        {error && <div className="alert error-alert">{error}</div>}
+        {success && <div className="alert success-alert">{success}</div>}
 
-        <Form.Group className="mb-3" controlId="formBasicName">
-          <Form.Label>Username</Form.Label>
-          <Form.Control
-            name="name"
-            type="text"
-            placeholder="John Doe"
-            required
-            value={formData.name}
-            onChange={handleChange}
-          />
-        </Form.Group>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name" className="label">
+              Username
+            </label>
+            <input
+              type="text"
+              name="name"
+              required
+              value={formData.name}
+              onChange={handleChange}
+              className="input"
+            />
+          </div>
 
-        <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
-          <Form.Control
-            name="email"
-            type="email"
-            placeholder="johndoe@gmail.com"
-            required
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </Form.Group>
+          <div className="form-group">
+            <label htmlFor="email" className="label">
+              Email address
+            </label>
+            <input
+              type="email"
+              name="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              className="input"
+            />
+          </div>
 
-        <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            name="password"
-            type="password"
-            placeholder="Create a strong password"
-            required
-            value={formData.password}
-            onChange={handleChange}
-          />
-        </Form.Group>
+          <div className="form-group">
+            <label htmlFor="password" className="label">
+              Password
+            </label>
+            <div className="input-container">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                onFocus={() => setPasswordFocused(true)}
+                className={`input ${formData.password && !isPasswordValid(formData.password) ? "input-error" : ""}
+                  ${formData.password && isPasswordValid(formData.password) ? "input-success" : ""}`}
+              />
+              <button
+                type="button"
+                className="eye-button"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
 
-        <Form.Group className="mb-4" controlId="formConfirmPassword">
-          <Form.Label>Confirm Password</Form.Label>
-          <Form.Control
-            name="confirmPassword"
-            type="password"
-            placeholder="Re-enter your password"
-            required
-            value={formData.confirmPassword}
-            onChange={handleChange}
-          />
-        </Form.Group>
+            {formData.password && (
+              <div className="strength-container">
+                <div className="strength-header">
+                  <span className="strength-label">Password Strength:</span>
+                  <span
+                    className="strength-value"
+                    style={{ color: passwordStrength.color }}
+                  >
+                    {passwordStrength.label}
+                  </span>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-fill"
+                    style={{
+                      width: `${passwordStrength.percent}%`,
+                      backgroundColor: passwordStrength.color,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
 
-        <Button variant="primary" type="submit" className="w-100 mb-3">
-          Create Account
-        </Button>
+            {(passwordFocused || formData.password) && (
+              <div className="requirements-container">
+                <p className="requirements-title">Password must contain:</p>
+                {Object.entries(passwordRules).map(([key, rule]) => (
+                  <div key={key} className="requirement-item">
+                    <span className="requirement-icon">
+                      {rule.test(formData.password) ? (
+                        <Check size={16} color="#10b981" />
+                      ) : (
+                        <X size={16} color="#ef4444" />
+                      )}
+                    </span>
+                    <span
+                      className="requirement-text"
+                      style={{
+                        color: rule.test(formData.password)
+                          ? "#10b981"
+                          : "#6b7280",
+                      }}
+                    >
+                      {rule.message}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-        <p className="mt-4 text-center">
-          Already have an account? <Link to="/login">Login</Link>
+          <div className="form-group">
+            <label htmlFor="confirmPassword" className="label">
+              Confirm Password
+            </label>
+            <div className="input-container">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className={`input ${formData.confirmPassword && formData.password !== formData.confirmPassword ? "input-error" : ""}
+                  ${formData.confirmPassword && formData.password === formData.confirmPassword ? "input-success" : ""}`}
+              />
+              <button
+                type="button"
+                className="eye-button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
+            {formData.confirmPassword &&
+              formData.password !== formData.confirmPassword && (
+                <div className="validation-message error-message">
+                  <X size={16} className="validation-icon" />
+                  <span>Passwords do not match</span>
+                </div>
+              )}
+
+            {formData.confirmPassword &&
+              formData.password === formData.confirmPassword && (
+                <div className="validation-message success-message">
+                  <Check size={16} className="validation-icon" />
+                  <span>Passwords match</span>
+                </div>
+              )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={
+              !isPasswordValid(formData.password) ||
+              formData.password !== formData.confirmPassword
+            }
+            className={`submit-button ${!isPasswordValid(formData.password) || formData.password !== formData.confirmPassword ? "button-disabled" : "button-enabled"}`}
+          >
+            Create Account
+          </button>
+        </form>
+
+        <p className="login-link">
+          Already have an account?{" "}
+          <Link to="/login" className="link">
+            Login
+          </Link>
         </p>
-      </Form>
-    </Container>
+      </div>
+    </div>
   );
 }
 

@@ -1,20 +1,20 @@
-import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
-import { Container, Form, Button, Alert } from "react-bootstrap";
-import { FaGoogle, FaLinkedin, FaGithub } from "react-icons/fa";
+import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "./AuthContext";
+import "./Auth.css";
+import { API_BASE_URL } from "../App/config";
 
 function Login() {
-
-
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
-    usernameOrEmail: "", // username or email
+    usernameOrEmail: "",
     password: "",
   });
-
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const navigate = useNavigate("/screen");
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -28,80 +28,88 @@ function Login() {
     setError("");
     setSuccess("");
 
-    const { usernameOrEmail, password  } = formData;
-      
     try {
-      const response = await fetch("http://localhost:5000/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ usernameOrEmail, password }),
+        body: JSON.stringify(formData),
       });
 
       const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.error || "Login failed.");
-      }
+      if (!response.ok) throw new Error(result.error || "Login failed.");
 
       setSuccess("Login successful!");
+      if (result.token) login(result.token);
 
-      // Optional: store token
-      if (result.token) {
-        localStorage.setItem("token", result.token);
-      }
-      navigate('/screen');
-      
+      setTimeout(() => navigate("/home"), 1000);
     } catch (err) {
       setError(err.message);
     }
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Form
-        onSubmit={handleSubmit}
-        className="p-4 border rounded shadow-sm text-center"
-        style={{ minWidth: "320px", maxWidth: "400px", width: "100%" }}
-      >
-        <h2 className="mb-4">Welcome to note-taker</h2>
+    <div className="signup-container">
+      <div className="form-wrapper">
+        <h2 className="title">Login to Your Account</h2>
 
-        {error && <Alert variant="danger">{error}</Alert>}
-        {success && <Alert variant="success">{success}</Alert>}
+        {error && <div className="alert error-alert">{error}</div>}
+        {success && <div className="alert success-alert">{success}</div>}
 
-        <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Control
-            type="text"
-            placeholder="Enter username or email"
-            name="usernameOrEmail"
-            value={formData.usernameOrEmail}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="usernameOrEmail" className="label">
+              Username or Email
+            </label>
+            <input
+              type="text"
+              id="usernameOrEmail"
+              name="usernameOrEmail"
+              value={formData.usernameOrEmail}
+              onChange={handleChange}
+              required
+              className="input"
+            />
+          </div>
 
-        <Form.Group className="mb-4" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            name="password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+          <div className="form-group">
+            <label htmlFor="password" className="label">
+              Password
+            </label>
+            <div className="input-container">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="input"
+                style={{ paddingRight: "40px" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="eye-button"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+          </div>
 
-        <Button variant="primary" type="submit" className="w-100 mb-3">
-          Login
-        </Button>
+          <button type="submit" className="submit-button button-enabled">
+            Login
+          </button>
+        </form>
 
-        <hr />
-        
-        <p className="mt-4 text-center">
-          Don’t have an account? <Link to="/signup">Sign up</Link>
+        <p className="login-link">
+          Don’t have an account?{" "}
+          <Link to="/signup" className="link">
+            Sign up
+          </Link>
         </p>
-      </Form>
-    </Container>
+      </div>
+    </div>
   );
 }
 

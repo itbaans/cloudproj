@@ -1,34 +1,44 @@
+// App.js
 import './App.css';
 import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
-import Quill from 'quill';
-import TextEditor from '../TextEditor/TextEditor';
-import TopBar from '../Components/TopBar';
-import Sidebar from '../Components/Sidebar';
-import NotePanel from '../Components/NotePanel';
-import Screen from './Screen';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Login from '../Authentication/Login';
 import SignUp from '../Authentication/SignUp';
 import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
+import Screen from './Screen';
 import Dashboard from '../Components/Dashboard';
-import RightDashboardBar from "../Components/RightDashboardBar";
+// import UserPage from './UserPage';
+
+import Layout from '../App/AppLayout'; // New layout with Sidebar
+import { useAuth } from '../Authentication/AuthContext';
+
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
 function App() {
-  const isLoggedIn = !!localStorage.getItem("token");
+  const { isLoggedIn } = useAuth();
+
   return (
-  //   <Router>
-  //     <Routes>
-  //       <Route path="/" element={<Navigate to={isLoggedIn ? "/screen" : "/login"} />} />
-  //       <Route path="/login" element={isLoggedIn ? <Navigate to="/screen" /> : <Login />} />
-  //       <Route path="/signup" element={isLoggedIn ? <Navigate to="/screen" /> : <SignUp />} />
-  //       <Route path="/screen" element={isLoggedIn ? <Screen /> : <Navigate to="/login" />} />
-  //     </Routes>
-  //   </Router>
-  // );
-    <Screen></Screen>
-    // <Dashboard></Dashboard>
-    // <RightDashboardBar></RightDashboardBar>
-    
-    );
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to={isLoggedIn ? "/home" : "/login"} />} />
+        <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
+        <Route path="/signup" element={isLoggedIn ? <Navigate to="/home" /> : <SignUp />} />
+
+        {isLoggedIn && (
+          <Route element={<Layout />}>
+            <Route path="/notes" element={<Screen />} />
+            <Route path="/home" element={<Dashboard />} />
+            {/*<Route path="/user" element={<UserPage />} />*/}
+          </Route>
+        )}
+
+        {!isLoggedIn && (
+          <Route path="*" element={<Navigate to="/login" />} />
+        )}
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;

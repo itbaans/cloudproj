@@ -8,7 +8,23 @@
 .ql-size-32px { font-size: 32px; }
 .ql-size-48px { font-size: 48px; }
 
-/* Optional: style font & size dropdowns to be smaller */
+/*Individual styling for all the fonts*/
+.ql-font-arial { font-family: Arial, sans-serif; }
+.ql-font-verdana { font-family: Verdana, sans-serif; }
+.ql-font-georgia { font-family: Georgia, serif; }
+.ql-font-courier-new { font-family: "Courier New", monospace; }
+.ql-font-times-new-roman { font-family: "Times New Roman", serif; }
+.ql-font-lucida { font-family: "Lucida Sans", sans-serif; }
+.ql-font-impact { font-family: Impact, sans-serif; }
+.ql-font-tahoma { font-family: Tahoma, sans-serif; }
+.ql-font-trebuchet { font-family: "Trebuchet MS", sans-serif; }
+.ql-font-palatino { font-family: "Palatino Linotype", serif; }
+.ql-font-monospace { font-family: monospace; }
+.ql-font-sans-serif { font-family: sans-serif; }
+.ql-font-serif { font-family: serif; }
+
+
+/* Optional: style font & size dropdowns to be smaller */ 
 .ql-toolbar .ql-font,
 .ql-toolbar .ql-size {
   padding: 2px 6px;
@@ -19,15 +35,48 @@
   border: 1px solid #ccc;
   border-radius: 4px;           
   background-color: #fff;
-
+  /*text-align: center;*/
   box-sizing: border-box;
   vertical-align: middle;
-
   outline: none;
   box-shadow: none;
+}
+.q1-toolbar .q1-size select{
+  width: 20px;
 }
 
 /* Button spacing */
 .ql-toolbar button {
-  margin-right: 0px;
+  margin-right: 0px;  
 }
+
+#custom-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  
+  gap: 20px; /* gap between groups */
+  padding: 8px;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+}
+
+/* Each group is a flex row */
+#custom-toolbar .toolbar-group {
+  /*display: flex;*/
+  align-items: center;
+  gap: 0px; /* gap between items within group */
+}
+
+.settings-dropdown {
+  margin-left: auto;
+}
+
+.settings-dropdown select {
+  background: none;
+  border: none;
+  font-size: 14px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
