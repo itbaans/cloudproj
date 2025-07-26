@@ -178,17 +178,17 @@ function NotePanel() {
 
       <div className="note-panel-content">
         {/* Search + Sort */}
-        <div className="search-filter-row">
+        <div className="note-panel-search-filter-row">
             <input
               type="text"
-              className="search-input"
+              className="note-panel-search-input"
               placeholder="Search notes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
 
-          <div className="filter-controls">
-            <button className="sort-icon-button" onClick={handleSortToggle}>
+          <div className="note-panel-filter-controls">
+            <button className="note-panel-sort-icon-button" onClick={handleSortToggle}>
               {getSortIcon()}
             </button>
           </div>

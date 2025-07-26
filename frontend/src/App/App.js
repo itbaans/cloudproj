@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Login from '../Authentication/Login';
 import SignUp from '../Authentication/SignUp';
 import Screen from './Screen';
-import Dashboard from '../Components/Dashboard';
+import Dashboard from '../Dashboard/Dashboard';
 // import UserPage from './UserPage';
 
 import Layout from '../App/AppLayout'; // New layout with Sidebar
