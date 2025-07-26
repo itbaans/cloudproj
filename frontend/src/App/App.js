@@ -5,7 +5,6 @@ import 'quill/dist/quill.snow.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Login from '../Authentication/Login';
 import SignUp from '../Authentication/SignUp';
-import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import Screen from './Screen';
 import Dashboard from '../Components/Dashboard';
 // import UserPage from './UserPage';

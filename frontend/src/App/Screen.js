@@ -11,6 +11,8 @@ return(
     {/*<NotePanel></NotePanel>
     <TextEditor></TextEditor>*/}
     <Dashboard ></Dashboard>
+</div>
 )
-};
+}
+
 export default Screen;
