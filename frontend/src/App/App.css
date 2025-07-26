@@ -1,6 +1,9 @@
+/* Main app layout */
 .app-layout {
   display: flex;
   min-height: 100vh;
+  width: 100%;
+  overflow: hidden; /* Prevent scrollbars on main container */
 }
 
 .main-content {
@@ -9,4 +12,11 @@
   padding: 0;
   margin: 0;
   flex-grow: 1;
+  width:100%;
+  max-width:100vw;
 }
+
+* {
+  box-sizing: border-box;
+}
+

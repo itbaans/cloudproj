@@ -39,7 +39,8 @@ const CustomToolbar = () => {
 
       {/* Font Options */}
       <div className="toolbar-group">
-        <select className="ql-font" defaultValue="sans-serif">
+        <select className="ql-font" defaultValue="sans-serif" title="Font Family">
+          <option value="">Default</option>
           {fonts.map((font) => (
             <option key={font.value} value={font.value}>
               {font.label}
@@ -47,14 +48,15 @@ const CustomToolbar = () => {
           ))}
         </select>
 
-        {/* Font Sizes*/}
-        <select className="ql-size" defaultValue="14px">
+        <select className="ql-size" defaultValue="16px" title="Font Size">
+          <option value="">Default</option>
           {fontSizes.map((size) => (
             <option key={size.value} value={size.value}>
               {size.label}
             </option>
           ))}
         </select>
+
       </div>
 
       {/* Text Styles */}

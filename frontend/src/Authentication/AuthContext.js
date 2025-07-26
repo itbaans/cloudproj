@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem('activeSection');
     setToken(null);
   };
   console.log(isTokenValid(token));

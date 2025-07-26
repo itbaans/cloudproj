@@ -1,6 +1,7 @@
-Changes so far:
+Long list of changes:
 
-1, Sidebar navigation and sidebar css
-2, Signup password security and css changes
-3, login changes
-4, logout functunality in sidebar 
+-CSS changes to maintain a bit of responsivity, 
+-filling up all functionality related to the text editor 
+-Finsihed implemenetation of all CRUD operations
+-Added a lot of save options including auto and manaul save and export options for other formats
+-Responsive NoteEditor that refreshes according to the changes, maintaining a consistent UI through many state changes

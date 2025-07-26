@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FaUserCircle, 
@@ -9,12 +9,19 @@ import {
 } from 'react-icons/fa';
 import './sidebar.css';
 import {useAuth} from '../Authentication/AuthContext'
+import {API_BASE_URL} from '../App/config.js'
 
 function Sidebar() {
-  const [activeSection, setActiveSection] = useState('home');
-  const navigate = useNavigate();
-  const { logout } = useAuth();
+  const [activeSection, setActiveSection] = useState(() => {
+  return localStorage.getItem('activeSection') || 'home';
+});  
+useEffect(() => {
+  localStorage.setItem('activeSection', activeSection);
+}, [activeSection]);
 
+  const navigate = useNavigate();
+  const { token, logout } = useAuth();
+  const [username, setUsername] = useState('');
 
   const handleLogout = () => {
     logout();
@@ -26,12 +33,37 @@ function Sidebar() {
     navigate(`/${name}`);
   }
 
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/user/info`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch user info");
+        const data = await response.json();
+  
+        setUsername(data.username);
+      } catch (err) {
+        console.error("Error loading user info:", err);
+      }
+    };
+    fetchUserInfo();
+  },[])
+
   return (
     <div className="sidebar">
       <div className="sidebar-header">
         <div className="logo-container">
           <FaBook className="logo-icon" />
-          <h1 className="logo-text">Notes</h1>
+          <h1 className={`logo-text ${activeSection === 'home' ? 'active' : ''}`}
+            onClick={() => handleNavigation('home')}
+          >NoteTaker</h1>
+
         </div>
       </div>
       
@@ -42,8 +74,7 @@ function Sidebar() {
             <FaUserCircle className="user-avatar" />
           </div>
           <div className="user-info">
-            <div className="user-name">John Doe</div>
-            <div className="user-status">Premium</div>
+            <div className="user-name">{username}</div>
           </div>
         </div>
 
@@ -57,7 +88,7 @@ function Sidebar() {
             >
               <div className="nav-item-content">
                 <FaHome className="nav-icon" />
-                <span>Dashboard</span>
+                <span>Home</span>
               </div>
               {activeSection === 'home' && <div className="active-indicator"></div>}
             </li>
@@ -67,21 +98,21 @@ function Sidebar() {
             >
               <div className="nav-item-content">
                 <FaStickyNote className="nav-icon" />
-                <span>My Notes</span>
+                <span>Notes</span>
               </div>
               {activeSection === 'notes' && <div className="active-indicator"></div>}
             </li>
           </ul>
         </nav>
-      </div>
-
-      {/* Logout Button */}
+        {/* Logout Button */}
       <div className="logout-container">
         <button className="logout-button" onClick={handleLogout}>
           <FaSignOutAlt className="logout-icon" />
           <span>Logout</span>
-        </button>
+        </button> 
       </div>
+      </div>
+
     </div>
   );
 }
