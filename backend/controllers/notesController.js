@@ -1,4 +1,5 @@
 const notesModel = require("../models/notesModel");
+const logger = require("../utils/logger");
 
 const updateNoteContent = async (req, res) => {
   const { noteId } = req.params;
@@ -18,13 +19,16 @@ const updateNoteContent = async (req, res) => {
     );
 
     if (!updatedNote) {
-  return res.status(404).json({ error: "Note not found" });
-}
+      logger.warn({ noteId, userId }, "Note not found when updating content");
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    logger.info({ noteId, userId }, "Note content updated successfully");
     res.status(200).json({
       message: "Note content updated successfully.",
     });
   } catch (err) {
-    console.error("Error:", err);
+     logger.error({ err, noteId, userId }, "Error updating note content");
     res.status(500).json({ error: "Internal server error." });
   }
 };
@@ -47,13 +51,15 @@ const updateNoteName = async (req, res) => {
     );
 
     if (!updatedName) {
-  return res.status(404).json({ error: "Note not found" });
-}
+      logger.warn({ noteId, userId }, "Note not found when updating name");
+      return res.status(404).json({ error: "Note not found" });
+    }
+    logger.info({ noteId, userId, newName: noteName }, "Note name updated successfully");
     res.status(200).json({
       message: "Note name updated successfully.",
     });
   } catch (err) {
-    console.error("Error:", err);
+     logger.error({ err, noteId, userId }, "Error updating note name");
     res.status(500).json({ error: "Internal server error." });
   }
 };
@@ -66,11 +72,13 @@ const getNoteContent = async (req, res) => {
     const getNote = await notesModel.LoadHTMLByNoteID(noteId, userId);
 
     if (!getNote) {
+       logger.warn({ noteId, userId }, "Note not found when fetching content");
       return res.status(404).json({ error: "Note not found" });
     }
+    logger.info({ noteId, userId }, "Note content fetched successfully");
     res.status(200).json(getNote);
   } catch (err) {
-    console.error("Error", err);
+    logger.error({ err, noteId, userId }, "Error fetching note content");
     res.status(500).json({ error: "Internal server error." });
   }
 };
@@ -83,14 +91,15 @@ const getAllUserNotes = async (req, res) => {
 
     const formattedNotes = getNotes.map((note) => ({
       id: note.id,
-      note_name: note.note_name, // frontend expects 'title'
+      note_name: note.note_name, 
       updatedAt: note.updated_at,
       createdAt: note.created_at,
     }));
 
+    logger.info({ userId, count: formattedNotes.length }, "Fetched all user notes");
     res.status(200).json(formattedNotes); //
   } catch (err) {
-    console.error("Error:", err);
+    logger.error({ err, userId }, "Error fetching user notes");
     res.status(500).json({ error: "Internal server error." });
   }
 };
@@ -106,8 +115,10 @@ const createNewNote = async (req, res) => {
       updated_at: createNote.updated_at,
       created_at: createNote.created_at,
     };
+     logger.info({ noteId: note.id, userId }, "Note created");
     res.status(200).json(note);
   } catch (err) {
+    logger.error({ err, userId }, "Error creating new note");
     res.status(500).json({ error: "Internal server error." });
   }
 };
@@ -119,11 +130,13 @@ const deleteNote = async (req, res) => {
   try {
     const deleteNote = await notesModel.DeleteNote(noteId, userId);
 
+     logger.info({ noteId, userId }, "Note deleted");
     res.status(200).json({
       message: "Note delete successfully",
       note: deleteNote,
     });
   } catch (err) {
+      logger.error({ err, noteId, userId }, "Error deleting note");
     res.status(500).json({ error: "Internal server error." });
   }
 };
@@ -133,5 +146,5 @@ module.exports = {
   createNewNote,
   deleteNote,
   getAllUserNotes,
-  updateNoteName
+  updateNoteName,
 };
