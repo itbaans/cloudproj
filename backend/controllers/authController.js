@@ -76,12 +76,9 @@ const signup = async (req, res) => {
 
     logger.info({ userId: newUser.id, email }, "New user signed up and verification email sent");
 
-    res
-      .status(201)
-      .json({ message: "Account created. Please verify your email." });
 
     res.status(201).json({
-      message: "User created",
+      message: "User created, Verify email now",
       user: {
         id: newUser.id,
         username: newUser.username,
