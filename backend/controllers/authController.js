@@ -6,6 +6,9 @@ const generateToken = require("../utils/jwt");
 const crypto = require("crypto");
 const transporter = require("../mail");
 
+// for pino logger
+const logger = require("../utils/logger");
+
 const signup = async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -44,11 +47,34 @@ const signup = async (req, res) => {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Verify your email",
-      html: `<h2>Welcome to note-taker-prototype!</h2><p>Click the link below to verify your email:</p>
-           <a href="${verificationUrl}">Verify Email</a>`,
+      html: `
+  <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <h2 style="color: #333; text-align: center;">Welcome to Note Taker Prototype! </h2>
+    <p style="font-size: 16px; color: #555;">
+      Thank you for signing up! Please verify your email address to activate your account.
+    </p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${verificationUrl}" style="padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+        Verify Email
+      </a>
+    </div>
+    <p style="font-size: 14px; color: #999;">
+      If the button above doesn't work, copy and paste this link into your browser:
+    </p>
+    <p style="word-break: break-all; font-size: 14px; color: #555;">
+      <a href="${verificationUrl}" style="color: #0066cc;">${verificationUrl}</a>
+    </p>
+    <hr style="border: none; border-top: 1px solid #eee; margin: 40px 0;">
+    <p style="font-size: 12px; color: #999; text-align: center;">
+      This email was sent by Note Taker Prototype. If you did not sign up, you can ignore this email.
+    </p>
+  </div>
+`,
     };
 
     await transporter.sendMail(mailOptions);
+
+    logger.info({ userId: newUser.id, email }, "New user signed up and verification email sent");
 
     res
       .status(201)
@@ -63,7 +89,7 @@ const signup = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Signup error:", error);
+    logger.error({ err: error }, "Signup error");
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -77,6 +103,8 @@ const verifyEmail = async (req, res) => {
   }
 
   await userModel.markUserAsVerified(user.id);
+
+  logger.info({ userId: user.id }, "Email verified successfully");
 
   res.send("<h2>Email verified successfully! You can now log in.</h2>");
 };
@@ -111,6 +139,9 @@ const login = async (req, res) => {
   await userModel.updateLastLogin(user.id);
 
   const token = generateToken(user.id);
+
+   logger.info({ userId: user.id }, "Login successful");
+
   // 4. Login success
   res.status(200).json({
     message: "Login successful",
