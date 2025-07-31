@@ -1,27 +1,47 @@
+.auth-logo {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 100px;
+}
+
+.auth-logo.active {
+  color: #FFBF00;
+}
+
+.auth-logo.login {
+  margin-bottom: 15px;
+}
+
 .signup-container {
   min-height: 100vh;
   background-color: #f9fafb;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px 16px;
+  padding: 48px 32px;
+  user-select: none;
 }
 
 .form-wrapper {
-  max-width: 400px;
+  max-width: 450px;
   width: 100%;
   background-color: white;
-  padding: 32px;
+  padding: 32px 32px;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  background-color: #ffffff;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 30px;
+  /*font-weight: bold;*/
   text-align: center;
   color: #111827;
-  margin-bottom: 24px;
+}
+.subtitle {
+  margin-bottom: 35px;
+  text-align: center;
 }
 
 .alert {
@@ -64,6 +84,7 @@
   outline: none;
   transition: border-color 0.2s;
   box-sizing: border-box;
+  user-select: auto;
 }
 
 .input-error {
@@ -177,7 +198,7 @@
 }
 
 .button-enabled {
-  background-color: #3b82f6;
+  background-color: #FFBF00;
   color: white;
 }
 
