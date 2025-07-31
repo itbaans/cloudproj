@@ -7,6 +7,7 @@ import {
   FaSignOutAlt,
   FaBook
 } from 'react-icons/fa';
+import { GiQuill } from "react-icons/gi";
 import './sidebar.css';
 import {useAuth} from '../Authentication/AuthContext'
 import {API_BASE_URL} from '../App/config.js'
@@ -58,13 +59,7 @@ useEffect(() => {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <div className="logo-container">
-          <FaBook className="logo-icon" />
-          <h1 className={`logo-text ${activeSection === 'home' ? 'active' : ''}`}
-            onClick={() => handleNavigation('home')}
-          >NoteTaker</h1>
-
-        </div>
+          <GiQuill className={`logo-icon ${activeSection === 'home' ? 'active' : ''}`} onClick={() => handleNavigation('home')} ></GiQuill>
       </div>
       
       <div className="sidebar-content">

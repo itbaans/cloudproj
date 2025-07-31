@@ -1,5 +1,7 @@
 // SettingsModule.js - Custom Quill plugin
 import { IoMenu } from "react-icons/io5";
+import { MdDelete } from "react-icons/md";
+import { IoMdCheckmark } from "react-icons/io";
 import ReactDOMServer from "react-dom/server";
 import './SettingsModule.css';
 
@@ -66,7 +68,6 @@ class SettingsModule {
       { label: "Save as PDF", value: "pdf" },
       { label: "Save as DOCX", value: "docx" },
       { label: "Save as Text", value: "txt" },
-      { separator: true },
       { label: "Delete Note", value: "delete" },
     ];
 

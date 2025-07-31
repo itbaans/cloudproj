@@ -10,6 +10,7 @@
   border-right: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.03);
   overflow: hidden;
+  user-select: none;
 }
 
 .sidebar-header {
@@ -18,23 +19,13 @@
   flex-shrink: 0; /* Don't shrink the header */
 }
 
-.logo-container {
-  display: flex;
-  align-items: center;
-}
 
 .logo-icon {
-  font-size: 1.5rem;
+  display: block;
+  font-size: 4.5rem;
   color: #4f46e5;
-  margin-right: 0.75rem;
-}
-
-.logo-text {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827; 
-  margin: 0;
-  letter-spacing: -0.5px;
+  margin-left:autO;
+  margin-right:auto;
   cursor: pointer;
 }
 

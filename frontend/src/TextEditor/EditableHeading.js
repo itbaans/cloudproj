@@ -46,13 +46,13 @@ const EditableHeading = ({ value, onSave }) => {
           }}
         />
       ) : (
-        <div
-          className="editable-heading-display"
-          onClick={() => setIsEditing(true)}
-          title="Click to rename"
-        >
+        <div className="editable-heading-display">
           <span>{text}</span>
-          <FiEdit3 className="edit-icon" />
+          <FiEdit3
+            className="edit-icon"
+            onClick={() => setIsEditing(true)}
+            title="Click to rename"
+          />
         </div>
       )}
     </div>

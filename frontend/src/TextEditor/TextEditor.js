@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import CustomToolbar from "./CustomToolbar";
+import { IoMdCheckmark } from "react-icons/io";
 import { useAuth } from "../Authentication/AuthContext";
 import { useNote } from "../Components/NoteContext";
 import { API_BASE_URL } from "../App/config";
@@ -41,20 +42,20 @@ const TextEditor = () => {
 
   Quill.register(Font, true);
 
-  // Setup font sizes
-  const Size = Quill.import("formats/size");
-  Size.whitelist = [
-    "10px",
-    "12px",
-    "14px",
-    "16px",
-    "18px",
-    "24px",
-    "32px",
-    "48px",
-  ];
-  Quill.register(Size, true);
 
+
+// --- START: CUSTOM FONT SIZE HANDLER ---
+const Parchment = Quill.import('parchment');
+
+// Create a new Style Attributor for font size that accepts any value
+const SizeStyle = new Parchment.Attributor.Style('size', 'font-size', {
+  scope: Parchment.Scope.INLINE,
+  // We are not providing a whitelist, which allows any value to be set
+});
+
+Quill.register(SizeStyle, true);
+
+// --- END: CUSTOM FONT SIZE HANDLER ---
   // Initialize Quill only when selectedNoteId exists
   useEffect(() => {
     if (selectedNoteId && editorRef.current && !quillInstance.current) {
@@ -150,14 +151,15 @@ const TextEditor = () => {
     const handleSave = () => {
       const idToSave = selectedNoteIdRef.current;
       if (!editorContent || !idToSave) return;
-      console.log(editorContent);
+      const content = quillInstance.current.root.innerHTML;
       fetch(`${API_BASE_URL}/note/save/${idToSave}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ContentHTML: editorContent }),
+
+        body: JSON.stringify({ ContentHTML: content }),
       });
       setRefreshNotes((prev) => !prev);
     };
@@ -185,25 +187,26 @@ const TextEditor = () => {
     };
   }, [selectedNoteId, token, editorContent, selectedNoteName, refreshNotes, autosave.current]);
 
-  useEffect(() => {
-    const quill = quillInstance.current;
-    if (!quill) return;
+ // AFTER (The targeted fix)
+useEffect(() => {
+  const quill = quillInstance.current;
+  if (!quill) return;
 
-    const handleChange = () => {
-      const html = quill.root.innerHTML;
-      setEditorContent(html);
-    };
+  const handleChange = (delta, oldDelta, source) => {
+    // We add a crucial check: only update the state if the change came from the 'user'.
+    // Formatting changes often come from the 'api' source, so this check will ignore them.
+    if (source === 'user') {
+      console.log(source);
+      setEditorContent(quill.root.innerHTML);
+    }
+  };
 
-    quill.on("text-change", handleChange);
+  quill.on("text-change", handleChange);
 
-    return () => {
-      quill.off("text-change", handleChange);
-    };
-  }, [selectedNoteId]);
-
-  useEffect(() => {
-    selectedNoteIdRef.current = selectedNoteId;
-  }, [selectedNoteId]);
+  return () => {
+    quill.off("text-change", handleChange);
+  };
+}, [selectedNoteId]); // Dependency is correct here
 
   useEffect(() => {
     if (!selectedNoteId) return;
@@ -336,7 +339,7 @@ const TextEditor = () => {
       </div>
 
       <div style={{ flexShrink: 0 }}>
-        <CustomToolbar />
+        <CustomToolbar quill={quillInstance.current} />
       </div>
 
       <div
