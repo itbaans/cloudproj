@@ -41,16 +41,16 @@
 }
 .size-input-wrapper.active,
 .size-input-wrapper:focus-within {
-  border-color: #3498db;
+  border-color: #FFBF00;
 }
 
 .size-input-arrow-container.active,
 .size-input-wrapper:focus-within {
-  border-color: #3498db;
+  border-color: #FFBF00;
 }
 
 .size-input.active{
-  border-color: #3498db;
+  border-color: #FFBF00;
 }
 
 
@@ -90,18 +90,19 @@
   padding: 5px 20px;
   white-space: nowrap;
   font-size: 14px;
+  font-weight: 400;
   user-select: none;
 }
 
 .size-dropdown-item:hover {
-  background: #f8f9fa;
-  color: #2980b9;
+  background: #f9fafb;
+  color: #FFBF00;
 
 }
 
 .size-dropdown-item.selected {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: #f5f3ff;
+  color: #FFBF00;
   font-weight: 500;
 }
 /* Custom scrollbar */

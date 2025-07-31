@@ -1,0 +1,63 @@
+/* TextEditor.css */
+
+.no-note-container {
+  padding: 1rem;
+  width: 100%;
+  max-width: 80rem;
+  box-sizing: border-box;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+}
+
+.no-note-content {
+  text-align: center;
+  color: #6c757d;
+  font-size: 1.2rem;
+}
+
+.no-note-content h3 {
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.no-note-content p {
+  margin: 0;
+}
+
+.top-filler{
+  height: 50px;
+}
+
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  /*padding: 1rem;*/
+  width: 100%;
+  height: calc(100vh - 16px);
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  margin: 8px 8px;
+}
+
+.editor-area {
+  flex: 1;
+  width: 100%;
+  overflow: auto;
+  border: none !important;
+}
+
+.editor-seperator {
+ /* Create a thin line */
+  width: fit;
+  border-bottom: 1px solid #ccc;
+
+  /* Now margins will work perfectly because the element is small! */
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 10px;
+}

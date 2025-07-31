@@ -26,6 +26,18 @@
   z-index: 1000;
 }
 
+.size-dropdown-item:hover {
+  background: #f9fafb;
+  color: #FFBF00;
+
+}
+
+.size-dropdown-item.selected {
+  background: #f9fafb;
+  color: #FFBF00;
+  font-weight: 500;
+}
+
 /* Individual menu items */
 .settings-menu > div {
   padding: 10px 18px;

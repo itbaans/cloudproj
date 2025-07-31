@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import "./Auth.css";
 import { API_BASE_URL } from "../App/config";
+import { FaScroll } from "react-icons/fa";
 
 function Login() {
   const { login } = useAuth();

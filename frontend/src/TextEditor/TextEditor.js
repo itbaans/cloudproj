@@ -8,13 +8,14 @@ import { useNote } from "../Components/NoteContext";
 import { API_BASE_URL } from "../App/config";
 import SettingsModule from "./SettingsModule";
 import EditableHeading from "./EditableHeading";
+import "./TextEditor.css";
 
 const TextEditor = () => {
   const editorRef = useRef(null);
   const quillInstance = useRef(null);
 
   const initialRender = useRef(true);
-  const [editorContent, setEditorContent] = useState(""); 
+  const [editorContent, setEditorContent] = useState("");
 
   const { token } = useAuth();
   const { selectedNoteId, setSelectedNoteId } = useNote();
@@ -41,12 +42,12 @@ const TextEditor = () => {
 
   Quill.register(Font, true);
 
-const Parchment = Quill.import('parchment');
-const SizeStyle = new Parchment.Attributor.Style('size', 'font-size', {
-  scope: Parchment.Scope.INLINE,
-});
+  const Parchment = Quill.import("parchment");
+  const SizeStyle = new Parchment.Attributor.Style("size", "font-size", {
+    scope: Parchment.Scope.INLINE,
+  });
 
-Quill.register(SizeStyle, true);
+  Quill.register(SizeStyle, true);
   useEffect(() => {
     if (selectedNoteId && editorRef.current && !quillInstance.current) {
       quillInstance.current = null;
@@ -161,8 +162,7 @@ Quill.register(SizeStyle, true);
           detail: autosave.current ? "On" : "Off",
         }),
       );
-      if (autosave.current)
-        handleSave();
+      if (autosave.current) handleSave();
     };
 
     window.addEventListener("auto-save", handleChangeAutoSave);
@@ -175,8 +175,14 @@ Quill.register(SizeStyle, true);
       window.removeEventListener("delete-note", handleDeleteNote);
       window.removeEventListener("get-document-name", handleGetDocumentName);
     };
-  }, [selectedNoteId, token, editorContent, selectedNoteName, refreshNotes, autosave.current]);
-
+  }, [
+    selectedNoteId,
+    token,
+    editorContent,
+    selectedNoteName,
+    refreshNotes,
+    autosave.current,
+  ]);
 
   useEffect(() => {
     const quill = quillInstance.current;
@@ -197,7 +203,6 @@ Quill.register(SizeStyle, true);
   useEffect(() => {
     selectedNoteIdRef.current = selectedNoteId;
   }, [selectedNoteId]);
-
 
   useEffect(() => {
     if (!selectedNoteId) return;
@@ -262,7 +267,7 @@ Quill.register(SizeStyle, true);
       },
       body: JSON.stringify({ ContentHTML: editorContent }),
     });
-    setRefreshNotes((prev) => !prev); 
+    setRefreshNotes((prev) => !prev);
   };
 
   // autosave on every keystroke
@@ -282,66 +287,22 @@ Quill.register(SizeStyle, true);
   // Show message when no note is selected
   if (!selectedNoteId) {
     return (
-      <div
-        style={{
-          padding: "1rem",
-          width: "100%",
-          maxWidth: "80rem",
-          boxSizing: "border-box",
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#f8f9fa",
-        }}
-      >
-        <div
-          style={{
-            textAlign: "center",
-            color: "#6c757d",
-            fontSize: "1.2rem",
-          }}
-        >
-          <h3 style={{ marginBottom: "0.5rem", color: "#495057" }}>
-            No Note Selected
-          </h3>
-          <p style={{ margin: 0 }}>
-            Please select a note from the sidebar to start editing
-          </p>
+      <div className="no-note-container">
+        <div className="no-note-content">
+          <h3>No Note Selected</h3>
+          <p>Please select a note to start editing</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        padding: "1rem",
-        width: "100%",
-        height: "100vh",
-        boxSizing: "border-box",
-        overflow: "hidden",
-      }}
-    >
-      <div style={{ flexShrink: 0 }}>
-        <EditableHeading value={selectedNoteName} onSave={handleSaveNoteName} />
-      </div>
-
-      <div style={{ flexShrink: 0 }}>
-        <CustomToolbar quill={quillInstance.current} />
-      </div>
-
-      <div
-        ref={editorRef}
-        style={{
-          flex: 1,
-          width: "100%",
-          overflow: "auto",
-          minHeight: 0, // Important for flex child to shrink properly
-        }}
-      />
+    <div className="editor-container">
+      <div className="top-filler"> </div>
+      <CustomToolbar quill={quillInstance.current} />
+      <EditableHeading value={selectedNoteName} onSave={handleSaveNoteName} />
+      <div className="editor-seperator"></div>
+      <div ref={editorRef} className="editor-area" />
     </div>
   );
 };

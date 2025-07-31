@@ -25,18 +25,15 @@
 
 
 /* Optional: style font & size dropdowns to be smaller */ 
+
+
+.ql-toolbar {
+  border: none !important;
+}
 .ql-toolbar .ql-font,
 .ql-toolbar .ql-size {
   height: 28px;
   font-size: 14px;
-  margin-right: 15px ;
-}
-.q1-toolbar .q1-size select:active{
-  border:none;
-}
-
-.q1-toolbar .q1-size option: focus{
-  height:200px;
 }
 
 /* Button spacing */
@@ -50,9 +47,7 @@
   align-items: center;
   gap: 40px; /* gap between groups */
   padding: 15px;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 4px; 
+  /*background-color: #f9f9f9; */
 }
 
 /* Each group is a flex row */
@@ -66,3 +61,112 @@
   margin-left: auto;
 }
 
+
+
+/*
+ * ===================================================================
+ *  Quill Custom Toolbar Icon Color Overrides
+ *  -----------------------------------------------------------------
+ *  Instructions: Change the color values in the :root section below.
+ *  This will update the colors for all icons across the toolbar.
+ * ===================================================================
+ */
+
+#custom-toolbar {
+  /* -- DEFINE YOUR COLORS HERE -- */
+  --icon-color-default: #4A4A4A; /* The default, idle color of the icons */
+  --icon-color-hover: #FFBF00;   /* The color when you hover over an icon */
+  --icon-color-active: #ffffff;  /* The color for active/selected formats (e.g., bold) */
+  --icon-color-active-hover: #ffffff;
+  /* You can also define your background colors here for consistency */
+  /*--button-bg-hover: #f0f0f0;*/
+  --button-bg-active: #FFBF00;
+}
+
+
+#custom-toolbar button:hover,
+#custom-toolbar .ql-picker-label:hover {
+  background-color: var(--button-bg-hover);
+  border-radius: 5px;
+}
+
+#custom-toolbar .ql-active {
+  background-color: var(--button-bg-active) !important;
+  border-radius: 5px;
+}
+
+/* This targets the icon SVG when you hover over an already active button. */
+#custom-toolbar .ql-active:hover .ql-stroke {
+    stroke: var(--icon-color-active-hover) !important;
+}
+
+#custom-toolbar .ql-active:hover .ql-fill {
+    fill: var(--icon-color-active-hover) !important;
+}
+
+
+
+
+/* -- DEFAULT ICON COLOR -- */
+/* This long selector targets every single button icon in its default state. */
+#custom-toolbar .ql-bold .ql-stroke,
+#custom-toolbar .ql-italic .ql-stroke,
+#custom-toolbar .ql-underline .ql-stroke,
+#custom-toolbar .ql-strike .ql-stroke,
+#custom-toolbar .ql-list .ql-stroke,
+#custom-toolbar .ql-align .ql-stroke,
+#custom-toolbar .ql-blockquote .ql-stroke,
+#custom-toolbar .ql-code-block .ql-stroke,
+#custom-toolbar .ql-direction .ql-stroke,
+#custom-toolbar .ql-indent .ql-stroke,
+#custom-toolbar .ql-indent .ql-stroke,
+#custom-toolbar .ql-clean .ql-stroke,
+#custom-toolbar .ql-link .ql-stroke,
+#custom-toolbar .ql-image .ql-stroke,
+#custom-toolbar .ql-color .ql-stroke,
+#custom-toolbar .ql-background .ql-stroke,
+#custom-toolbar .settings-dropdown
+#custom-toolbar .ql-picker .ql-picker-label .ql-stroke {
+  stroke: var(--icon-color-default) !important;
+}
+
+#custom-toolbar .ql-blockquote .ql-fill, /* Blockquote uses fill instead of stroke */
+#custom-toolbar .ql-direction .ql-fill {
+  fill: var(--icon-color-default) !important;
+}
+
+
+/* -- HOVER ICON COLOR -- */
+/* This long selector targets every icon when its button is hovered. */
+#custom-toolbar button:hover .ql-stroke,
+#custom-toolbar .ql-picker-label:hover .ql-stroke {
+  stroke: var(--icon-color-hover) !important;
+}
+
+#custom-toolbar button:hover .ql-fill {
+  fill: var(--icon-color-hover) !important;
+}
+
+/* -- ACTIVE ICON COLOR -- */
+/* This long selector targets every icon when its format is active. */
+#custom-toolbar .ql-active .ql-stroke,
+#custom-toolbar .ql-picker.ql-expanded .ql-picker-label .ql-stroke {
+  stroke: var(--icon-color-active) !important;
+}
+
+#custom-toolbar .ql-active .ql-fill {
+  fill: var(--icon-color-active) !important;
+}
+
+/*
+ * NOTE: Your custom undo/redo buttons (↶, ↷) are text, not SVGs.
+ * They can be styled with the standard 'color' property if needed.
+ */
+#custom-toolbar .ql-undo,
+#custom-toolbar .ql-redo {
+    color: var(--icon-color-default);
+}
+#custom-toolbar .ql-undo:hover,
+#custom-toolbar .ql-redo:hover {
+    color: var(--icon-color-hover);
+}
