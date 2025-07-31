@@ -14,8 +14,7 @@ const TextEditor = () => {
   const quillInstance = useRef(null);
 
   const initialRender = useRef(true);
-  const [editorContent, setEditorContent] = useState(""); // Current editor text
-  // Setup fonts
+  const [editorContent, setEditorContent] = useState(""); 
 
   const { token } = useAuth();
   const { selectedNoteId, setSelectedNoteId } = useNote();
@@ -42,21 +41,12 @@ const TextEditor = () => {
 
   Quill.register(Font, true);
 
-
-
-// --- START: CUSTOM FONT SIZE HANDLER ---
 const Parchment = Quill.import('parchment');
-
-// Create a new Style Attributor for font size that accepts any value
 const SizeStyle = new Parchment.Attributor.Style('size', 'font-size', {
   scope: Parchment.Scope.INLINE,
-  // We are not providing a whitelist, which allows any value to be set
 });
 
 Quill.register(SizeStyle, true);
-
-// --- END: CUSTOM FONT SIZE HANDLER ---
-  // Initialize Quill only when selectedNoteId exists
   useEffect(() => {
     if (selectedNoteId && editorRef.current && !quillInstance.current) {
       quillInstance.current = null;
@@ -187,26 +177,27 @@ Quill.register(SizeStyle, true);
     };
   }, [selectedNoteId, token, editorContent, selectedNoteName, refreshNotes, autosave.current]);
 
- // AFTER (The targeted fix)
-useEffect(() => {
-  const quill = quillInstance.current;
-  if (!quill) return;
 
-  const handleChange = (delta, oldDelta, source) => {
-    // We add a crucial check: only update the state if the change came from the 'user'.
-    // Formatting changes often come from the 'api' source, so this check will ignore them.
-    if (source === 'user') {
-      console.log(source);
-      setEditorContent(quill.root.innerHTML);
-    }
-  };
+  useEffect(() => {
+    const quill = quillInstance.current;
+    if (!quill) return;
 
-  quill.on("text-change", handleChange);
+    const handleChange = () => {
+      const html = quill.root.innerHTML;
+      setEditorContent(html);
+    };
 
-  return () => {
-    quill.off("text-change", handleChange);
-  };
-}, [selectedNoteId]); // Dependency is correct here
+    quill.on("text-change", handleChange);
+
+    return () => {
+      quill.off("text-change", handleChange);
+    };
+  }, [selectedNoteId]);
+
+  useEffect(() => {
+    selectedNoteIdRef.current = selectedNoteId;
+  }, [selectedNoteId]);
+
 
   useEffect(() => {
     if (!selectedNoteId) return;
