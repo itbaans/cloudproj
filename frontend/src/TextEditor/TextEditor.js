@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import CustomToolbar from "./CustomToolbar";
-import { IoMdCheckmark } from "react-icons/io";
 import { useAuth } from "../Authentication/AuthContext";
 import { useNote } from "../Components/NoteContext";
 import { API_BASE_URL } from "../App/config";
@@ -11,9 +10,9 @@ import EditableHeading from "./EditableHeading";
 import "./TextEditor.css";
 
 const TextEditor = () => {
+
   const editorRef = useRef(null);
   const quillInstance = useRef(null);
-
   const initialRender = useRef(true);
   const [editorContent, setEditorContent] = useState("");
 
@@ -177,11 +176,12 @@ const TextEditor = () => {
     };
   }, [
     selectedNoteId,
+    setSelectedNoteId,
     token,
     editorContent,
     selectedNoteName,
     refreshNotes,
-    autosave.current,
+    setRefreshNotes
   ]);
 
   useEffect(() => {

@@ -57,7 +57,7 @@ function NotePanel() {
   const [hasSelectedInitialNote, setHasSelectedInitialNote] = useState(false);
 
   const { selectedNoteId, setSelectedNoteId } = useNote();
-  const { selectedNoteName, setSelectedNoteName } = useNote();
+  const { setSelectedNoteName } = useNote();
 
   const { refreshNotes, setRefreshNotes } = useNote();
 

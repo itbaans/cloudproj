@@ -1,38 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  FaUserCircle, 
-  FaHome, 
-  FaStickyNote, 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  FaUserCircle,
+  FaHome,
+  FaStickyNote,
   FaSignOutAlt,
-  FaBook
-} from 'react-icons/fa';
+} from "react-icons/fa";
 import { FaScroll } from "react-icons/fa";
-import './sidebar.css';
-import {useAuth} from '../Authentication/AuthContext'
-import {API_BASE_URL} from '../App/config.js'
+import "./sidebar.css";
+import { useAuth } from "../Authentication/AuthContext";
+import { API_BASE_URL } from "../App/config.js";
 
 function Sidebar() {
   const [activeSection, setActiveSection] = useState(() => {
-  return localStorage.getItem('activeSection') || 'home';
-});  
-useEffect(() => {
-  localStorage.setItem('activeSection', activeSection);
-}, [activeSection]);
+    return localStorage.getItem("activeSection") || "home";
+  });
+  useEffect(() => {
+    localStorage.setItem("activeSection", activeSection);
+  }, [activeSection]);
 
   const navigate = useNavigate();
   const { token, logout } = useAuth();
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const handleNavigation = (name) => {
     setActiveSection(name);
     navigate(`/${name}`);
-  }
+  };
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -47,24 +46,27 @@ useEffect(() => {
 
         if (!response.ok) throw new Error("Failed to fetch user info");
         const data = await response.json();
-  
+
         setUsername(data.username);
       } catch (err) {
         console.error("Error loading user info:", err);
       }
     };
     fetchUserInfo();
-  },[])
+  }, [token]);
 
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-          <FaScroll className={`logo-icon ${activeSection === 'home' ? 'active' : ''}`} onClick={() => handleNavigation('home')} ></FaScroll>
+        <FaScroll
+          className={`logo-icon ${activeSection === "home" ? "active" : ""}`}
+          onClick={() => handleNavigation("home")}
+        ></FaScroll>
       </div>
-      
+
       <div className="sidebar-content">
         {/* User Profile Section */}
-        <div className="user-profile" onClick={() => navigate('/user')}>
+        <div className="user-profile" onClick={() => navigate("/user")}>
           <div className="avatar-container">
             <FaUserCircle className="user-avatar" />
           </div>
@@ -77,37 +79,40 @@ useEffect(() => {
         <nav className="nav-menu">
           <div className="menu-label">MENU</div>
           <ul>
-            <li 
-              className={`nav-item ${activeSection === 'home' ? 'active' : ''}`}
-              onClick={() => handleNavigation('home')}
+            <li
+              className={`nav-item ${activeSection === "home" ? "active" : ""}`}
+              onClick={() => handleNavigation("home")}
             >
               <div className="nav-item-content">
                 <FaHome className="nav-icon" />
                 <span>Home</span>
               </div>
-              {activeSection === 'home' && <div className="active-indicator"></div>}
+              {activeSection === "home" && (
+                <div className="active-indicator"></div>
+              )}
             </li>
-            <li 
-              className={`nav-item ${activeSection === 'notes' ? 'active' : ''}`}
-              onClick={() => handleNavigation('notes')}
+            <li
+              className={`nav-item ${activeSection === "notes" ? "active" : ""}`}
+              onClick={() => handleNavigation("notes")}
             >
               <div className="nav-item-content">
                 <FaStickyNote className="nav-icon" />
                 <span>Notes</span>
               </div>
-              {activeSection === 'notes' && <div className="active-indicator"></div>}
+              {activeSection === "notes" && (
+                <div className="active-indicator"></div>
+              )}
             </li>
           </ul>
         </nav>
         {/* Logout Button */}
-      <div className="logout-container">
-        <button className="logout-button" onClick={handleLogout}>
-          <FaSignOutAlt className="logout-icon" />
-          <span>Logout</span>
-        </button> 
+        <div className="logout-container">
+          <button className="logout-button" onClick={handleLogout}>
+            <FaSignOutAlt className="logout-icon" />
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
-      </div>
-
     </div>
   );
 }

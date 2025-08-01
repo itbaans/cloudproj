@@ -1,9 +1,14 @@
 import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { jwtDecode } from "jwt-decode";
+import { useNote } from "../Components/NoteContext.js"
 const AuthContext = createContext();
+
+
+
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const { resetNoteContext } = useNote();
 
   const isTokenValid = (token) => {
     try {
@@ -31,6 +36,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem('activeSection');
+    resetNoteContext();
     setToken(null);
   };
   console.log(isTokenValid(token));

@@ -7,8 +7,24 @@ export const NoteProvider = ({ children }) => {
   const [selectedNoteName, setSelectedNoteName] = useState(null);
   const [refreshNotes, setRefreshNotes] = useState(false);
 
+  const resetNoteContext = () => {
+    setSelectedNoteId(null);
+    setSelectedNoteName(null);
+    setRefreshNotes(false);
+  };
+
   return (
-    <NoteContext.Provider value={{ selectedNoteId, setSelectedNoteId, selectedNoteName, setSelectedNoteName, refreshNotes, setRefreshNotes }}>
+    <NoteContext.Provider
+      value={{
+        selectedNoteId,
+        setSelectedNoteId,
+        selectedNoteName,
+        setSelectedNoteName,
+        refreshNotes,
+        setRefreshNotes,
+        resetNoteContext
+      }}
+    >
       {children}
     </NoteContext.Provider>
   );

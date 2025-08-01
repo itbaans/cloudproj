@@ -1,9 +1,7 @@
 // SettingsModule.js - Custom Quill plugin
 import { IoMenu } from "react-icons/io5";
-import { MdDelete } from "react-icons/md";
-import { IoMdCheckmark } from "react-icons/io";
 import ReactDOMServer from "react-dom/server";
-import './SettingsModule.css';
+import "./SettingsModule.css";
 
 class SettingsModule {
   constructor(quill, options) {
@@ -25,7 +23,7 @@ class SettingsModule {
       this.setupEventListeners();
     }, 100);
   }
-  
+
   setupEventListeners() {
     // Listen for autosave status changes
     window.addEventListener("autosave-changed", this.handleAutosaveChanged);
@@ -63,8 +61,12 @@ class SettingsModule {
     this.menu.style.display = "none";
 
     const items = [
-      { label: `AutoSave: ${this.autosaveStatus}`, value: 'autosave', isAutosave: true },
-      { label: "Save", value: 'save'},
+      {
+        label: `AutoSave: ${this.autosaveStatus}`,
+        value: "autosave",
+        isAutosave: true,
+      },
+      { label: "Save", value: "save" },
       { label: "Save as PDF", value: "pdf" },
       { label: "Save as DOCX", value: "docx" },
       { label: "Save as Text", value: "txt" },
@@ -80,16 +82,16 @@ class SettingsModule {
         const opt = document.createElement("div");
         opt.textContent = item.label;
         opt.dataset.value = item.value;
-        
+
         // Store reference to autosave item for easy updates
         if (item.isAutosave) {
           this.autosaveItem = opt;
         }
-        
+
         if (item.value === "delete") {
           opt.classList.add("danger-item");
         }
-        
+
         opt.addEventListener("click", (e) => {
           e.stopPropagation();
           this.closeMenu();
@@ -121,11 +123,7 @@ class SettingsModule {
   }
 
   handleClickOutside = (e) => {
-    if (
-      this.menu &&
-      this.button &&
-      !this.wrapper.contains(e.target)
-    ) {
+    if (this.menu && this.button && !this.wrapper.contains(e.target)) {
       this.closeMenu();
     }
   };
@@ -166,13 +164,16 @@ class SettingsModule {
         case "delete":
           window.dispatchEvent(new CustomEvent("delete-note"));
           break;
+        default:
+          break;
       }
     });
   }
 
   exportAsPDF(content, name) {
     import("html2pdf.js").then((html2pdf) => {
-      html2pdf.default()
+      html2pdf
+        .default()
         .from(content)
         .set({
           margin: 0.5,

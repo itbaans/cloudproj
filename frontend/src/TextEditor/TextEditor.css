@@ -3,13 +3,15 @@
 .no-note-container {
   padding: 1rem;
   width: 100%;
-  max-width: 80rem;
   box-sizing: border-box;
-  height: 100vh;
+  height: calc(100vh - 16px);
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #f8f9fa;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  margin: 8px 8px;
 }
 
 .no-note-content {

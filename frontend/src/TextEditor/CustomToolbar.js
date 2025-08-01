@@ -1,35 +1,8 @@
 import React from "react";
 import "./CustomToolbar.css";
-import FontDropdown from "./FontDropdown.js"
-import FontSizeDropdown from "./FontSizeDropdown.js"
-const CustomToolbar = ( {quill}) => {
-  const fonts = [
-    { label: "Arial", value: "arial" },
-    { label: "Verdana", value: "verdana" },
-    { label: "Georgia", value: "georgia" },
-    { label: "Courier New", value: "courier-new" },
-    { label: "Times New Roman", value: "times-new-roman" },
-    { label: "Lucida", value: "lucida" },
-    { label: "Impact", value: "impact" },
-    { label: "Tahoma", value: "tahoma" },
-    { label: "Trebuchet", value: "trebuchet" },
-    { label: "Palatino", value: "palatino" },
-    { label: "Monospace", value: "monospace" },
-    { label: "Sans Serif", value: "sans-serif" },
-    { label: "Serif", value: "serif" },
-  ];
-
-  // const fontSizes = [
-  //   { label: "10", value: "10px" },
-  //   { label: "12", value: "12px" },
-  //   { label: "14", value: "14px" },
-  //   { label: "16", value: "16px" },
-  //   { label: "18", value: "18px" },
-  //   { label: "24", value: "24px" },
-  //   { label: "32", value: "32px" },
-  //   { label: "48", value: "48px" },
-  // ];
-
+import FontDropdown from "./FontDropdown.js";
+import FontSizeDropdown from "./FontSizeDropdown.js";
+const CustomToolbar = ({ quill }) => {
   return (
     <div id="custom-toolbar" className="custom-toolbar-expanded">
       {/*  Undo/Redo */}
@@ -43,7 +16,6 @@ const CustomToolbar = ( {quill}) => {
         <FontDropdown quill={quill} />
 
         <FontSizeDropdown quill={quill} />
-
       </div>
 
       {/* Text Styles */}
