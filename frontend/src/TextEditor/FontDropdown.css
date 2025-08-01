@@ -1,0 +1,129 @@
+/* FontDropdown.css */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 100px;
+  padding: 0px 10px;
+  background: white;
+  border: 2px solid #e1e5e9;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #2c3e50;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.dropdown-trigger:hover {
+  /*border-color: #3498db;*/
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+}
+
+.dropdown-trigger.active {
+  border-color: #FFBF00;
+  /*border-color: #3498db;*/
+  /*box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);*/
+}
+
+.dropdown-arrow {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #7f8c8d;
+  transition: transform 0.2s ease;
+  margin-left: 10px;
+}
+
+.dropdown-trigger.active .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 0 0 6px 6px;
+  max-height: 500px;
+  overflow-y: auto;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+}
+.dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  padding: 0 0;
+}
+
+.dropdown-item {
+  padding: 9px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f8f9fa;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  user-select: none;
+}
+
+.dropdown-item:hover {
+  background: #f9fafb;
+  color: #FFBF00;
+}
+
+.dropdown-item.selected {
+  background: #f5f3ff;
+  color: #FFBF00;
+  font-weight: 500;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+/* Font families for preview */
+.font-arial { font-family: Arial, sans-serif; }
+.font-helvetica { font-family: Helvetica, sans-serif; }
+.font-times { font-family: "Times New Roman", serif; }
+.font-georgia { font-family: Georgia, serif; }
+.font-verdana { font-family: Verdana, sans-serif; }
+.font-tahoma { font-family: Tahoma, sans-serif; }
+.font-trebuchet { font-family: "Trebuchet MS", sans-serif; }
+.font-impact { font-family: Impact, sans-serif; }
+.font-comic { font-family: "Comic Sans MS", cursive; }
+.font-courier { font-family: "Courier New", monospace; }
+.font-lucida { font-family: "Lucida Console", monospace; }
+.font-palatino { font-family: "Palatino Linotype", serif; }
+
+/* Custom scrollbar */
+.dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

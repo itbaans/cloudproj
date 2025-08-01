@@ -10,6 +10,7 @@
   border-right: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.03);
   overflow: hidden;
+  user-select: none;
 }
 
 .sidebar-header {
@@ -18,23 +19,13 @@
   flex-shrink: 0; /* Don't shrink the header */
 }
 
-.logo-container {
-  display: flex;
-  align-items: center;
-}
 
 .logo-icon {
-  font-size: 1.5rem;
-  color: #4f46e5;
-  margin-right: 0.75rem;
-}
-
-.logo-text {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827; 
-  margin: 0;
-  letter-spacing: -0.5px;
+  display: block;
+  font-size: 4.5rem;
+  color: #FFBF00;
+  margin-left:autO;
+  margin-right:auto;
   cursor: pointer;
 }
 
@@ -57,19 +48,16 @@
   flex-shrink: 0; /* Don't shrink */
 }
 
-.user-profile:hover .user-name {
-  color: #4f46e5;
-}
 
 .avatar-container {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: #f3f4f6;
+  /*background: #f3f4f6;*/
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 0.75rem;
+  margin-right: 0.35rem;
 }
 
 .user-avatar {
@@ -123,7 +111,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 10px;
+  margin: 0px 5px;
   cursor: pointer;
   transition: all 0.2s ease;
   color: #4b5563;
@@ -136,15 +126,13 @@
 
 .nav-item:hover {
   background-color: #f9fafb;
-  color: #4f46e5;
 }
 
 .nav-item.active {
-  color: #4f46e5;
   background-color: #f5f3ff;
 }
 
-.active-indicator {
+/*.active-indicator {
   position: absolute;
   right: 0;
   top: 50%;
@@ -153,7 +141,7 @@
   height: 20px;
   background-color: #4f46e5;
   border-radius: 4px 0 0 4px;
-}
+}*/
 
 .nav-icon {
   margin-right: 0.75rem;

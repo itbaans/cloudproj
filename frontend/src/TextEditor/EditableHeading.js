@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FiEdit3 } from "react-icons/fi"; // <-- Pencil icon
 import "./EditableHeading.css";
 
 const EditableHeading = ({ value, onSave }) => {
@@ -32,7 +31,7 @@ const EditableHeading = ({ value, onSave }) => {
   };
 
   return (
-    <div className="editable-heading-wrapper">
+    <div className="editable-heading-wrapper" onClick={() => setIsEditing(true)}>
       {isEditing ? (
         <input
           ref={inputRef}
@@ -46,13 +45,10 @@ const EditableHeading = ({ value, onSave }) => {
           }}
         />
       ) : (
-        <div
-          className="editable-heading-display"
-          onClick={() => setIsEditing(true)}
-          title="Click to rename"
-        >
+        <div className="editable-heading-display"
+        
+            title="Click to rename">
           <span>{text}</span>
-          <FiEdit3 className="edit-icon" />
         </div>
       )}
     </div>

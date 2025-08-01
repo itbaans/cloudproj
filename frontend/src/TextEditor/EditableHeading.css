@@ -1,51 +1,19 @@
 .editable-heading-wrapper{
-  text-align: center;
+  text-align: left;
+  padding: 25px 25px;
+  cursor: text;
 }
 
 .editable-heading-input {
-  font-size: 2.0rem; /* Equivalent to text-2xl */
-  font-weight: bold;
-  /*border-bottom: 1px solid #ccc;*/
-  background-color: transparent;
+  font-size: 2.5rem;
+  display: inline-block;
   width: 100%;
-  text-align:center;
+  border: none !important;
+  outline: none !important;
 }
 
 .editable-heading-display {
-  font-size: 2.0rem; /* Equivalent to text-2xl */
-  font-weight: bold;
-  cursor: pointer;
+  font-size: 2.5rem; /* Equivalent to text-2xl */
   display: inline-block;
   width: 100%;
-  background-color: #f3f4f6;
-  border-top-right-radius: 10px;
-  border-top-left-radius: 10px ;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-.editable-heading-display:hover {
-  color: #4f46e5;        /* gray-800 */
-  border-color: #6b7280; /* gray-500 */
-}
-.editable-heading-input:focus {
-  font-size: 2.0rem; /* Equivalent to text-2xl */
-  font-weight: bold;
-  border-color: #4f46e5; /* indigo-500 */
-  display: inline-block;
-  outline: none;
-  border-top-right-radius: 10px;
-  border-top-left-radius: 10px ;
-}
-
-
-.edit-icon {
-  font-size: 1.5rem;
-  color: #9ca3af;
-}
-
-.editable-heading-display:hover .edit-icon {
-  color: #4f46e5;
 }

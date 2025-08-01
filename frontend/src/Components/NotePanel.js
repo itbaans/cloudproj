@@ -173,7 +173,7 @@ function NotePanel() {
   return (
     <div className="note-panel">
       <div className="note-panel-header">
-        <h2 className="note-panel-note_name">Notes</h2>
+        <h2 className="note-panel-title">Notes</h2>
       </div>
 
       <div className="note-panel-content">
@@ -228,8 +228,8 @@ function NotePanel() {
                 onClick={() => handleNoteContext(note)}
                 note_name={note.note_name}
               >
-                <div className="note-note_name">{note.note_name}</div>
-                <div className="note-date">{formatDate(note.updatedAt)}</div>
+                <div className="note-panel-item-title">{note.note_name}</div>
+                <div className="note-panel-date">{formatDate(note.updatedAt)}</div>
               </div>
             ))
           )}

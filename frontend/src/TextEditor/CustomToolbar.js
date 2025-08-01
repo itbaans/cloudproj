@@ -1,7 +1,8 @@
 import React from "react";
 import "./CustomToolbar.css";
-
-const CustomToolbar = () => {
+import FontDropdown from "./FontDropdown.js"
+import FontSizeDropdown from "./FontSizeDropdown.js"
+const CustomToolbar = ( {quill}) => {
   const fonts = [
     { label: "Arial", value: "arial" },
     { label: "Verdana", value: "verdana" },
@@ -18,16 +19,16 @@ const CustomToolbar = () => {
     { label: "Serif", value: "serif" },
   ];
 
-  const fontSizes = [
-    { label: "10", value: "10px" },
-    { label: "12", value: "12px" },
-    { label: "14", value: "14px" },
-    { label: "16", value: "16px" },
-    { label: "18", value: "18px" },
-    { label: "24", value: "24px" },
-    { label: "32", value: "32px" },
-    { label: "48", value: "48px" },
-  ];
+  // const fontSizes = [
+  //   { label: "10", value: "10px" },
+  //   { label: "12", value: "12px" },
+  //   { label: "14", value: "14px" },
+  //   { label: "16", value: "16px" },
+  //   { label: "18", value: "18px" },
+  //   { label: "24", value: "24px" },
+  //   { label: "32", value: "32px" },
+  //   { label: "48", value: "48px" },
+  // ];
 
   return (
     <div id="custom-toolbar" className="custom-toolbar-expanded">
@@ -39,23 +40,9 @@ const CustomToolbar = () => {
 
       {/* Font Options */}
       <div className="toolbar-group">
-        <select className="ql-font" defaultValue="sans-serif" title="Font Family">
-          <option value="">Default</option>
-          {fonts.map((font) => (
-            <option key={font.value} value={font.value}>
-              {font.label}
-            </option>
-          ))}
-        </select>
+        <FontDropdown quill={quill} />
 
-        <select className="ql-size" defaultValue="16px" title="Font Size">
-          <option value="">Default</option>
-          {fontSizes.map((size) => (
-            <option key={size.value} value={size.value}>
-              {size.label}
-            </option>
-          ))}
-        </select>
+        <FontSizeDropdown quill={quill} />
 
       </div>
 
@@ -102,26 +89,6 @@ const CustomToolbar = () => {
         <button className="ql-link" />
         <button className="ql-image" />
       </div>
-
-      {/*<div className="toolbar-group export-dropdown">
-        <select  key={Date.now()}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (value === "pdf")
-              window.dispatchEvent(new CustomEvent("export-pdf"));
-            if (value === "docx")
-              window.dispatchEvent(new CustomEvent("export-docx"));
-            if (value === "txt")
-              window.dispatchEvent(new CustomEvent("export-txt"));
-            e.target.selectedIndex = 0; // Reset to "Export As"
-          }}
-        >
-          <option>Export As</option>
-          <option value="pdf">PDF</option>
-          <option value="docx">DOCX</option>
-          <option value="txt">Text</option>
-        </select>
-      </div>*/}
     </div>
   );
 };

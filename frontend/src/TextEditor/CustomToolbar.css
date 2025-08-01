@@ -25,28 +25,15 @@
 
 
 /* Optional: style font & size dropdowns to be smaller */ 
+
+
+.ql-toolbar {
+  border: none !important;
+}
 .ql-toolbar .ql-font,
 .ql-toolbar .ql-size {
-  padding: 2px 6px;
   height: 28px;
   font-size: 14px;
-  /*width: 10px;*/
-  border: 1px solid #ccc;
-  border-radius: 4px;           
-  background-color: #fff;
-  /*text-align: center;*/
-  /*box-sizing: border-box;*/
-  vertical-align: middle;
-  outline: none;
-  box-shadow: none;
-  margin-right: 15px ;
-}
-.q1-toolbar .q1-size{
-  width: 10px;
-}
-
-.q1-toolbar .q1-size option: focus{
-  height:200px;
 }
 
 /* Button spacing */
@@ -58,12 +45,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  
-  gap: 25px; /* gap between groups */
-  padding: 8px;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 4px; 
+  gap: 40px; /* gap between groups */
+  padding: 15px;
+  /*background-color: #f9f9f9; */
 }
 
 /* Each group is a flex row */
@@ -77,70 +61,112 @@
   margin-left: auto;
 }
 
-.settings-dropdown select {
-  background: none;
-  border: none;
-  font-size: 14px;
-  padding: 4px 8px;
-  cursor: pointer;
+
+
+/*
+ * ===================================================================
+ *  Quill Custom Toolbar Icon Color Overrides
+ *  -----------------------------------------------------------------
+ *  Instructions: Change the color values in the :root section below.
+ *  This will update the colors for all icons across the toolbar.
+ * ===================================================================
+ */
+
+#custom-toolbar {
+  /* -- DEFINE YOUR COLORS HERE -- */
+  --icon-color-default: #4A4A4A; /* The default, idle color of the icons */
+  --icon-color-hover: #FFBF00;   /* The color when you hover over an icon */
+  --icon-color-active: #ffffff;  /* The color for active/selected formats (e.g., bold) */
+  --icon-color-active-hover: #ffffff;
+  /* You can also define your background colors here for consistency */
+  /*--button-bg-hover: #f0f0f0;*/
+  --button-bg-active: #FFBF00;
 }
 
-/* The container must be positioned relative: */
-.custom-select {
-  position: relative;
-  font-family: Arial;
+
+#custom-toolbar button:hover,
+#custom-toolbar .ql-picker-label:hover {
+  background-color: var(--button-bg-hover);
+  border-radius: 5px;
 }
 
-.custom-select select {
-  display: none; /*hide original SELECT element: */
+#custom-toolbar .ql-active {
+  background-color: var(--button-bg-active) !important;
+  border-radius: 5px;
 }
 
-.select-selected {
-  background-color: DodgerBlue;
+/* This targets the icon SVG when you hover over an already active button. */
+#custom-toolbar .ql-active:hover .ql-stroke {
+    stroke: var(--icon-color-active-hover) !important;
 }
 
-/* Style the arrow inside the select element: */
-.select-selected:after {
-  position: absolute;
-  content: "";
-  top: 14px;
-  right: 10px;
-  width: 0;
-  height: 0;
-  border: 6px solid transparent;
-  border-color: #fff transparent transparent transparent;
+#custom-toolbar .ql-active:hover .ql-fill {
+    fill: var(--icon-color-active-hover) !important;
 }
 
-/* Point the arrow upwards when the select box is open (active): */
-.select-selected.select-arrow-active:after {
-  border-color: transparent transparent #fff transparent;
-  top: 7px;
+
+
+
+/* -- DEFAULT ICON COLOR -- */
+/* This long selector targets every single button icon in its default state. */
+#custom-toolbar .ql-bold .ql-stroke,
+#custom-toolbar .ql-italic .ql-stroke,
+#custom-toolbar .ql-underline .ql-stroke,
+#custom-toolbar .ql-strike .ql-stroke,
+#custom-toolbar .ql-list .ql-stroke,
+#custom-toolbar .ql-align .ql-stroke,
+#custom-toolbar .ql-blockquote .ql-stroke,
+#custom-toolbar .ql-code-block .ql-stroke,
+#custom-toolbar .ql-direction .ql-stroke,
+#custom-toolbar .ql-indent .ql-stroke,
+#custom-toolbar .ql-indent .ql-stroke,
+#custom-toolbar .ql-clean .ql-stroke,
+#custom-toolbar .ql-link .ql-stroke,
+#custom-toolbar .ql-image .ql-stroke,
+#custom-toolbar .ql-color .ql-stroke,
+#custom-toolbar .ql-background .ql-stroke,
+#custom-toolbar .settings-dropdown
+#custom-toolbar .ql-picker .ql-picker-label .ql-stroke {
+  stroke: var(--icon-color-default) !important;
 }
 
-/* style the items (options), including the selected item: */
-.select-items div,.select-selected {
-  color: #ffffff;
-  padding: 8px 16px;
-  border: 1px solid transparent;
-  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
-  cursor: pointer;
+#custom-toolbar .ql-blockquote .ql-fill, /* Blockquote uses fill instead of stroke */
+#custom-toolbar .ql-direction .ql-fill {
+  fill: var(--icon-color-default) !important;
 }
 
-/* Style items (options): */
-.select-items {
-  position: absolute;
-  background-color: DodgerBlue;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 99;
+
+/* -- HOVER ICON COLOR -- */
+/* This long selector targets every icon when its button is hovered. */
+#custom-toolbar button:hover .ql-stroke,
+#custom-toolbar .ql-picker-label:hover .ql-stroke {
+  stroke: var(--icon-color-hover) !important;
 }
 
-/* Hide the items when the select box is closed: */
-.select-hide {
-  display: none;
+#custom-toolbar button:hover .ql-fill {
+  fill: var(--icon-color-hover) !important;
 }
 
-.select-items div:hover, .same-as-selected {
-  background-color: rgba(0, 0, 0, 0.1);
+/* -- ACTIVE ICON COLOR -- */
+/* This long selector targets every icon when its format is active. */
+#custom-toolbar .ql-active .ql-stroke,
+#custom-toolbar .ql-picker.ql-expanded .ql-picker-label .ql-stroke {
+  stroke: var(--icon-color-active) !important;
+}
+
+#custom-toolbar .ql-active .ql-fill {
+  fill: var(--icon-color-active) !important;
+}
+
+/*
+ * NOTE: Your custom undo/redo buttons (↶, ↷) are text, not SVGs.
+ * They can be styled with the standard 'color' property if needed.
+ */
+#custom-toolbar .ql-undo,
+#custom-toolbar .ql-redo {
+    color: var(--icon-color-default);
+}
+#custom-toolbar .ql-undo:hover,
+#custom-toolbar .ql-redo:hover {
+    color: var(--icon-color-hover);
 }

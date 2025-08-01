@@ -6,7 +6,7 @@ import Dashboard from "../Dashboard/Dashboard";
 function Screen(){ 
 return(
 
-    <div className="container-fluid d-flex flex-row ">
+    <div className="d-flex flex-row ">
     <NotePanel></NotePanel>
     <TextEditor></TextEditor>
     
