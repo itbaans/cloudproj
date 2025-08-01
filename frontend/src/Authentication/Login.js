@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import "./Auth.css";
 import { API_BASE_URL } from "../App/config";
+import { FaScroll } from "react-icons/fa";
 
 function Login() {
   const { login } = useAuth();
@@ -49,10 +50,12 @@ function Login() {
   };
 
   return (
+    <div classname="login-background-container">
     <div className="signup-container">
       <div className="form-wrapper">
-        <h2 className="title">Login to Your Account</h2>
-
+        <FaScroll className='auth-logo active login' />
+        <h2 className="title mb-3">Login to your account</h2>
+        {/*<p className="subtitle mb-3">Get to Grinding.</p>*/}
         {error && <div className="alert error-alert">{error}</div>}
         {success && <div className="alert success-alert">{success}</div>}
 
@@ -98,7 +101,7 @@ function Login() {
           </div>
 
           <button type="submit" className="submit-button button-enabled">
-            Login
+            Sign In
           </button>
         </form>
 
@@ -110,6 +113,7 @@ function Login() {
         </p>
       </div>
     </div>
+  </div>
   );
 }
 
