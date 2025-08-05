@@ -8,11 +8,9 @@ import "./styles.css";
 
 const Dashboard = ({
   userName = "Sarah",
-  backgroundColor = "#F5F5F5",
   headerColor = "#000000",
-  searchPlaceholder = "Search notes...",
   gridColumns = 5,
-  gridGap = 20,
+  gridGap = 30,
   userNameFont = {
     fontSize: "32px",
     fontWeight: "bold",
@@ -34,42 +32,17 @@ const Dashboard = ({
     lineHeight: "1.3em",
     fontFamily: "sans-serif",
   },
-  notes = [],
-  style = {
-  },
+  notes = []
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
-  const [filterColor, setFilterColor] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
   }, []);
-
-  const noteColors = {
-    yellow: "#FFF9C4",
-    blue: "#E3F2FD",
-    green: "#E8F5E8",
-    pink: "#FCE4EC",
-    purple: "#F3E5F5",
-    orange: "#FFF3E0",
-  };
-
-  const colorOptions = [
-    { value: "all", label: "All Colors", color: "#E0E0E0" },
-    { value: "yellow", label: "Yellow", color: "#FFF9C4" },
-    { value: "blue", label: "Blue", color: "#E3F2FD" },
-    { value: "green", label: "Green", color: "#E8F5E8" },
-    { value: "pink", label: "Pink", color: "#FCE4EC" },
-    { value: "purple", label: "Purple", color: "#F3E5F5" },
-    { value: "orange", label: "Orange", color: "#FFF3E0" },
-  ];
-
-
-
 
 
   const filteredAndSortedNotes = useMemo(() => {
@@ -82,13 +55,7 @@ const Dashboard = ({
           note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           note.content.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    }
-
-    // Apply color filter
-    if (filterColor !== "all") {
-      filtered = filtered.filter((note) => note.color === filterColor);
-    }
-    
+    }    
 
     // Apply sorting
     const sorted = [...filtered].sort((a, b) => {
@@ -122,7 +89,7 @@ const Dashboard = ({
     });
 
     return sorted;
-  }, [notes, searchTerm, sortBy, sortOrder, filterColor]);
+  }, [notes, searchTerm, sortBy, sortOrder]);
 
   const handleAddNote = useCallback(() => {
     setIsAddingNote(true);
@@ -135,19 +102,10 @@ const Dashboard = ({
   return (
     <div
       className="notes-dashboard"
-      style={{
-        ...style,
-        backgroundColor
-      }}
     >
       {/* Header with User Name */}
       <Header 
         userName={userName}
-        headerColor={headerColor}
-        userNameFont={userNameFont}
-        searchFont={searchFont}
-        filteredAndSortedNotes={filteredAndSortedNotes}
-        onAddNote={handleAddNote}
       />
 
       {/* Search Bar and Controls */}
@@ -158,7 +116,6 @@ const Dashboard = ({
           handleSearchChange={handleSearchChange}
           showFilters={showFilters}
           setShowFilters={setShowFilters}
-          searchPlaceholder={searchPlaceholder}
         />
 
         {/* Filter and Sort Controls */}
@@ -168,11 +125,8 @@ const Dashboard = ({
           setSortBy={setSortBy}
           sortOrder={sortOrder}
           setSortOrder={setSortOrder}
-          filterColor={filterColor}
-          setFilterColor={setFilterColor}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          colorOptions={colorOptions}
         />
       </div>
 
@@ -185,7 +139,6 @@ const Dashboard = ({
       ) : (
         <EmptyState 
           searchTerm={searchTerm}
-          filterColor={filterColor}
         />
       )}
     </div>

@@ -2,13 +2,13 @@ import React from "react";
 import { FiSearch, FiFileText } from "react-icons/fi"; // Feather icons
 import "./styles.css";
 
-const EmptyState = ({ searchTerm, filterColor }) => {
-  const isFiltered = searchTerm || filterColor !== "all";
+const EmptyState = ({ searchTerm,}) => {
+  const isFiltered = searchTerm
 
   return (
     <div className="empty-state fade-in">
       <div className="empty-state-icon scale-in">
-        {isFiltered ? <FiSearch size={48} /> : <FiFileText size={48} />}
+        {isFiltered ? <FiSearch size={128} /> : <FiFileText size={128} />}
       </div>
 
       <h3 className="empty-state-title slide-up">

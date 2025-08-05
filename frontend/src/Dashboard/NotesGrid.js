@@ -2,10 +2,7 @@ import React from "react";
 import NoteCard from "./NoteCard";
 import "./styles.css";
 
-const NotesGrid = ({ 
-  filteredAndSortedNotes,
-  gridGap
-}) => {
+const NotesGrid = ({ filteredAndSortedNotes, gridGap }) => {
   return (
     <div
       className="notes-grid"
@@ -13,12 +10,20 @@ const NotesGrid = ({
     >
       {filteredAndSortedNotes.map((note, index) => (
         <div key={`${note.id}-${index}`} className="note-wrapper">
-          <NoteCard 
+          <NoteCard
             note={note}
             onClick={() => console.log("Note clicked:", note.id)}
           />
         </div>
       ))}
+
+      {/* Dummy Add Note Card */}
+      <div className="note-wrapper">
+        <NoteCard
+          isAddCard={true}
+          onClick={() => console.log("Add new note")}
+        />
+      </div>
     </div>
   );
 };
