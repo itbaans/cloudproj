@@ -5,15 +5,18 @@ import App from "./App/App";
 import reportWebVitals from "./reportWebVitals";
 import { AuthProvider } from "./Authentication/AuthContext";
 import { NoteProvider } from "./Components/NoteContext";
+import { SideProvider } from "./Components/SidebarContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <NoteProvider>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </NoteProvider>
+    <SideProvider>
+      <NoteProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </NoteProvider>
+    </SideProvider>
   </React.StrictMode>,
 );
 

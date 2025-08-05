@@ -1,9 +1,47 @@
 import React from "react";
 import { FiSearch, FiFileText } from "react-icons/fi"; // Feather icons
+import { useNavigate } from "react-router-dom";
+import { useNote } from "../Components/NoteContext.js";
+import { useSide } from "../Components/SidebarContext";
+import { useAuth } from "../Authentication/AuthContext";
+import { API_BASE_URL} from '../App/config.js';
 import "./styles.css";
 
-const EmptyState = ({ searchTerm,}) => {
-  const isFiltered = searchTerm
+const EmptyState = ({ searchTerm }) => {
+  const isFiltered = searchTerm;
+  const { selectedNoteId, setSelectedNoteId, setSelectedNoteName } = useNote();
+  const { activeSection, setActiveSection } = useSide();
+  const { token } = useAuth();
+
+  const navigate = useNavigate();
+
+  const handleNewNote = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/note/create`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) throw new Error("Failed to create new note");
+      const newNote = await response.json();
+      const normalized = {
+        id: newNote.id,
+        note_name: newNote.note_name,
+        updatedAt: newNote.updated_at,
+      };
+
+      setSelectedNoteId(normalized.id);
+      setSelectedNoteName(normalized.note_name);
+      navigate("/notes");
+      // localStorage.setItem("activeSection", "notes");
+      setActiveSection("notes");
+    } catch (err) {
+      console.error("Error creating new note:", err);
+      alert("Failed to create new note");
+    }
+  };
 
   return (
     <div className="empty-state fade-in">
@@ -22,9 +60,7 @@ const EmptyState = ({ searchTerm,}) => {
       </p>
 
       {!isFiltered && (
-        <button className="create-note-btn slide-up">
-          Create New Note
-        </button>
+        <button className="create-note-btn slide-up" onClick={handleNewNote}>Create New Note</button>
       )}
     </div>
   );

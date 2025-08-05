@@ -9,12 +9,13 @@ import {
 import { FaScroll } from "react-icons/fa";
 import "./sidebar.css";
 import { useAuth } from "../Authentication/AuthContext";
+import { useSide } from "./SidebarContext"
 import { API_BASE_URL } from "../App/config.js";
 
 function Sidebar() {
-  const [activeSection, setActiveSection] = useState(() => {
-    return localStorage.getItem("activeSection") || "home";
-  });
+
+  const {activeSection, setActiveSection} = useSide();
+
   useEffect(() => {
     localStorage.setItem("activeSection", activeSection);
   }, [activeSection]);

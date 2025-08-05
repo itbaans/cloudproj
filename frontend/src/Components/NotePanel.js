@@ -11,7 +11,7 @@ import "./NotePanel.css";
 import { API_BASE_URL } from "../App/config";
 import { useAuth } from "../Authentication/AuthContext";
 import { useNote } from "./NoteContext";
-
+import { useSide} from "./SidebarContext"
 // Format date as "x minutes/hours/days ago"
 const formatDate = (date) => {
   const parsedDate = new Date(date);
@@ -58,11 +58,10 @@ function NotePanel() {
 
   const { selectedNoteId, setSelectedNoteId } = useNote();
   const { setSelectedNoteName } = useNote();
-
   const { refreshNotes, setRefreshNotes } = useNote();
 
   const { token } = useAuth();
-
+  
   useEffect(() => {
     const fetchNotes = async () => {
       try {
@@ -78,7 +77,7 @@ function NotePanel() {
         const data = await response.json();
         setNotes(data);
 
-        if (!hasSelectedInitialNote && data.length > 0) {
+        if (!hasSelectedInitialNote && data.length > 0 && !selectedNoteId) {
           // Sort the notes first, then select the first one from the sorted list
           const sortedData = sortNotes(data, sortOption);
           const firstNote = sortedData[0];
