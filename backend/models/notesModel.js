@@ -4,7 +4,7 @@ const pool = require("../db2");
 const findNoteByUserID = async (userId, noteId) => {
   const result = await pool.query(
     "SELECT * FROM notes  Where user_id = $1 and id = $2",
-    [userId, noteId]
+    [userId, noteId],
   );
   return result.rows[0];
 };
@@ -13,7 +13,7 @@ const findNoteByUserID = async (userId, noteId) => {
 const findAllNotesByUserID = async (userId) => {
   const result = await pool.query(
     "SELECT id, note_name, updated_at, created_at  FROM notes WHERE user_id = $1",
-    [userId]
+    [userId],
   );
   return result.rows;
 };
@@ -26,7 +26,7 @@ const findNoteByNoteID = async (noteId) => {
 const CreateNote = async (userId) => {
   const result = await pool.query(
     "INSERT INTO notes (user_id) VALUES ($1) RETURNING id, note_name, updated_at, created_at",
-    [userId]
+    [userId],
   );
   return result.rows[0];
 };
@@ -34,7 +34,7 @@ const CreateNote = async (userId) => {
 const LoadHTMLByNoteID = async (noteId, userId) => {
   const result = await pool.query(
     "SELECT content_html FROM notes WHERE id = $1 AND user_id = $2",
-    [noteId, userId]
+    [noteId, userId],
   );
   return result.rows[0];
 };
@@ -42,7 +42,7 @@ const LoadHTMLByNoteID = async (noteId, userId) => {
 const SaveHTMLInNoteID = async (htmlContent, noteId, userId) => {
   const result = await pool.query(
     "UPDATE notes SET content_html = $1, updated_at = NOW() WHERE id = $2 AND user_id = $3 RETURNING *",
-    [htmlContent, noteId, userId]
+    [htmlContent, noteId, userId],
   );
   return result.rows[0];
 };
@@ -50,19 +50,60 @@ const SaveHTMLInNoteID = async (htmlContent, noteId, userId) => {
 const SaveNewNameInNoteID = async (noteName, noteId, userId) => {
   const result = await pool.query(
     "UPDATE notes SET note_name = $1, updated_at = NOW() WHERE id = $2 AND user_id = $3 RETURNING *",
-    [noteName, noteId, userId]
+    [noteName, noteId, userId],
   );
   return result.rows[0];
 };
-
 
 const DeleteNote = async (noteId, userId) => {
   const result = await pool.query(
     "DELETE FROM notes Where id = $1 AND user_id = $2 RETURNING *",
-    [noteId, userId]
+    [noteId, userId],
   );
   return result.rows[0];
 };
+
+const findAllNotesByUserIDForDashboard = async (
+  userId,
+  {
+    limit = 10,
+    offset = 0,
+    searchKeyword = "",
+    sortBy = "updated_at",
+    order = "DESC",
+  },
+) => {
+  const validSortColumns = ["created_at", "updated_at", "note_name"];
+  const validOrder = ["ASC", "DESC"];
+
+  // Ensure safe column and order
+  if (!validSortColumns.includes(sortBy)) sortBy = "updated_at";
+  if (!validOrder.includes(order.toUpperCase())) order = "DESC";
+
+  const query = `
+    SELECT id, note_name, content_html, updated_at, created_at 
+    FROM notes 
+    WHERE user_id = $1
+      AND (note_name ILIKE $2 OR content_html ILIKE $2)
+    ORDER BY ${sortBy} ${order}
+    LIMIT $3 OFFSET $4
+  `;
+
+  const values = [userId, `%${searchKeyword}%`, limit, offset];
+  const result = await pool.query(query, values);
+  return result.rows;
+};
+
+const countFilteredNotes = async (userId, searchKeyword = "") => {
+  const query = `
+    SELECT COUNT(*) FROM notes
+    WHERE user_id = $1 AND (note_name ILIKE $2 OR content_html ILIKE $2)
+  `;
+  const values = [userId, `%${searchKeyword}%`];
+  const result = await pool.query(query, values);
+  return parseInt(result.rows[0].count);
+};
+
 
 // const UpdateEditTimeOfNote = async (noteId) => {
 //   const result = await pool.query(
@@ -75,10 +116,12 @@ const DeleteNote = async (noteId, userId) => {
 module.exports = {
   findNoteByUserID,
   findAllNotesByUserID,
+  findAllNotesByUserIDForDashboard,
   findNoteByNoteID,
   LoadHTMLByNoteID,
   SaveHTMLInNoteID,
   CreateNote,
   DeleteNote,
-  SaveNewNameInNoteID
+  SaveNewNameInNoteID,
+  countFilteredNotes
 };
