@@ -13,7 +13,6 @@
   overflow-y: auto; /* Allow vertical scrolling for notes */
   overflow-x: hidden; /* Prevent horizontal scroll */
   flex-shrink: 0; /* Don't shrink this component */
-
   margin-left: 8px;
 }
 
@@ -75,7 +74,7 @@
 
 .note-panel-sort-icon-button:hover {
   /*transform: scale(1.05);*/
-  /*color: #4f46e5;*/
+  color: #FFBF00;
 }
 .note-panel-search-input:focus {
   background: #ffffff;
@@ -92,6 +91,7 @@
 .new-note-container {
   padding: 0 1.5rem;
   flex-shrink: 0;
+  border-bottom: 1px solid #cccccc;
 }
 
 .new-note-button {

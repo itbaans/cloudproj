@@ -39,15 +39,6 @@ const SearchBar = ({
           </button>
         )}
       </div>
-
-      <button
-        className={`filter-toggle-btn scale-in ${showFilters ? 'active' : ''}`}
-        onClick={() => setShowFilters(!showFilters)}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
-        </svg>
-      </button>
     </div>
   );
 };

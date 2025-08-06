@@ -58,16 +58,16 @@
 /* Search and Filter Styles */
 .search-container {
   display: flex;
-  flex-direction: column;
-  /*gap: 200px;*/
-  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
 }
 
 .search-bar-container {
   display: flex;
   gap: 12px;
   align-items: center;
-  width: 100%;
+  width: 50%;
 }
 
 .search-input-wrapper {
@@ -80,7 +80,7 @@
   width: 100%;
   padding: 16px 20px 16px 50px;
   border: 1px solid #E0E0E0;
-  border-radius: 12px;
+  border-radius: 15px;
   background-color: #FFFFFF;
   outline: none;
   transition: all 0.2s ease;
@@ -89,7 +89,7 @@
 }
 
 .search-input:focus {
-  /*border-color: #2196F3;*/
+  border-color: #FFBF00;
   /*box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1), 0 2px 8px rgba(0,0,0,0.05);*/
 }
 
@@ -119,55 +119,18 @@
   background-color: #F5F5F5;
 }
 
-.filter-toggle-btn {
-  padding: 16px;
-  border: 1px solid #E0E0E0;
-  border-radius: 12px;
-  background-color: #FFFFFF;
-  color: #666666;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 52px;
-  font-size: 20px;
-}
-
-.filter-toggle-btn.active {
-  background-color: #FFBF00;
-  color: #FFFFFF;
-}
-
-.filter-toggle-btn:hover:not(.active) {
-  background-color: #F5F5F5;
-}
-
-/* Filter Controls Styles */
-.filter-controls {
-  display: flex;
-  gap: 16px;
-  padding: 15px;
-  background-color: #FFFFFF;
-  border-radius: 12px;
-  border: 1px solid #E0E0E0;
-  flex-wrap: wrap;
-  align-items: center;
-  margin-top: 5px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  width: 100%;
-}
 
 .filter-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
 }
 
 .filter-label {
-  font-size: 14px;
+  font-size: 16px;
   color: #666666;
   font-weight: 500;
+  margin-right: 10px;
 }
 
 .filter-select {
@@ -178,6 +141,7 @@
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
+  margin-right: 10px;
 }
 
 .filter-select:focus {
@@ -214,7 +178,7 @@
   width: 100%;
   max-width: 100%;
   padding: 4px;
-  margin-top: 8px;
+  margin-top: 0px;
 }
 
 /* Note Card Styles */
@@ -226,7 +190,7 @@
   border: 1px solid #cccccc;
   display: flex;
   flex-direction: column;
-  height: 220px;
+  height: 200px;
   position: relative;
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -446,6 +410,6 @@
   }
   
   .notes-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+    /*grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));*/
   }
 }

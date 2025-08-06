@@ -225,7 +225,7 @@ function NotePanel() {
         <div className="notes-list-container">
           {loading ? (
             <div className="note-placeholder-wrapper">
-              {[...Array(7)].map((_, i) => (
+              {[...Array(8)].map((_, i) => (
                 <div className="note-item placeholder" key={i}>
                   <div className="placeholder-title shimmer"></div>
                   <div className="placeholder-date shimmer"></div>

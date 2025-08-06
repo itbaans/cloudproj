@@ -14,7 +14,7 @@ const stripHtml = (html) => {
   return div.textContent || div.innerText || "";
 };
 
-const NoteCard = ({ note = {}, onClick, isAddCard = false }) => {
+const NoteCard = ({ note = {}, onClick, isAddCard = false, isLoading}) => {
   const { selectedNoteId, setSelectedNoteId, setSelectedNoteName } = useNote();
   const { activeSection, setActiveSection } = useSide();
   const { token } = useAuth();

@@ -11,8 +11,7 @@ import "./styles.css";
 
 const Dashboard = ({
   headerColor = "#000000",
-  gridColumns = 5,
-  gridGap = 30,
+  gridGap = 25,
   userNameFont = {
     fontSize: "32px",
     fontWeight: "bold",
@@ -44,7 +43,7 @@ const Dashboard = ({
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(14);
 
 
 

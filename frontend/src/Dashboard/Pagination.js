@@ -11,10 +11,11 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         key={i}
         onClick={() => onPageChange(i)}
         style={{
-          margin: "0 5px",
-          padding: "5px 10px",
-          background: i === currentPage ? "#333" : "#ccc",
-          color: "#fff",
+          "margin-right": "4px",
+          padding: "10px 15px",
+          "border-radius": '10px',
+          background: i === currentPage ? "#FFBF00" : "#ccc",
+          color: "white",
           border: "none",
           cursor: "pointer",
         }}
@@ -24,7 +25,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     );
   }
 
-  return <div style={{ marginTop: "20px", textAlign: "center" }}>{pages}</div>;
+  return <div style={{ marginTop: "20px", textAlign: "right" }}>{pages}</div>;
 };
 
 export default Pagination;

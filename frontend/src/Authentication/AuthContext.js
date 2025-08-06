@@ -1,49 +1,55 @@
-import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { useNote } from "../Components/NoteContext.js"
+import { useNote } from "../Components/NoteContext.js";
+
 const AuthContext = createContext();
 
+const isTokenValid = (token) => {
+  try {
+    const decoded = jwtDecode(token);
+    const now = Date.now() / 1000;
+    return decoded.exp > now;
+  } catch (e) {
+    return false;
+  }
+};
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const savedToken = localStorage.getItem("token");
+    return savedToken ? isTokenValid(savedToken) : false;
+  });
+
   const { resetNoteContext } = useNote();
-  
-  const isTokenValid = (token) => {
-    try {
-      const decoded = jwtDecode(token);
-      const now = Date.now() / 1000; // in seconds
-      return decoded.exp > now;
-    } catch (e) {
-      return false;
-    }
-  };
 
   useEffect(() => {
-    if (token && !isTokenValid(token)) {
-      logout();
+    if (token && isTokenValid(token)) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
     }
   }, [token]);
-
-  const isLoggedIn = useMemo(() => !!token && isTokenValid(token), [token]);
 
   const login = (newToken) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
+    setIsLoggedIn(true);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem('activeSection');
+    localStorage.removeItem("activeSection");
     resetNoteContext();
     setToken(null);
+    setIsLoggedIn(false);
   };
-  console.log(isTokenValid(token));
+
   return (
-    <AuthContext.Provider value={{ token, login, logout, isLoggedIn}}>
+    <AuthContext.Provider value={{ token, login, logout, isLoggedIn }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => useContext(AuthContext);
- 
