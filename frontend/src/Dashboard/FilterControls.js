@@ -7,11 +7,8 @@ const FilterControls = ({
   setSortBy,
   sortOrder,
   setSortOrder,
-  filterColor,
-  setFilterColor,
   searchTerm,
-  setSearchTerm,
-  colorOptions,
+  setSearchTerm
 }) => {
   if (!showFilters) return null;
 
@@ -29,7 +26,6 @@ const FilterControls = ({
         >
           <option value="date">Date</option>
           <option value="title">Title</option>
-          <option value="color">Color</option>
         </select>
       </div>
 
@@ -52,37 +48,16 @@ const FilterControls = ({
         </select>
       </div>
 
-      {/* Color Filter */}
-      <div className="filter-group">
-        <label className="filter-label">
-          Filter:
-        </label>
-        <div className="color-filters">
-          {colorOptions.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => setFilterColor(option.value)}
-              className={`color-filter-btn ${filterColor === option.value ? 'active' : ''}`}
-              style={{ backgroundColor: option.color }}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
 
+      
       {/* Clear Filters */}
-      {(filterColor !== "all" || searchTerm) && (
+      {(searchTerm) && (
         <button
           className="clear-filters-btn"
           onClick={() => {
-            setFilterColor("all");
             setSearchTerm("");
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-          </svg>
           Clear Filters
         </button>
       )}

@@ -16,7 +16,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 function App() {
   const { isLoggedIn } = useAuth();
-
   return (
     <Router>
       <Routes>

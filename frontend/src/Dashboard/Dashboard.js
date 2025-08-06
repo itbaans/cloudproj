@@ -1,18 +1,18 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Header from "./Header";
 import SearchBar from "./SearchBar";
 import FilterControls from "./FilterControls";
 import NotesGrid from "./NotesGrid";
 import EmptyState from "./EmptyState";
+import Pagination from "./Pagination";
+import { API_BASE_URL } from "../App/config.js";
+import { useSide } from "../Components/SidebarContext";
 import "./styles.css";
 
 const Dashboard = ({
-  userName = "Sarah",
-  backgroundColor = "#F5F5F5",
   headerColor = "#000000",
-  searchPlaceholder = "Search notes...",
   gridColumns = 5,
-  gridGap = 20,
+  gridGap = 30,
   userNameFont = {
     fontSize: "32px",
     fontWeight: "bold",
@@ -34,159 +34,116 @@ const Dashboard = ({
     lineHeight: "1.3em",
     fontFamily: "sans-serif",
   },
-  notes = [],
-  style = {
-  },
 }) => {
+  const [username, setUsername] = useState(); 
+  const [notes, setNotes] = useState([]);
+  const token = localStorage.getItem("token");
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("date");
-  const [sortOrder, setSortOrder] = useState("desc");
-  const [filterColor, setFilterColor] = useState("all");
+  const [sortBy, setSortBy] = useState("updated_at");
+  const [sortOrder, setSortOrder] = useState("DESC");
   const [showFilters, setShowFilters] = useState(false);
-  const [isAddingNote, setIsAddingNote] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(10);
+
+
+
+
+  const fetchNotes = useCallback(async () => {
+    try { 
+
+      const queryParams = new URLSearchParams({
+        page: currentPage,
+        limit,
+        search: searchTerm,
+        sortBy,
+        order: sortOrder,
+      });
+
+      const response = await fetch(`${API_BASE_URL}/note/dashboard?${queryParams}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setNotes(data.notes || []);
+        setTotalPages(Math.ceil(data.totalCount / limit));
+      } else {
+        console.error("Failed to fetch notes", data.error);
+      }
+    } catch (err) {
+      console.error("Error fetching notes", err);
+    }
+  }, [searchTerm, sortBy, sortOrder, currentPage, limit]);
+
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page
   }, []);
 
-  const noteColors = {
-    yellow: "#FFF9C4",
-    blue: "#E3F2FD",
-    green: "#E8F5E8",
-    pink: "#FCE4EC",
-    purple: "#F3E5F5",
-    orange: "#FFF3E0",
-  };
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/user/info`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-  const colorOptions = [
-    { value: "all", label: "All Colors", color: "#E0E0E0" },
-    { value: "yellow", label: "Yellow", color: "#FFF9C4" },
-    { value: "blue", label: "Blue", color: "#E3F2FD" },
-    { value: "green", label: "Green", color: "#E8F5E8" },
-    { value: "pink", label: "Pink", color: "#FCE4EC" },
-    { value: "purple", label: "Purple", color: "#F3E5F5" },
-    { value: "orange", label: "Orange", color: "#FFF3E0" },
-  ];
+        if (!response.ok) throw new Error("Failed to fetch user info");
+        const data = await response.json();
 
-
-
-
-
-  const filteredAndSortedNotes = useMemo(() => {
-    let filtered = notes;
-
-    // Apply search filter
-    if (searchTerm.trim()) {
-      filtered = filtered.filter(
-        (note) =>
-          note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          note.content.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Apply color filter
-    if (filterColor !== "all") {
-      filtered = filtered.filter((note) => note.color === filterColor);
-    }
-    
-
-    // Apply sorting
-    const sorted = [...filtered].sort((a, b) => {
-      let comparison = 0;
-
-      switch (sortBy) {
-        case "title":
-          comparison = a.title.localeCompare(b.title);
-          break;
-        case "color":
-          comparison = a.color.localeCompare(b.color);
-          break;
-        case "date":
-        default:
-          // Simple date comparison - in real app you'd parse actual dates
-          const dateOrder = [
-            "Today",
-            "Yesterday",
-            "2 days ago",
-            "3 days ago",
-            "1 week ago",
-          ];
-          const aIndex = dateOrder.indexOf(a.date);
-          const bIndex = dateOrder.indexOf(b.date);
-          comparison =
-            (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-          break;
+        setUsername(data.username);
+      } catch (err) {
+        console.error("Error loading user info:", err);
       }
-
-      return sortOrder === "asc" ? comparison : -comparison;
-    });
-
-    return sorted;
-  }, [notes, searchTerm, sortBy, sortOrder, filterColor]);
-
-  const handleAddNote = useCallback(() => {
-    setIsAddingNote(true);
-    // In a real app, this would open a modal or navigate to a new note page
-    console.log("Adding new note");
-    // For demo purposes, we'll just log this
-    setTimeout(() => setIsAddingNote(false), 1000);
-  }, []);
+    };
+    fetchUserInfo();
+  }, [token]);
 
   return (
-    <div
-      className="notes-dashboard"
-      style={{
-        ...style,
-        backgroundColor
-      }}
-    >
-      {/* Header with User Name */}
-      <Header 
-        userName={userName}
-        headerColor={headerColor}
-        userNameFont={userNameFont}
-        searchFont={searchFont}
-        filteredAndSortedNotes={filteredAndSortedNotes}
-        onAddNote={handleAddNote}
-      />
+    <div className="notes-dashboard">
+      <Header userName={username} />
 
-      {/* Search Bar and Controls */}
       <div className="search-container">
-        {/* Search Bar with Filter Toggle */}
-        <SearchBar 
+        <SearchBar
           searchTerm={searchTerm}
           handleSearchChange={handleSearchChange}
           showFilters={showFilters}
           setShowFilters={setShowFilters}
-          searchPlaceholder={searchPlaceholder}
         />
 
-        {/* Filter and Sort Controls */}
-        <FilterControls 
+        <FilterControls
           showFilters={showFilters}
           sortBy={sortBy}
           setSortBy={setSortBy}
           sortOrder={sortOrder}
           setSortOrder={setSortOrder}
-          filterColor={filterColor}
-          setFilterColor={setFilterColor}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          colorOptions={colorOptions}
         />
       </div>
 
-      {/* Notes Grid or Empty State */}
-      {filteredAndSortedNotes.length > 0 ? (
-        <NotesGrid 
-          filteredAndSortedNotes={filteredAndSortedNotes}
-          gridGap={gridGap}
-        />
+      {notes.length > 0 ? (
+        <>
+          <NotesGrid filteredAndSortedNotes={notes} gridGap={gridGap} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </>
       ) : (
-        <EmptyState 
-          searchTerm={searchTerm}
-          filterColor={filterColor}
-        />
+        <EmptyState searchTerm={searchTerm} />
       )}
     </div>
   );

@@ -1,47 +1,91 @@
 import React from "react";
 import "./styles.css";
+import { FaPlus } from "react-icons/fa";
+import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
+import { useNote } from "../Components/NoteContext.js";
+import { useSide } from "../Components/SidebarContext";
+import { useAuth } from "../Authentication/AuthContext";
+import { API_BASE_URL} from '../App/config.js';
+// Utility to strip HTML
+const stripHtml = (html) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || div.innerText || "";
+};
 
-const NoteCard = ({ note, onClick }) => {
-  const getColorClass = (color) => {
-    return `note-${color}`;
+const NoteCard = ({ note = {}, onClick, isAddCard = false }) => {
+  const { selectedNoteId, setSelectedNoteId, setSelectedNoteName } = useNote();
+  const { activeSection, setActiveSection } = useSide();
+  const { token } = useAuth();
+
+  const navigate = useNavigate();
+
+  const handleNewNote = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/note/create`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) throw new Error("Failed to create new note");
+      const newNote = await response.json();
+      const normalized = {
+        id: newNote.id,
+        note_name: newNote.note_name,
+        updatedAt: newNote.updated_at,
+      };
+
+      setSelectedNoteId(normalized.id);
+      setSelectedNoteName(normalized.note_name);
+      navigate("/notes");
+      // localStorage.setItem("activeSection", "notes");
+      setActiveSection("notes");
+    } catch (err) {
+      console.error("Error creating new note:", err);
+      alert("Failed to create new note");
+    }
   };
 
-  const getIndicatorClass = (color) => {
-    return `color-indicator color-indicator-${color}`;
+  if (isAddCard) {
+    return (
+      <div className="note-card add-card" onClick={handleNewNote}>
+        <div className="add-icon">
+          <FaPlus />
+        </div>
+      </div>
+    );
+  }
+
+  const handleNoteLoad = async () => {
+    setSelectedNoteId(note.id);
+    setSelectedNoteName(note.note_name);
+    navigate("/notes");
+    // localStorage.setItem("activeSection", "notes");
+    setActiveSection("notes");
   };
+
+  const plainText = stripHtml(note.content_html);
+  const relativeTime = formatDistanceToNow(new Date(note.updated_at), {
+    addSuffix: true,
+  });
 
   return (
-    <div 
-      className={`note-card ${getColorClass(note.color)} slide-up`}
-      onClick={onClick}
-    >
-      <div className={getIndicatorClass(note.color)} />
-      
-      <h3 className="note-title">
-        {note.title}
-      </h3>
-      
-      <p className="note-content">
-        {note.content}
-      </p>
-      
+    <div className="note-card slide-up" onClick={handleNoteLoad}>
+      <h3 className="note-title">{note.note_name}</h3>
+      <p className="note-content">{plainText}</p>
       <div className="note-footer">
-        <span className="note-date">
-          {note.date}
-        </span>
-        
+        <span className="note-date">{relativeTime}</span>
         <div className="note-actions">
-          <button 
+          <button
             className="icon-button"
             onClick={(e) => {
               e.stopPropagation();
               // Edit functionality would go here
             }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-            </svg>
-          </button>
+          ></button>
         </div>
       </div>
     </div>

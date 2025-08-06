@@ -1,52 +1,45 @@
-import React from "react";
+import React, { useMemo } from "react";
 import "./styles.css";
 
-const Header = ({ 
-  userName, 
-  headerColor, 
-  userNameFont, 
-  searchFont, 
-  filteredAndSortedNotes,
-  onAddNote
-}) => {
+const Header = ({ userName }) => {
+  const getTimeOfDay = () => {
+    const hour = new Date().getHours();
+    return hour >= 6 && hour < 18 ? "day" : "night";
+  };
+
+  const dayGreetings = [
+    "Good morning,",
+    "Welcome back,",
+    "Top of the morning,",
+    "Hello again,",
+    "Hey there,"
+  ];
+
+  const nightGreetings = [
+    "Good evening,",
+    "Welcome back,",
+    "Evening vibes,",
+    "Hello again,",
+    "Hey there,"
+  ];
+
+  const generalGreetings = [
+    "Welcome back,",
+    "Glad to see you,",
+    "You’re back!",
+    "Welcome aboard,",
+    "Nice to have you back,"
+  ];
+
+  const greeting = useMemo(() => {
+    const time = getTimeOfDay();
+    const pool = [...generalGreetings, ...(time === "day" ? dayGreetings : nightGreetings)];
+    return pool[Math.floor(Math.random() * pool.length)];
+  }, []);
+
   return (
     <div className="dashboard-header">
-      <h1
-        className="welcome-heading fade-in"
-        style={{
-          color: headerColor,
-          ...userNameFont,
-        }}
-      >
-        Welcome back, {userName}
-      </h1>
-
-      <div className="dashboard-header-right fade-in">
-        <div
-          className="notes-count"
-          style={{
-            color: headerColor,
-            opacity: 0.7,
-            ...searchFont,
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
-          </svg>
-          {filteredAndSortedNotes.length}{" "}
-          {filteredAndSortedNotes.length === 1 ? "note" : "notes"}
-        </div>
-
-        <button
-          className="add-note-btn"
-          onClick={onAddNote}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-          </svg>
-          New Note
-        </button>
-      </div>
+      <h1 className="welcome-heading fade-in">{greeting} {userName}</h1>
     </div>
   );
 };

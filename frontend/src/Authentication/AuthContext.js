@@ -4,12 +4,10 @@ import { useNote } from "../Components/NoteContext.js"
 const AuthContext = createContext();
 
 
-
-
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
   const { resetNoteContext } = useNote();
-
+  
   const isTokenValid = (token) => {
     try {
       const decoded = jwtDecode(token);
@@ -48,3 +46,4 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+ 

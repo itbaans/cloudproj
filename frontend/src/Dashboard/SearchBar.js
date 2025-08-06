@@ -13,7 +13,7 @@ const SearchBar = ({
       <div className="search-input-wrapper fade-in">
         <input
           type="text"
-          placeholder={searchPlaceholder}
+          placeholder="Search notes....."
           value={searchTerm}
           onChange={handleSearchChange}
           className="search-input"
