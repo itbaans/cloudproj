@@ -7,8 +7,8 @@
   max-width: 240px; /* Prevent growing */
   height: 100vh;
   background: #ffffff;
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.03);
+  border-right: 1px solid #cccccc;
+  /*box-shadow: 0 0 20px rgba(0, 0, 0, 0.03);*/
   overflow: hidden;
   user-select: none;
   position: sticky;
@@ -51,8 +51,8 @@
 
 
 .avatar-container {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   border-radius: 12px;
   /*background: #f3f4f6;*/
   display: flex;
@@ -62,7 +62,7 @@
 }
 
 .user-avatar {
-  font-size: 1.75rem;
+  font-size: 3rem;
   color: #6b7280;
 }
 
@@ -72,8 +72,8 @@
 }
 
 .user-name {
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 500;
+  font-size: 1.25rem;
   color: #111827;
   transition: color 0.2s ease;
 }

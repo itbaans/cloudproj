@@ -30,11 +30,6 @@
 .ql-toolbar {
   border: none !important;
 }
-.ql-toolbar .ql-font,
-.ql-toolbar .ql-size {
-  height: 28px;
-  font-size: 14px;
-}
 
 /* Button spacing */
 .ql-toolbar button {
@@ -45,7 +40,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 40px; /* gap between groups */
+     gap: 40px;
   padding: 15px;
   /*background-color: #f9f9f9; */
 }
@@ -55,11 +50,36 @@
   display: flex;
   align-items: center;
   gap: 0px; /* gap between items within group */
+  /*border: 2px solid red;*/
 }
 
 .settings-dropdown {
   margin-left: auto;
 }
+
+@media (max-width: 1700px) {
+  #custom-toolbar {
+    gap: 32px;
+  }
+}
+
+@media (max-width: 1641px) {
+  #custom-toolbar {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 1550px) {
+  #custom-toolbar {
+    gap: 12px;
+  }
+}
+@media (max-width: 1468px) {
+  #custom-toolbar {
+    gap: 0px;
+  }
+}
+
 
 
 
@@ -103,8 +123,6 @@
 #custom-toolbar .ql-active:hover .ql-fill {
     fill: var(--icon-color-active-hover) !important;
 }
-
-
 
 
 /* -- DEFAULT ICON COLOR -- */

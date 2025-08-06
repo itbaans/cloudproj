@@ -11,7 +11,7 @@ import "./NotePanel.css";
 import { API_BASE_URL } from "../App/config";
 import { useAuth } from "../Authentication/AuthContext";
 import { useNote } from "./NoteContext";
-import { useSide} from "./SidebarContext"
+import { useSide } from "./SidebarContext";
 // Format date as "x minutes/hours/days ago"
 const formatDate = (date) => {
   const parsedDate = new Date(date);
@@ -61,10 +61,15 @@ function NotePanel() {
   const { refreshNotes, setRefreshNotes } = useNote();
 
   const { token } = useAuth();
-  
+
+  const [loading, setLoading] = useState(true); // NEW
+
   useEffect(() => {
     const fetchNotes = async () => {
+      setLoading(true); // start loading
+
       try {
+
         const response = await fetch(`${API_BASE_URL}/note/all`, {
           method: "GET",
           headers: {
@@ -74,25 +79,33 @@ function NotePanel() {
         });
 
         if (!response.ok) throw new Error("Failed to fetch notes");
+
         const data = await response.json();
         setNotes(data);
 
         if (!hasSelectedInitialNote && data.length > 0 && !selectedNoteId) {
-          // Sort the notes first, then select the first one from the sorted list
           const sortedData = sortNotes(data, sortOption);
           const firstNote = sortedData[0];
-          
           setSelectedNoteId(firstNote.id);
           setSelectedNoteName(firstNote.note_name);
           setHasSelectedInitialNote(true);
         }
       } catch (err) {
         console.error("Error loading notes:", err);
+      } finally {
+        setLoading(false); // stop loading
       }
     };
 
     fetchNotes();
-  }, [token, hasSelectedInitialNote, setSelectedNoteId, setSelectedNoteName, refreshNotes, sortOption]);
+  }, [
+    token,
+    hasSelectedInitialNote,
+    setSelectedNoteId,
+    setSelectedNoteName,
+    refreshNotes,
+    sortOption,
+  ]);
 
   const handleNewNote = async () => {
     if (isCreatingNote) return;
@@ -134,7 +147,7 @@ function NotePanel() {
   };
 
   const filteredNotes = notes.filter((note) =>
-    note.note_name.toLowerCase().includes(searchQuery.toLowerCase())
+    note.note_name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const sortedNotes = sortNotes(filteredNotes, sortOption);
@@ -178,16 +191,19 @@ function NotePanel() {
       <div className="note-panel-content">
         {/* Search + Sort */}
         <div className="note-panel-search-filter-row">
-            <input
-              type="text"
-              className="note-panel-search-input"
-              placeholder="Search notes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <input
+            type="text"
+            className="note-panel-search-input"
+            placeholder="Search notes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
 
           <div className="note-panel-filter-controls">
-            <button className="note-panel-sort-icon-button" onClick={handleSortToggle}>
+            <button
+              className="note-panel-sort-icon-button"
+              onClick={handleSortToggle}
+            >
               {getSortIcon()}
             </button>
           </div>
@@ -207,7 +223,16 @@ function NotePanel() {
 
         {/* Notes List */}
         <div className="notes-list-container">
-          {sortedNotes.length === 0 ? (
+          {loading ? (
+            <div className="note-placeholder-wrapper">
+              {[...Array(7)].map((_, i) => (
+                <div className="note-item placeholder" key={i}>
+                  <div className="placeholder-title shimmer"></div>
+                  <div className="placeholder-date shimmer"></div>
+                </div>
+              ))}
+            </div>
+          ) : sortedNotes.length === 0 ? (
             <div className="empty-state">
               <FaRegStickyNote className="empty-state-icon" />
               <div className="empty-state-text">
@@ -223,12 +248,14 @@ function NotePanel() {
             sortedNotes.map((note) => (
               <div
                 key={note.id}
-                className={`note-item ${selectedNoteId === note.id ? "active" : ""}`}
+                className={`note-item slide-up ${selectedNoteId === note.id ? "active" : ""}`}
                 onClick={() => handleNoteContext(note)}
                 note_name={note.note_name}
               >
                 <div className="note-panel-item-title">{note.note_name}</div>
-                <div className="note-panel-date">{formatDate(note.updatedAt)}</div>
+                <div className="note-panel-date">
+                  {formatDate(note.updatedAt)}
+                </div>
               </div>
             ))
           )}

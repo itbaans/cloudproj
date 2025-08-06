@@ -110,7 +110,7 @@ function Sidebar() {
         <div className="logout-container">
           <button className="logout-button" onClick={handleLogout}>
             <FaSignOutAlt className="logout-icon" />
-            <span>Logout</span>
+            <span>Sign Out</span>
           </button>
         </div>
       </div>

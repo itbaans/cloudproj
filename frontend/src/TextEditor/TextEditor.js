@@ -137,7 +137,6 @@ const TextEditor = () => {
         }),
       );
     };
-
     const handleSave = () => {
       const idToSave = selectedNoteIdRef.current;
       if (!editorContent || !idToSave) return;
@@ -297,7 +296,7 @@ const TextEditor = () => {
   }
 
   return (
-    <div className="editor-container">
+    <div className="editor-container slide-up">
       <div className="top-filler"> </div>
       <CustomToolbar quill={quillInstance.current} />
       <EditableHeading value={selectedNoteName} onSave={handleSaveNoteName} />
