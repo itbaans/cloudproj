@@ -54,7 +54,7 @@ const signup = async (req, res) => {
       Thank you for signing up! Please verify your email address to activate your account.
     </p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="${verificationUrl}" style="padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+      <a href="${verificationUrl}" style="padding: 12px 24px; background-color: #FFBF00; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
         Verify Email
       </a>
     </div>
