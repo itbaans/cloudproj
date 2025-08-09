@@ -205,7 +205,6 @@ const TextEditor = () => {
 
   useEffect(() => {
     if (!selectedNoteId) return;
-    console.log(selectedNoteId);
     const fetchNoteHTML = async () => {
       try {
         const response = await fetch(
