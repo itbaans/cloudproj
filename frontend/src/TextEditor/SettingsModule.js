@@ -1,5 +1,6 @@
 // SettingsModule.js - Custom Quill plugin
-import { IoMenu } from "react-icons/io5";
+import { IoMenu, IoTrash } from "react-icons/io5";
+import { FaCheck } from "react-icons/fa";
 import ReactDOMServer from "react-dom/server";
 import "./SettingsModule.css";
 
@@ -25,7 +26,6 @@ class SettingsModule {
   }
 
   setupEventListeners() {
-    // Listen for autosave status changes
     window.addEventListener("autosave-changed", this.handleAutosaveChanged);
   }
 
@@ -36,7 +36,13 @@ class SettingsModule {
 
   updateAutosaveLabel() {
     if (this.autosaveItem) {
-      this.autosaveItem.textContent = `AutoSave: ${this.autosaveStatus}`;
+      const checkHTML =
+        this.autosaveStatus === "On"
+          ? ReactDOMServer.renderToString(
+              <FaCheck style={{ marginLeft: "30px"}} />
+            )
+          : "";
+      this.autosaveItem.innerHTML = `AutoSave ${checkHTML}`;
     }
   }
 
@@ -61,44 +67,44 @@ class SettingsModule {
     this.menu.style.display = "none";
 
     const items = [
-      {
-        label: `AutoSave: ${this.autosaveStatus}`,
-        value: "autosave",
-        isAutosave: true,
-      },
+      { value: "autosave", isAutosave: true },
       { label: "Save", value: "save" },
       { label: "Save as PDF", value: "pdf" },
       { label: "Save as DOCX", value: "docx" },
       { label: "Save as Text", value: "txt" },
-      { label: "Delete Note", value: "delete" },
+      { label: "Remove", value: "delete" },
     ];
 
     items.forEach((item) => {
-      if (item.separator) {
-        const hr = document.createElement("hr");
-        hr.style.margin = "0px 0";
-        this.menu.appendChild(hr);
+      const opt = document.createElement("div");
+
+      if (item.isAutosave) {
+        const checkHTML =
+          this.autosaveStatus === "On"
+            ? ReactDOMServer.renderToString(
+                <FaCheck style={{ marginLeft: "40px" }} />
+              )
+            : "";
+        opt.innerHTML = `AutoSave ${checkHTML}`;
+        this.autosaveItem = opt; // Store reference for updates
+      } else if (item.value === "delete") {
+        opt.classList.add("danger-item");
+        opt.innerHTML = `Remove ${ReactDOMServer.renderToString(
+          <IoTrash style={{ marginLeft: "40px" }} />
+        )}`;
       } else {
-        const opt = document.createElement("div");
         opt.textContent = item.label;
-        opt.dataset.value = item.value;
-
-        // Store reference to autosave item for easy updates
-        if (item.isAutosave) {
-          this.autosaveItem = opt;
-        }
-
-        if (item.value === "delete") {
-          opt.classList.add("danger-item");
-        }
-
-        opt.addEventListener("click", (e) => {
-          e.stopPropagation();
-          this.closeMenu();
-          this.handleOption(item.value);
-        });
-        this.menu.appendChild(opt);
       }
+
+      opt.dataset.value = item.value;
+
+      opt.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.closeMenu();
+        this.handleOption(item.value);
+      });
+
+      this.menu.appendChild(opt);
     });
 
     this.button.addEventListener("click", (e) => {

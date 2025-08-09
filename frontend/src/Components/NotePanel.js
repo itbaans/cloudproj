@@ -66,7 +66,9 @@ function NotePanel() {
 
   useEffect(() => {
     const fetchNotes = async () => {
-      setLoading(true); // start loading
+
+      if (!notes.length) 
+        setLoading(true);
 
       try {
 

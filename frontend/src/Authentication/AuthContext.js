@@ -23,11 +23,43 @@ export const AuthProvider = ({ children }) => {
 
   const { resetNoteContext } = useNote();
 
+  // Logout function
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("activeSection");
+    resetNoteContext();
+    setToken(null);
+    setIsLoggedIn(false);
+  };
+
+  // Schedule auto logout based on token expiry
   useEffect(() => {
-    if (token && isTokenValid(token)) {
-      setIsLoggedIn(true);
-    } else {
+    if (!token) {
       setIsLoggedIn(false);
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode(token);
+      const expiryTime = decoded.exp * 1000; // exp is in seconds
+      const now = Date.now();
+      const timeout = expiryTime - now;
+
+      if (timeout <= 0) {
+        logout();
+        return;
+      }
+
+      setIsLoggedIn(true);
+
+      // Set a timer to logout at expiry
+      const timer = setTimeout(() => {
+        logout();
+      }, timeout);
+
+      return () => clearTimeout(timer);
+    } catch (e) {
+      logout();
     }
   }, [token]);
 
@@ -35,14 +67,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
     setIsLoggedIn(true);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("activeSection");
-    resetNoteContext();
-    setToken(null);
-    setIsLoggedIn(false);
   };
 
   return (
