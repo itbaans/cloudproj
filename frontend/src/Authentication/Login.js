@@ -43,14 +43,14 @@ function Login() {
       setSuccess("Login successful!");
       if (result.token) login(result.token);
 
-      setTimeout(() => navigate("/home"), 1000);
+      navigate("/home");
     } catch (err) {
       setError(err.message);
     }
   };
 
   return (
-    <div classname="login-background-container">
+    <div className="login-background-container">
     <div className="signup-container">
       <div className="form-wrapper">
         <FaScroll className='auth-logo active login' />
