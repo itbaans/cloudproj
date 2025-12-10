@@ -1,68 +1,103 @@
-const pool = require("../db2");
+const { sql, pool, poolConnect } = require("../db2");
 
-// Get all deatils of a specfic notebook
+// Get all details of a specific note
 const findNoteByUserID = async (userId, noteId) => {
-  const result = await pool.query(
-    "SELECT * FROM notes  Where user_id = $1 and id = $2",
-    [userId, noteId],
-  );
-  return result.rows[0];
+  await poolConnect;
+  const result = await pool.request()
+    .input("userId", sql.Int, userId)
+    .input("noteId", sql.Int, noteId)
+    .query("SELECT * FROM notes WHERE user_id = @userId AND id = @noteId");
+  return result.recordset[0];
 };
 
-// Get all names and ids of notes, but dont get the content
+// Get all names and ids of notes, without content
 const findAllNotesByUserID = async (userId) => {
-  const result = await pool.query(
-    "SELECT id, note_name, updated_at, created_at  FROM notes WHERE user_id = $1",
-    [userId],
-  );
-  return result.rows;
+  await poolConnect;
+  const result = await pool.request()
+    .input("userId", sql.Int, userId)
+    .query("SELECT id, note_name, updated_at, created_at FROM notes WHERE user_id = @userId");
+  return result.recordset;
 };
 
+// Find note by note ID
 const findNoteByNoteID = async (noteId) => {
-  const result = await pool.query("SELECT * FROM notes id = $1", [noteId]);
-  return result.rows[0];
+  await poolConnect;
+  const result = await pool.request()
+    .input("noteId", sql.Int, noteId)
+    .query("SELECT * FROM notes WHERE id = @noteId");
+  return result.recordset[0];
 };
 
+// Create a new note
 const CreateNote = async (userId) => {
-  const result = await pool.query(
-    "INSERT INTO notes (user_id) VALUES ($1) RETURNING id, note_name, updated_at, created_at",
-    [userId],
-  );
-  return result.rows[0];
+  await poolConnect;
+  const result = await pool.request()
+    .input("userId", sql.Int, userId)
+    .query(`
+      INSERT INTO notes (user_id)
+      OUTPUT inserted.id, inserted.note_name, inserted.updated_at, inserted.created_at
+      VALUES (@userId)
+    `);
+  return result.recordset[0];
 };
 
+// Load HTML content of a note
 const LoadHTMLByNoteID = async (noteId, userId) => {
-  const result = await pool.query(
-    "SELECT content_html FROM notes WHERE id = $1 AND user_id = $2",
-    [noteId, userId],
-  );
-  return result.rows[0];
+  await poolConnect;
+  const result = await pool.request()
+    .input("noteId", sql.Int, noteId)
+    .input("userId", sql.Int, userId)
+    .query("SELECT content_html FROM notes WHERE id = @noteId AND user_id = @userId");
+  return result.recordset[0];
 };
 
+// Save HTML content in a note
 const SaveHTMLInNoteID = async (htmlContent, noteId, userId) => {
-  const result = await pool.query(
-    "UPDATE notes SET content_html = $1, updated_at = NOW() WHERE id = $2 AND user_id = $3 RETURNING *",
-    [htmlContent, noteId, userId],
-  );
-  return result.rows[0];
+  await poolConnect;
+  const result = await pool.request()
+    .input("htmlContent", sql.NVarChar(sql.MAX), htmlContent)
+    .input("noteId", sql.Int, noteId)
+    .input("userId", sql.Int, userId)
+    .query(`
+      UPDATE notes
+      SET content_html = @htmlContent, updated_at = SYSDATETIME()
+      OUTPUT inserted.*
+      WHERE id = @noteId AND user_id = @userId
+    `);
+  return result.recordset[0];
 };
 
+// Save new name in a note
 const SaveNewNameInNoteID = async (noteName, noteId, userId) => {
-  const result = await pool.query(
-    "UPDATE notes SET note_name = $1, updated_at = NOW() WHERE id = $2 AND user_id = $3 RETURNING *",
-    [noteName, noteId, userId],
-  );
-  return result.rows[0];
+  await poolConnect;
+  const result = await pool.request()
+    .input("noteName", sql.NVarChar(255), noteName)
+    .input("noteId", sql.Int, noteId)
+    .input("userId", sql.Int, userId)
+    .query(`
+      UPDATE notes
+      SET note_name = @noteName, updated_at = SYSDATETIME()
+      OUTPUT inserted.*
+      WHERE id = @noteId AND user_id = @userId
+    `);
+  return result.recordset[0];
 };
 
+// Delete a note
 const DeleteNote = async (noteId, userId) => {
-  const result = await pool.query(
-    "DELETE FROM notes Where id = $1 AND user_id = $2 RETURNING *",
-    [noteId, userId],
-  );
-  return result.rows[0];
+  await poolConnect;
+  const result = await pool.request()
+    .input("noteId", sql.Int, noteId)
+    .input("userId", sql.Int, userId)
+    .query(`
+      DELETE FROM notes
+      OUTPUT deleted.*
+      WHERE id = @noteId AND user_id = @userId
+    `);
+  return result.recordset[0];
 };
 
+// Get notes for dashboard with search, sort, pagination
 const findAllNotesByUserIDForDashboard = async (
   userId,
   {
@@ -71,47 +106,52 @@ const findAllNotesByUserIDForDashboard = async (
     searchKeyword = "",
     sortBy = "updated_at",
     order = "DESC",
-  },
+  }
 ) => {
+  await poolConnect;
+
   const validSortColumns = ["created_at", "updated_at", "note_name"];
   const validOrder = ["ASC", "DESC"];
 
-  // Ensure safe column and order
   if (!validSortColumns.includes(sortBy)) sortBy = "updated_at";
   if (!validOrder.includes(order.toUpperCase())) order = "DESC";
 
   const query = `
-    SELECT id, note_name, content_html, updated_at, created_at 
-    FROM notes 
-    WHERE user_id = $1
-      AND (note_name ILIKE $2 OR content_html ILIKE $2)
+    SELECT id, note_name, content_html, updated_at, created_at
+    FROM notes
+    WHERE user_id = @userId
+      AND (note_name LIKE @search COLLATE SQL_Latin1_General_CP1_CI_AS
+           OR content_html LIKE @search COLLATE SQL_Latin1_General_CP1_CI_AS)
     ORDER BY ${sortBy} ${order}
-    LIMIT $3 OFFSET $4
+    OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
   `;
 
-  const values = [userId, `%${searchKeyword}%`, limit, offset];
-  const result = await pool.query(query, values);
-  return result.rows;
+  const result = await pool.request()
+    .input("userId", sql.Int, userId)
+    .input("search", sql.NVarChar(255), `%${searchKeyword}%`)
+    .input("limit", sql.Int, limit)
+    .input("offset", sql.Int, offset)
+    .query(query);
+
+  return result.recordset;
 };
 
+// Count filtered notes
 const countFilteredNotes = async (userId, searchKeyword = "") => {
+  await poolConnect;
   const query = `
-    SELECT COUNT(*) FROM notes
-    WHERE user_id = $1 AND (note_name ILIKE $2 OR content_html ILIKE $2)
+    SELECT COUNT(*) AS count
+    FROM notes
+    WHERE user_id = @userId
+      AND (note_name LIKE @search COLLATE SQL_Latin1_General_CP1_CI_AS
+           OR content_html LIKE @search COLLATE SQL_Latin1_General_CP1_CI_AS)
   `;
-  const values = [userId, `%${searchKeyword}%`];
-  const result = await pool.query(query, values);
-  return parseInt(result.rows[0].count);
+  const result = await pool.request()
+    .input("userId", sql.Int, userId)
+    .input("search", sql.NVarChar(255), `%${searchKeyword}%`)
+    .query(query);
+  return parseInt(result.recordset[0].count);
 };
-
-
-// const UpdateEditTimeOfNote = async (noteId) => {
-//   const result = await pool.query(
-//     "UPDATE notes SET updated_at = NOW() Where id = $1",
-//     [noteId]
-//   );
-//   retur
-// }
 
 module.exports = {
   findNoteByUserID,
