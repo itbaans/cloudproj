@@ -9,11 +9,16 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
  * Send a message to the chat assistant
  */
 const sendMessage = async (req, res) => {
-    const { conversationId, message } = req.body;
+    const { conversationId, message, contextMode = 'global', noteId } = req.body;
     const userId = req.user.userId;
 
     if (!message || message.trim().length === 0) {
         return res.status(400).json({ error: "Message cannot be empty" });
+    }
+
+    // Validate context mode
+    if (contextMode === 'local' && !noteId) {
+        return res.status(400).json({ error: "Note ID required for local context mode" });
     }
 
     try {
@@ -38,27 +43,52 @@ const sendMessage = async (req, res) => {
         // Get conversation history for context
         const conversationData = await chatModel.getConversationHistory(currentConversationId, userId);
 
-        // Get user's notes for additional context
-        const userNotes = await chatModel.getUserNotesForContext(userId, 10);
-
-        // Build context for Gemini
+        // Build context based on mode
         let contextPrompt = "You are a helpful AI assistant integrated into a note-taking application. ";
-        contextPrompt += "You have access to the user's recent notes to help answer questions about them.\n\n";
+        let notesContext = [];
 
-        if (userNotes.length > 0) {
-            contextPrompt += "User's Recent Notes:\n";
-            userNotes.forEach((note, index) => {
-                contextPrompt += `\nNote ${index + 1}: "${note.note_name}"\n`;
+        if (contextMode === 'local') {
+            // Local mode: only get the specific note
+            const note = await chatModel.getSpecificNoteForContext(noteId, userId);
+            if (note) {
+                notesContext = [note];
+                contextPrompt += "You have access to the user's currently open note to help answer questions about it. ";
+                contextPrompt += "You can ONLY see this one note, not any other notes.\\n\\n";
+            } else {
+                contextPrompt += "The user is currently viewing a note, but it appears to be empty or not found.\\n\\n";
+            }
+        } else {
+            // Global mode: get all recent notes
+            notesContext = await chatModel.getUserNotesForContext(userId, 10);
+            contextPrompt += "You have access to the user's recent notes to help answer questions about them.\\n\\n";
+        }
+
+        if (notesContext.length > 0) {
+            contextPrompt += contextMode === 'local' ? "Current Note:\\n" : "User's Recent Notes:\\n";
+            notesContext.forEach((note, index) => {
+                if (contextMode === 'local') {
+                    contextPrompt += `Note Title: "${note.note_name}"\\n`;
+                } else {
+                    contextPrompt += `\\nNote ${index + 1}: "${note.note_name}"\\n`;
+                }
                 // Strip HTML tags for cleaner context
                 const cleanContent = note.content_html
                     ? note.content_html.replace(/<[^>]*>/g, ' ').substring(0, 500)
                     : "Empty note";
-                contextPrompt += `Content: ${cleanContent}...\n`;
+                contextPrompt += `Content: ${cleanContent}...\\n`;
             });
-            contextPrompt += "\n";
+            contextPrompt += "\\n";
         } else {
-            contextPrompt += "The user hasn't created any notes yet.\n\n";
+            contextPrompt += "The user hasn't created any notes yet.\\n\\n";
         }
+
+        // Add information about bot actions capability
+        contextPrompt += "IMPORTANT: You have the ability to perform actions in the app. ";
+        contextPrompt += "If the user asks you to highlight important text, analyze key points, or perform similar tasks, ";
+        contextPrompt += "you can include action commands in your response.\\n";
+        contextPrompt += "To trigger actions, include a JSON block at the END of your response in this exact format:\\n";
+        contextPrompt += '```json\\n{"actions": [{"type": "highlight", "text": "exact text to highlight", "color": "#ffeb3b"}]}\\n```\\n';
+        contextPrompt += "Only use actions when explicitly asked by the user. Always explain what you're doing.\\n\\n";
 
         // Build conversation history
         const chatHistory = conversationData.messages.map(msg => ({
@@ -80,7 +110,7 @@ const sendMessage = async (req, res) => {
                 },
                 {
                     role: "model",
-                    parts: [{ text: "I understand. I'm ready to help you with questions about your notes and provide general assistance." }]
+                    parts: [{ text: "I understand. I'm ready to help you with questions about your notes and provide general assistance. I can also perform actions like highlighting text when you ask me to." }]
                 },
                 ...chatHistory.slice(0, -1) // Exclude the last message as we'll send it separately
             ],
@@ -93,7 +123,25 @@ const sendMessage = async (req, res) => {
         // Send the current message and get response
         const result = await chat.sendMessage(message);
         const response = result.response;
-        const assistantMessage = response.text();
+        let assistantMessage = response.text();
+
+        // Parse for bot actions
+        let actions = [];
+        const actionRegex = /```json\s*(\{[\s\S]*?"actions"[\s\S]*?\})\s*```/;
+        const match = assistantMessage.match(actionRegex);
+
+        if (match) {
+            try {
+                const actionData = JSON.parse(match[1]);
+                if (actionData.actions && Array.isArray(actionData.actions)) {
+                    actions = actionData.actions;
+                    // Remove the action JSON from the displayed message
+                    assistantMessage = assistantMessage.replace(actionRegex, '').trim();
+                }
+            } catch (parseErr) {
+                logger.warn({ parseErr }, "Failed to parse action JSON from assistant response");
+            }
+        }
 
         // Save assistant response to database
         await chatModel.saveMessage(currentConversationId, "assistant", assistantMessage);
@@ -101,13 +149,17 @@ const sendMessage = async (req, res) => {
         logger.info({
             userId,
             conversationId: currentConversationId,
+            contextMode,
+            noteId,
             messageLength: message.length,
-            responseLength: assistantMessage.length
+            responseLength: assistantMessage.length,
+            actionsCount: actions.length
         }, "Chat message processed successfully");
 
         res.status(200).json({
             conversationId: currentConversationId,
             message: assistantMessage,
+            actions: actions,
             timestamp: new Date().toISOString(),
         });
 

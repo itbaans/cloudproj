@@ -64,7 +64,7 @@ async function saveMessage(conversationId, role, content) {
 async function getConversationHistory(conversationId, userId) {
   try {
     await poolConnect;
-    
+
     // First verify the conversation belongs to the user
     const convResult = await pool
       .request()
@@ -174,6 +174,29 @@ async function getUserNotesForContext(userId, limit = 10) {
 }
 
 /**
+ * Get a specific note for local context (single note)
+ */
+async function getSpecificNoteForContext(noteId, userId) {
+  try {
+    await poolConnect;
+    const result = await pool
+      .request()
+      .input("noteId", sql.Int, noteId)
+      .input("userId", sql.Int, userId)
+      .query(`
+        SELECT id, note_name, content_html, updated_at
+        FROM notes
+        WHERE id = @noteId AND user_id = @userId
+      `);
+
+    return result.recordset.length > 0 ? result.recordset[0] : null;
+  } catch (err) {
+    logger.error({ err, noteId, userId }, "Error getting specific note for context");
+    throw err;
+  }
+}
+
+/**
  * Update conversation title
  */
 async function updateConversationTitle(conversationId, userId, title) {
@@ -204,5 +227,6 @@ module.exports = {
   getAllConversations,
   deleteConversation,
   getUserNotesForContext,
+  getSpecificNoteForContext,
   updateConversationTitle,
 };

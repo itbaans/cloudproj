@@ -4,6 +4,7 @@ import "quill/dist/quill.snow.css";
 import CustomToolbar from "./CustomToolbar";
 import { useAuth } from "../Authentication/AuthContext";
 import { useNote } from "../Components/NoteContext";
+import { useChat } from "../Components/ChatAssistant/ChatContext";
 import { API_BASE_URL } from "../App/config";
 import SettingsModule from "./SettingsModule";
 import EditableHeading from "./EditableHeading";
@@ -21,7 +22,14 @@ const TextEditor = () => {
   const { selectedNoteName, setSelectedNoteName } = useNote();
   const selectedNoteIdRef = useRef(selectedNoteId);
   const { refreshNotes, setRefreshNotes } = useNote();
+  const { setCurrentNoteId } = useChat();
   const autosave = useRef(false);
+
+  // Update ChatContext with current note ID
+  useEffect(() => {
+    setCurrentNoteId(selectedNoteId);
+  }, [selectedNoteId, setCurrentNoteId]);
+
   const Font = Quill.import("formats/font");
   Font.whitelist = [
     "arial",
@@ -98,6 +106,9 @@ const TextEditor = () => {
       // Making sure that after "enter" options are still active and displayed
       var keyboard = quillInstance.current.getModule("keyboard");
       delete keyboard.bindings[13];
+
+      // Expose Quill instance globally for bot actions
+      window.quillInstance = quillInstance.current;
     }
 
     // Cleanup Quill instance when no note is selected

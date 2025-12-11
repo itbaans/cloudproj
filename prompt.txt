@@ -1,0 +1,3 @@
+Ok so all this works but here are few changes that i want to make:
+
+First right now i cant select my conver
