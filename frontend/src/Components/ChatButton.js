@@ -3,7 +3,12 @@ import { useChat } from "./ChatAssistant/ChatContext";
 import "./ChatButton.css";
 
 const ChatButton = () => {
-    const { toggleChat, isChatOpen, unreadCount } = useChat();
+    const { toggleChat, isChatOpen, unreadCount, isViewingProtectedNote } = useChat();
+
+    // Hide chat button when viewing protected notes
+    if (isViewingProtectedNote) {
+        return null;
+    }
 
     return (
         <button

@@ -23,7 +23,7 @@ const TextEditor = () => {
   const { selectedNoteName, setSelectedNoteName } = useNote();
   const selectedNoteIdRef = useRef(selectedNoteId);
   const { refreshNotes, setRefreshNotes } = useNote();
-  const { setCurrentNoteId } = useChat();
+  const { setCurrentNoteId, setIsViewingProtectedNote } = useChat();
   const autosave = useRef(false);
 
   // Update ChatContext with current note ID
@@ -222,6 +222,11 @@ const TextEditor = () => {
 
     loadProtectionStatus();
   }, [selectedNoteId, token]);
+
+  // Update ChatContext when protection status changes
+  useEffect(() => {
+    setIsViewingProtectedNote(isProtected);
+  }, [isProtected, setIsViewingProtectedNote]);
 
 
   useEffect(() => {

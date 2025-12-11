@@ -170,7 +170,7 @@ const findAllNotesByUserIDForDashboard = async (
   if (!validOrder.includes(order.toUpperCase())) order = "DESC";
 
   const query = `
-    SELECT id, note_name, content_html, updated_at, created_at
+    SELECT id, note_name, content_html, updated_at, created_at, is_protected
     FROM notes
     WHERE user_id = @userId
       AND (note_name LIKE @search COLLATE SQL_Latin1_General_CP1_CI_AS

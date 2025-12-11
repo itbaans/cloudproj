@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useNote } from "../Components/NoteContext.js";
 import { useSide } from "../Components/SidebarContext";
 import { useAuth } from "../Authentication/AuthContext";
-import { API_BASE_URL} from '../App/config.js';
+import { API_BASE_URL } from '../App/config.js';
 // Utility to strip HTML
 const stripHtml = (html) => {
   const div = document.createElement("div");
@@ -14,7 +14,7 @@ const stripHtml = (html) => {
   return div.textContent || div.innerText || "";
 };
 
-const NoteCard = ({ note = {}, onClick, isAddCard = false, isLoading}) => {
+const NoteCard = ({ note = {}, onClick, isAddCard = false, isLoading }) => {
   const { selectedNoteId, setSelectedNoteId, setSelectedNoteName } = useNote();
   const { activeSection, setActiveSection } = useSide();
   const { token } = useAuth();
@@ -72,10 +72,20 @@ const NoteCard = ({ note = {}, onClick, isAddCard = false, isLoading}) => {
     addSuffix: true,
   });
 
+  // Check if note is protected
+  const isProtected = note.is_protected === 1 || note.is_protected === true;
+
   return (
     <div className="note-card slide-up" onClick={handleNoteLoad}>
       <h3 className="note-title">{note.note_name}</h3>
-      <p className="note-content">{plainText}</p>
+      {isProtected ? (
+        <div className="note-protected-content">
+          <div className="protected-icon">🔒</div>
+          <p className="protected-text">Protected Note - Click to view</p>
+        </div>
+      ) : (
+        <p className="note-content">{plainText}</p>
+      )}
       <div className="note-footer">
         <span className="note-date">{relativeTime}</span>
         <div className="note-actions">

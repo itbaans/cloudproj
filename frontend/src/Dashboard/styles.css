@@ -349,6 +349,30 @@
   -webkit-box-orient: vertical;
 }
 
+/* Protected Note Content Styles */
+.note-protected-content {
+  margin: 0 0 auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+}
+
+.protected-icon {
+  font-size: 36px;
+  opacity: 0.7;
+}
+
+.protected-text {
+  margin: 0;
+  color: #999999;
+  font-size: 13px;
+  font-style: italic;
+  text-align: center;
+}
+
 .note-footer {
   margin-top: 16px;
   display: flex;

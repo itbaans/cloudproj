@@ -20,6 +20,7 @@ export const ChatProvider = ({ children }) => {
     const [contextMode, setContextMode] = useState('global'); // 'global' or 'local'
     const [currentNoteId, setCurrentNoteId] = useState(null);
     const [currentLocation, setCurrentLocation] = useState('home'); // 'home' or 'notes'
+    const [isViewingProtectedNote, setIsViewingProtectedNote] = useState(false);
 
     // Conversation list state
     const [conversations, setConversations] = useState([]);
@@ -134,6 +135,8 @@ export const ChatProvider = ({ children }) => {
         setCurrentNoteId,
         currentLocation,
         setCurrentLocation,
+        isViewingProtectedNote,
+        setIsViewingProtectedNote,
 
         // Conversations management
         conversations,

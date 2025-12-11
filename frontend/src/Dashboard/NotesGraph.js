@@ -6,7 +6,7 @@ import "./NotesGraph.css";
 
 const NotesGraph = ({ graphData, onRegenerate, isLoading }) => {
     const navigate = useNavigate();
-    const { setSelectedNoteId } = useNote();
+    const { setSelectedNoteId, setSelectedNoteName } = useNote();
     const graphRef = useRef();
     const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
@@ -45,6 +45,7 @@ const NotesGraph = ({ graphData, onRegenerate, isLoading }) => {
 
     const handleNodeClick = (node) => {
         setSelectedNoteId(node.id);
+        setSelectedNoteName(node.label);
         navigate("/notes");
     };
 

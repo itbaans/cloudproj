@@ -21,6 +21,7 @@ const ChatAssistant = () => {
         selectConversation,
         deleteConversation,
         loadConversations,
+        isViewingProtectedNote,
     } = useChat();
 
     const [messages, setMessages] = useState([]);
@@ -158,7 +159,7 @@ const ChatAssistant = () => {
         await deleteConversation(convId);
     };
 
-    if (!isChatOpen) return null;
+    if (!isChatOpen || isViewingProtectedNote) return null;
 
     const canToggleContext = currentLocation === 'notes';
     const contextBadge = contextMode === 'local' ? '📝 Local' : '🌐 Global';
