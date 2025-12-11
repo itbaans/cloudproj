@@ -4,6 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { useNote } from "../Components/NoteContext";
 import "./NotesGraph.css";
 
+// Import icons for topics
+import { IoIosBriefcase } from "react-icons/io";
+import { FaShoppingCart, FaUser, FaPlane, FaHome, FaUtensils, FaHeartbeat, FaLock, FaCircle } from "react-icons/fa";
+import { MdAttachMoney, MdSportsEsports } from "react-icons/md";
+
 const NotesGraph = ({ graphData, onRegenerate, isLoading }) => {
     const navigate = useNavigate();
     const { setSelectedNoteId, setSelectedNoteName } = useNote();
@@ -30,17 +35,42 @@ const NotesGraph = ({ graphData, onRegenerate, isLoading }) => {
     // Color palette for different topics
     const getTopicColor = (topic) => {
         const colors = {
-            "Shopping": "#4CAF50",
-            "Work": "#2196F3",
-            "Personal": "#9C27B0",
-            "Finance": "#FF9800",
-            "Ideas": "#E91E63",
-            "Health": "#00BCD4",
+            "Empty": "#9E9E9E",        // Gray
+            "Work": "#8B4513",         // Brown (Saddle Brown)
+            "Personal": "#4CAF50",     // Green
+            "Finance": "#FF9800",      // Orange
+            "Food": "#FF5722",         // Deep Orange
+            "Home": "#FFD700",         // Gold/Yellow
+            "Travel": "#03A9F4",       // Light Blue
+            "Leisure": "#673AB7",      // Purple
+            "Health": "#E53935",       // Red
+            "Shopping": "#E91E63",     // Pink
+            "Protected": "#9E9E9E",    // Gray
+            "Ideas": "#00BCD4",        // Cyan
             "Other": "#9E9E9E",
-            "Protected": "#9E9E9E",  // ← ADD THIS LINE
             "Uncategorized": "#757575"
         };
         return colors[topic] || "#9E9E9E";
+    };
+
+    // Icon mapping for different topics
+    const getTopicIcon = (topic) => {
+        const icons = {
+            "Work": <IoIosBriefcase />,
+            "Shopping": <FaShoppingCart />,
+            "Personal": <FaUser />,
+            "Finance": <MdAttachMoney />,
+            "Health": <FaHeartbeat />,
+            "Food": <FaUtensils />,
+            "Home": <FaHome />,
+            "Travel": <FaPlane />,
+            "Leisure": <MdSportsEsports />,
+            "Protected": <FaLock />,
+            "Empty": <FaCircle />,
+            "Other": <FaCircle />,
+            "Uncategorized": <FaCircle />
+        };
+        return icons[topic] || <FaCircle />;
     };
 
     const handleNodeClick = (node) => {
@@ -121,9 +151,11 @@ const NotesGraph = ({ graphData, onRegenerate, isLoading }) => {
                 {[...new Set(graphData.nodes.map(n => n.topic))].map(topic => (
                     <div key={topic} className="legend-item">
                         <span
-                            className="legend-color"
-                            style={{ backgroundColor: getTopicColor(topic) }}
-                        />
+                            className="legend-icon"
+                            style={{ color: getTopicColor(topic) }}
+                        >
+                            {getTopicIcon(topic)}
+                        </span>
                         <span>{topic}</span>
                     </div>
                 ))}
