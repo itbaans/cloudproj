@@ -132,7 +132,7 @@ const NotesGraph = ({ graphData, onRegenerate, isLoading }) => {
                 nodeCanvasObject={(node, ctx, globalScale) => {
                     const label = node.label;
                     const fontSize = 12 / globalScale;
-                    const nodeSize = node.isProtected ? 14 : 12; // Larger nodes to fit icons
+                    const nodeSize = node.isProtected ? 18 : 16; // Good size for icons
 
                     // Check if dark mode is active
                     const isDarkMode = document.body.classList.contains('dark-mode');
