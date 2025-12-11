@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import "./styles.css";
 
-const Header = ({ userName }) => {
+const Header = ({ userName, viewMode, setViewMode }) => {
   const getTimeOfDay = () => {
     const hour = new Date().getHours();
     return hour >= 6 && hour < 18 ? "day" : "night";
@@ -26,7 +26,7 @@ const Header = ({ userName }) => {
   const generalGreetings = [
     "Welcome back,",
     "Glad to see you,",
-    "You’re back!",
+    "You're back!",
     "Welcome aboard,",
     "Nice to have you back,"
   ];
@@ -40,6 +40,24 @@ const Header = ({ userName }) => {
   return (
     <div className="dashboard-header">
       <h1 className="welcome-heading fade-in">{greeting} {userName}</h1>
+      {setViewMode && (
+        <div className="view-toggle">
+          <button
+            className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+            onClick={() => setViewMode('grid')}
+            title="Grid View"
+          >
+            ⊞ Grid
+          </button>
+          <button
+            className={`view-toggle-btn ${viewMode === 'graph' ? 'active' : ''}`}
+            onClick={() => setViewMode('graph')}
+            title="Graph View"
+          >
+            🕸️ Network
+          </button>
+        </div>
+      )}
     </div>
   );
 };

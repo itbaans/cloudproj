@@ -47,23 +47,76 @@ const LoadHTMLByNoteID = async (noteId, userId) => {
   const result = await pool.request()
     .input("noteId", sql.Int, noteId)
     .input("userId", sql.Int, userId)
-    .query("SELECT content_html FROM notes WHERE id = @noteId AND user_id = @userId");
-  return result.recordset[0];
+    .query("SELECT content_html, is_protected, encryption_iv FROM notes WHERE id = @noteId AND user_id = @userId");
+
+  const note = result.recordset[0];
+
+  if (!note) return null;
+
+  // Decrypt if protected
+  if (note.is_protected && note.content_html) {
+    const encryption = require("../utils/encryption");
+    try {
+      // Extract auth tag from end of encrypted data (last 32 hex chars = 16 bytes)
+      const encryptedData = note.content_html.slice(0, -32);
+      const authTag = note.content_html.slice(-32);
+
+      const decrypted = encryption.decryptContent(
+        encryptedData,
+        note.encryption_iv,
+        authTag,
+        userId
+      );
+      return { content_html: decrypted, is_protected: true };
+    } catch (err) {
+      throw new Error("Failed to decrypt protected note");
+    }
+  }
+
+  return { content_html: note.content_html, is_protected: note.is_protected || false };
 };
 
 // Save HTML content in a note
 const SaveHTMLInNoteID = async (htmlContent, noteId, userId) => {
   await poolConnect;
-  const result = await pool.request()
-    .input("htmlContent", sql.NVarChar(sql.MAX), htmlContent)
+
+  // Check if note is protected
+  const checkResult = await pool.request()
     .input("noteId", sql.Int, noteId)
     .input("userId", sql.Int, userId)
+    .query("SELECT is_protected FROM notes WHERE id = @noteId AND user_id = @userId");
+
+  const note = checkResult.recordset[0];
+
+  if (!note) {
+    throw new Error("Note not found");
+  }
+
+  let contentToSave = htmlContent;
+  let ivToSave = null;
+
+  // Encrypt if protected
+  if (note.is_protected) {
+    const encryption = require("../utils/encryption");
+    const { encryptedData, iv, authTag } = encryption.encryptContent(htmlContent, userId);
+    // Append auth tag to encrypted data for storage
+    contentToSave = encryptedData + authTag;
+    ivToSave = iv;
+  }
+
+  const result = await pool.request()
+    .input("htmlContent", sql.NVarChar(sql.MAX), contentToSave)
+    .input("noteId", sql.Int, noteId)
+    .input("userId", sql.Int, userId)
+    .input("iv", sql.NVarChar(64), ivToSave)
     .query(`
       UPDATE notes
-      SET content_html = @htmlContent, updated_at = SYSDATETIME()
+      SET content_html = @htmlContent, 
+          encryption_iv = COALESCE(@iv, encryption_iv),
+          updated_at = SYSDATETIME()
       OUTPUT inserted.*
       WHERE id = @noteId AND user_id = @userId
-    `);
+   `);
   return result.recordset[0];
 };
 
@@ -153,6 +206,78 @@ const countFilteredNotes = async (userId, searchKeyword = "") => {
   return parseInt(result.recordset[0].count);
 };
 
+// Get all notes WITH content for graph generation
+const findAllNotesWithContentByUserID = async (userId) => {
+  await poolConnect;
+  const result = await pool.request()
+    .input("userId", sql.Int, userId)
+    .query("SELECT id, note_name, content_html, updated_at, created_at, is_protected FROM notes WHERE user_id = @userId ORDER BY updated_at DESC");
+  return result.recordset;
+};
+
+/**
+ * Toggle note protection status
+ * Encrypts content if protecting, decrypts if unprotecting
+ */
+const toggleNoteProtection = async (noteId, userId, isProtected) => {
+  await poolConnect;
+
+  // Get current note
+  const noteResult = await pool.request()
+    .input("noteId", sql.Int, noteId)
+    .input("userId", sql.Int, userId)
+    .query("SELECT content_html, is_protected, encryption_iv FROM notes WHERE id = @noteId AND user_id = @userId");
+
+  const note = noteResult.recordset[0];
+
+  if (!note) {
+    throw new Error("Note not found");
+  }
+
+  let contentToSave = note.content_html;
+  let ivToSave = null;
+
+  const encryption = require("../utils/encryption");
+
+  // Protecting: encrypt plaintext
+  if (isProtected && !note.is_protected) {
+    const { encryptedData, iv, authTag } = encryption.encryptContent(note.content_html || '', userId);
+    contentToSave = encryptedData + authTag;
+    ivToSave = iv;
+  }
+  // Unprotecting: decrypt encrypted content
+  else if (!isProtected && note.is_protected) {
+    if (note.content_html && note.encryption_iv) {
+      const encryptedData = note.content_html.slice(0, -32);
+      const authTag = note.content_html.slice(-32);
+      contentToSave = encryption.decryptContent(encryptedData, note.encryption_iv, authTag, userId);
+    } else {
+      // Empty or null content, just set to empty string
+      contentToSave = '';
+    }
+    ivToSave = null; // Clear IV when unprotecting
+  }
+
+  // Update note
+  const result = await pool.request()
+    .input("noteId", sql.Int, noteId)
+    .input("userId", sql.Int, userId)
+    .input("isProtected", sql.Bit, isProtected ? 1 : 0)
+    .input("content", sql.NVarChar(sql.MAX), contentToSave)
+    .input("iv", sql.NVarChar(64), ivToSave)
+    .query(`
+      UPDATE notes
+      SET is_protected = @isProtected,
+          content_html = @content,
+          encryption_iv = @iv,
+          updated_at = SYSDATETIME()
+      OUTPUT inserted.*
+      WHERE id = @noteId AND user_id = @userId
+    `);
+
+  return result.recordset[0];
+};
+
 module.exports = {
   findNoteByUserID,
   findAllNotesByUserID,
@@ -163,5 +288,7 @@ module.exports = {
   CreateNote,
   DeleteNote,
   SaveNewNameInNoteID,
-  countFilteredNotes
+  countFilteredNotes,
+  findAllNotesWithContentByUserID,
+  toggleNoteProtection,
 };

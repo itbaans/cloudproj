@@ -184,17 +184,28 @@ async function getSpecificNoteForContext(noteId, userId) {
       .input("noteId", sql.Int, noteId)
       .input("userId", sql.Int, userId)
       .query(`
-        SELECT id, note_name, content_html, updated_at
+        SELECT id, note_name, content_html, updated_at, is_protected
         FROM notes
         WHERE id = @noteId AND user_id = @userId
       `);
 
-    return result.recordset.length > 0 ? result.recordset[0] : null;
+    const note = result.recordset.length > 0 ? result.recordset[0] : null;
+
+    // Check if note is protected
+    if (note && note.is_protected) {
+      return {
+        error: "Protected notes cannot be used in AI chat",
+        isProtected: true
+      };
+    }
+
+    return note;
   } catch (err) {
     logger.error({ err, noteId, userId }, "Error getting specific note for context");
     throw err;
   }
 }
+
 
 /**
  * Update conversation title

@@ -1,0 +1,40 @@
+/* Add to TextEditor.css */
+
+.editor-heading-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 20px;
+}
+
+.protection-toggle-btn {
+  background: white;
+  border: 1px solid #d0d0d0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.protection-toggle-btn:hover {
+  background: #f5f5f5;
+  border-color: #999;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.protection-toggle-btn.protected {
+  background: #fff3cd;
+  border-color: #ffc107;
+  color: #856404;
+  font-weight: 600;
+}
+
+.protection-toggle-btn:active {
+  transform: translateY(0);
+}

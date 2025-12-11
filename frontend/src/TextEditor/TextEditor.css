@@ -1,6 +1,7 @@
 /* TextEditor.css */
 .app-body {
-  background-color: #f0f0f0; /* margin/background area color */
+  background-color: #f0f0f0;
+  /* margin/background area color */
   padding: 0;
   margin: 0;
   height: 100vh;
@@ -38,7 +39,7 @@
   margin: 0;
 }
 
-.top-filler{
+.top-filler {
   height: 50px;
 }
 
@@ -65,7 +66,7 @@
 /* Firefox */
 .editor-area .ql-editor {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0,0,0,0.1) transparent;
+  scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
 }
 
 /* Chrome, Safari, Edge */
@@ -84,7 +85,7 @@
 
 
 .editor-seperator {
- /* Create a thin line */
+  /* Create a thin line */
   width: fit;
   border-bottom: 1px solid #ccc;
 
@@ -109,18 +110,37 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 
@@ -163,8 +183,47 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
 }
 
+.editor-heading-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 20px;
+}
+
+.protection-toggle-btn {
+  background: white;
+  border: 1px solid #d0d0d0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.protection-toggle-btn:hover {
+  background: #f5f5f5;
+  border-color: #999;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.protection-toggle-btn.protected {
+  background: #fff3cd;
+  border-color: #ffc107;
+  color: #856404;
+  font-weight: 600;
+}
+
+.protection-toggle-btn:active {
+  transform: translateY(0);
+}

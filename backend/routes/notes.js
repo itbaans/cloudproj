@@ -6,7 +6,7 @@ const verifyToken = require('../middlewares/verifyToken');
 //save html into Note
 router.put("/save/:noteId", verifyToken, notesController.updateNoteContent);
 // load html from note
-router.get("/load/:noteId",verifyToken, notesController.getNoteContent);
+router.get("/load/:noteId", verifyToken, notesController.getNoteContent);
 // create new note
 router.post("/create", verifyToken, notesController.createNewNote);
 // delete note
@@ -17,5 +17,10 @@ router.get("/all", verifyToken, notesController.getAllUserNotes);
 router.get("/dashboard", verifyToken, notesController.getAllUserNotesForDashboard);
 // update notename
 router.put("/name/:noteId", verifyToken, notesController.updateNoteName);
+// get notes graph data
+router.get("/graph", verifyToken, notesController.getNotesGraphData);
+// toggle note protection
+router.post("/protect/:noteId", verifyToken, notesController.toggleNoteProtection);
 
 module.exports = router;
+

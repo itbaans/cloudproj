@@ -94,6 +94,41 @@ const updateLastLogin = async (userId) => {
     .query("UPDATE users SET last_login = SYSDATETIME() WHERE id = @userId");
 };
 
+/**
+ * Save graph metadata for user (cached graph structure)
+ */
+const saveGraphMetadata = async (userId, graphData) => {
+  await poolConnect;
+  const graphJson = JSON.stringify(graphData);
+  await pool.request()
+    .input("userId", sql.Int, userId)
+    .input("graphData", sql.NVarChar(sql.MAX), graphJson)
+    .query("UPDATE users SET graph_meta_data = @graphData WHERE id = @userId");
+};
+
+/**
+ * Get cached graph metadata for user
+ */
+const getGraphMetadata = async (userId) => {
+  await poolConnect;
+  const result = await pool.request()
+    .input("userId", sql.Int, userId)
+    .query("SELECT graph_meta_data FROM users WHERE id = @userId");
+
+  const metadata = result.recordset[0]?.graph_meta_data;
+  return metadata ? JSON.parse(metadata) : null;
+};
+
+/**
+ * Clear graph metadata (invalidate cache)
+ */
+const clearGraphMetadata = async (userId) => {
+  await poolConnect;
+  await pool.request()
+    .input("userId", sql.Int, userId)
+    .query("UPDATE users SET graph_meta_data = NULL WHERE id = @userId");
+};
+
 module.exports = {
   findUserByUserId,
   findUserByUsername,
@@ -103,4 +138,7 @@ module.exports = {
   createUser,
   updateLastLogin,
   markUserAsVerified,
+  saveGraphMetadata,
+  getGraphMetadata,
+  clearGraphMetadata,
 };

@@ -16,6 +16,7 @@ const TextEditor = () => {
   const quillInstance = useRef(null);
   const initialRender = useRef(true);
   const [editorContent, setEditorContent] = useState("");
+  const [isProtected, setIsProtected] = useState(false);
 
   const { token } = useAuth();
   const { selectedNoteId, setSelectedNoteId } = useNote();
@@ -194,6 +195,35 @@ const TextEditor = () => {
     setRefreshNotes
   ]);
 
+  // Load protection status when note changes
+  useEffect(() => {
+    const loadProtectionStatus = async () => {
+      if (!selectedNoteId || !token) {
+        setIsProtected(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/note/load/${selectedNoteId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setIsProtected(data.is_protected || false);
+      } catch (err) {
+        console.error("Error loading protection status:", err);
+        setIsProtected(false);
+      }
+    };
+
+    loadProtectionStatus();
+  }, [selectedNoteId, token]);
+
+
   useEffect(() => {
     const quill = quillInstance.current;
     if (!quill) return;
@@ -279,6 +309,41 @@ const TextEditor = () => {
     setRefreshNotes((prev) => !prev);
   };
 
+  const toggleProtection = async () => {
+    if (!selectedNoteId) return;
+
+    const confirmMsg = isProtected
+      ? "Unprotect this note? It will be included in AI features again."
+      : "Protect this note? Content will be encrypted and excluded from AI features.";
+
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/note/protect/${selectedNoteId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ isProtected: !isProtected }),
+        }
+      );
+
+      if (response.ok) {
+        setIsProtected(!isProtected);
+        setRefreshNotes(!refreshNotes);
+        alert(`Note ${!isProtected ? 'protected' : 'unprotected'} successfully!`);
+      } else {
+        alert("Failed to toggle protection");
+      }
+    } catch (err) {
+      console.error("Error toggling protection:", err);
+      alert("Error toggling protection");
+    }
+  };
+
   // autosave on every keystroke
   useEffect(
     () => {
@@ -309,7 +374,18 @@ const TextEditor = () => {
     <div className="editor-container slide-up">
       <div className="top-filler"> </div>
       <CustomToolbar quill={quillInstance.current} />
-      <EditableHeading value={selectedNoteName} onSave={handleSaveNoteName} />
+      <div className="editor-heading-bar">
+        <EditableHeading value={selectedNoteName} onSave={handleSaveNoteName} />
+        {selectedNoteId && (
+          <button
+            className={`protection-toggle-btn ${isProtected ? 'protected' : ''}`}
+            onClick={toggleProtection}
+            title={isProtected ? "Unprotect Note" : "Protect Note"}
+          >
+            {isProtected ? '🔓 Protected' : '🔒 Protect'}
+          </button>
+        )}
+      </div>
       <div className="editor-seperator"></div>
       <div ref={editorRef} className="editor-area" />
     </div>
