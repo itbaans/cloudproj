@@ -53,7 +53,7 @@ const NotesGraph = ({ graphData, onRegenerate, isLoading }) => {
         return colors[topic] || "#9E9E9E";
     };
 
-    // Icon mapping for different topics
+    // Icon mapping for different topics (React components - for legend)
     const getTopicIcon = (topic) => {
         const icons = {
             "Work": <IoIosBriefcase />,
@@ -71,6 +71,27 @@ const NotesGraph = ({ graphData, onRegenerate, isLoading }) => {
             "Uncategorized": <FaCircle />
         };
         return icons[topic] || <FaCircle />;
+    };
+
+    // Emoji mapping for canvas drawing (graph nodes)
+    const getTopicEmoji = (topic) => {
+        const emojis = {
+            "Work": "💼",
+            "Shopping": "🛒",
+            "Personal": "👤",
+            "Finance": "💰",
+            "Health": "❤️",
+            "Food": "🍽️",
+            "Home": "🏠",
+            "Travel": "✈️",
+            "Leisure": "🎮",
+            "Protected": "🔒",
+            "Empty": "○",
+            "Ideas": "💡",
+            "Other": "○",
+            "Uncategorized": "○"
+        };
+        return emojis[topic] || "○";
     };
 
     const handleNodeClick = (node) => {
@@ -111,29 +132,33 @@ const NotesGraph = ({ graphData, onRegenerate, isLoading }) => {
                 nodeCanvasObject={(node, ctx, globalScale) => {
                     const label = node.label;
                     const fontSize = 12 / globalScale;
-                    const nodeSize = node.isProtected ? 7 : 5; // Larger for protected
+                    const nodeSize = node.isProtected ? 14 : 12; // Larger nodes to fit icons
+
+                    // Check if dark mode is active
+                    const isDarkMode = document.body.classList.contains('dark-mode');
 
                     // Draw node circle
                     ctx.beginPath();
                     ctx.arc(node.x, node.y, nodeSize, 0, 2 * Math.PI, false);
                     ctx.fillStyle = getTopicColor(node.topic);
                     ctx.fill();
-                    ctx.strokeStyle = node.isProtected ? '#ffc107' : '#fff'; // Gold border
-                    ctx.lineWidth = node.isProtected ? 2.5 / globalScale : 1.5 / globalScale;
+
+                    // Border color matches background for cleaner look
+                    ctx.strokeStyle = node.isProtected ? '#ffc107' : (isDarkMode ? '#1a1a1a' : '#ffffff');
+                    ctx.lineWidth = 2.5 / globalScale;
                     ctx.stroke();
 
-                    // Draw lock icon for protected notes
-                    if (node.isProtected) {
-                        ctx.font = `${fontSize * 1.5}px Sans-Serif`;
-                        ctx.fillText('🔒', node.x - fontSize * 0.6, node.y + fontSize * 0.4);
-                    }
+                    // Draw topic emoji icon inside the node
+                    const emoji = getTopicEmoji(node.topic);
+                    ctx.font = `${nodeSize * 1.1}px Sans-Serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(emoji, node.x, node.y);
 
-                    // Draw label
+                    // Draw label below node
                     ctx.font = `${fontSize}px Sans-Serif`;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    // Check if dark mode is active
-                    const isDarkMode = document.body.classList.contains('dark-mode');
                     ctx.fillStyle = isDarkMode ? '#ffffff' : '#333333';
                     ctx.fillText(label, node.x, node.y + nodeSize + 10 / globalScale);
                 }}
