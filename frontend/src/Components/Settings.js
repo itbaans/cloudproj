@@ -21,8 +21,22 @@ function Settings() {
     const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
 
     // Preferences state
-    const [darkMode, setDarkMode] = useState(false);
+    const [darkMode, setDarkMode] = useState(() => {
+        // Initialize from localStorage
+        const saved = localStorage.getItem('darkMode');
+        return saved === 'true';
+    });
     const [emailNotifications, setEmailNotifications] = useState(true);
+
+    // Effect to toggle dark mode on body
+    useEffect(() => {
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+        localStorage.setItem('darkMode', darkMode.toString());
+    }, [darkMode]);
 
     useEffect(() => {
         const fetchUserInfo = async () => {

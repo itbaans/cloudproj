@@ -1,4 +1,5 @@
 // App.js
+import { useEffect } from 'react';
 import './App.css';
 import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
@@ -20,6 +21,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 function App() {
   const { isLoggedIn } = useAuth();
+
+  // Apply dark mode on app initialization
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode === 'true') {
+      document.body.classList.add('dark-mode');
+    }
+  }, []);
   return (
     <Router>
       <Routes>

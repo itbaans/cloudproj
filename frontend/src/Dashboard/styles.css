@@ -28,7 +28,7 @@
 .view-toggle {
   display: flex;
   gap: 8px;
-  background: #f5f5f5;
+  background: var(--bg-secondary);
   padding: 4px;
   border-radius: 8px;
 }
@@ -46,13 +46,13 @@
 }
 
 .view-toggle-btn:hover {
-  background: #e0e0e0;
+  background: var(--bg-hover);
 }
 
 .view-toggle-btn.active {
-  background: white;
-  color: #1d1d1f;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Graph View Styles */
@@ -93,7 +93,7 @@
 .graph-loading p {
   margin: 0;
   font-size: 16px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 
@@ -152,17 +152,18 @@
 .search-input {
   width: 100%;
   padding: 16px 20px 16px 50px;
-  border: 1px solid #E0E0E0;
+  border: 1px solid var(--border-color);
   border-radius: 15px;
-  background-color: #FFFFFF;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   outline: none;
   transition: all 0.2s ease;
   box-sizing: border-box;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .search-input:focus {
-  border-color: #FFBF00;
+  border-color: var(--accent-primary);
   /*box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1), 0 2px 8px rgba(0,0,0,0.05);*/
 }
 
@@ -208,9 +209,10 @@
 
 .filter-select {
   padding: 8px 12px;
-  border: 1px solid #E0E0E0;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: #FFFFFF;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -256,17 +258,17 @@
 
 /* Note Card Styles */
 .note-card {
-  background-color: #ffffff;
+  background-color: var(--bg-card);
   border-radius: 12px;
   padding: 20px;
   cursor: pointer;
-  border: 1px solid #cccccc;
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   height: 200px;
   position: relative;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
 }
 
 /* Right edge colored strip */
@@ -332,7 +334,7 @@
 
 .note-title {
   margin: 0 0 12px 0;
-  color: #333333;
+  color: var(--text-heading);
   font-size: 18px;
   font-weight: 600;
   line-height: 1.3;
@@ -340,7 +342,7 @@
 
 .note-content {
   margin: 0 0 auto 0;
-  color: #666666;
+  color: var(--text-secondary);
   font-size: 14px;
   line-height: 1.5;
   overflow: hidden;
@@ -381,7 +383,7 @@
 }
 
 .note-date {
-  color: #999999;
+  color: var(--text-muted);
   font-size: 12px;
 }
 
@@ -411,7 +413,7 @@
   justify-content: center;
   flex: 1;
   min-height: 300px;
-  color: #9E9E9E;
+  color: var(--text-muted);
   text-align: center;
   padding: 40px;
 }
