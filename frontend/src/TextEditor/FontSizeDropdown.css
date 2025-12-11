@@ -2,33 +2,39 @@
   position: relative;
   display: inline-block;
   font-family: sans-serif;
-  height: 24px; /* Match Quill's default toolbar item height */
+  height: 24px;
+  /* Match Quill's default toolbar item height */
 }
 
 .size-input-wrapper {
   display: flex;
   align-items: center;
-  border: 2px solid #e1e5e9;
+  border: 2px solid var(--border-color);
   border-radius: 3px;
-  background-color: #fff;
+  background-color: var(--bg-card);
   padding: 0px 3px;
   height: 100%;
   box-sizing: border-box;
 }
+
 .size-input-wrapper:hover {
   box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
 }
 
 .size-input {
-  width: 2.5em; /* Adjust width as needed */
+  width: 2.5em;
+  /* Adjust width as needed */
   border: none;
   background: transparent;
   outline: none;
   padding: 0;
-  font-size: 14px; /* Match Quill's toolbar font size */
+  font-size: 14px;
+  /* Match Quill's toolbar font size */
   text-align: center;
   height: 100%;
+  color: var(--text-primary);
 }
+
 /* The clickable container for the arrow */
 .size-arrow-container {
   display: flex;
@@ -36,9 +42,11 @@
   justify-content: center;
   cursor: pointer;
 }
+
 .size-arrow-container.active .size-dropdown-arrow {
   transform: rotate(180deg);
 }
+
 .size-input-wrapper.active,
 .size-input-wrapper:focus-within {
   border-color: #FFBF00;
@@ -49,7 +57,7 @@
   border-color: #FFBF00;
 }
 
-.size-input.active{
+.size-input.active {
   border-color: #FFBF00;
 }
 
@@ -64,19 +72,20 @@
   transition: transform 0.2s ease;
   margin-left: 5px;
 }
-*/
-.size-arrow-container.active .size-dropdown-arrow {
+
+*/ .size-arrow-container.active .size-dropdown-arrow {
   transform: rotate(180deg);
 }
+
 .size-dropdown-menu {
   display: none;
   position: absolute;
   top: 100%;
   left: 0;
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-md);
   z-index: 1000;
   max-height: 300px;
   overflow-y: auto;
@@ -92,19 +101,21 @@
   font-size: 14px;
   font-weight: 400;
   user-select: none;
+  color: var(--text-primary);
 }
 
 .size-dropdown-item:hover {
-  background: #f9fafb;
-  color: #FFBF00;
+  background: var(--bg-hover);
+  color: var(--accent-primary);
 
 }
 
 .size-dropdown-item.selected {
-  background: #f5f3ff;
-  color: #FFBF00;
+  background: var(--accent-light);
+  color: var(--accent-primary);
   font-weight: 500;
 }
+
 /* Custom scrollbar */
 .size-dropdown-menu::-webkit-scrollbar {
   width: 5px;

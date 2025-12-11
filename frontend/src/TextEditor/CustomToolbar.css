@@ -262,23 +262,24 @@
   gap: 8px;
   margin-left: 12px;
   padding-left: 12px;
-  border-left: 1px solid #ccc;
+  border-left: 1px solid var(--border-color);
 }
 
 .ql-protect {
-  background: white;
-  border: 1px solid #d0d0d0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
+  color: var(--text-primary);
   transition: all 0.2s;
 }
 
 .ql-protect:hover {
-  background: #f5f5f5;
-  border-color: #999;
+  background: var(--bg-hover);
+  border-color: var(--border-light);
 }
 
 .ql-protect.protected {

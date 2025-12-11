@@ -51,9 +51,10 @@
   height: calc(100vh - 16px);
   box-sizing: border-box;
   /*overflow: hidden;*/
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   margin: 8px 8px;
+  background: var(--bg-primary);
 }
 
 .editor-area {
@@ -204,8 +205,8 @@
 }
 
 .notebook-selector {
-  background: white;
-  border: 1px solid #d0d0d0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 13px;
@@ -214,6 +215,7 @@
   transition: all 0.2s;
   outline: none;
   min-width: 180px;
+  color: var(--text-primary);
 }
 
 .notebook-selector:hover {
@@ -228,11 +230,13 @@
 
 .notebook-selector option {
   padding: 8px;
+  background: var(--bg-card);
+  color: var(--text-primary);
 }
 
 .protection-toggle-btn {
-  background: white;
-  border: 1px solid #d0d0d0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
@@ -241,13 +245,14 @@
   transition: all 0.2s;
   white-space: nowrap;
   flex-shrink: 0;
+  color: var(--text-primary);
 }
 
 .protection-toggle-btn:hover {
-  background: #f5f5f5;
-  border-color: #999;
+  background: var(--bg-hover);
+  border-color: var(--border-light);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .protection-toggle-btn.protected {
