@@ -7,6 +7,7 @@ import {
   FaSignOutAlt,
   FaTasks,
   FaBook,
+  FaCog
 } from "react-icons/fa";
 import { FaScroll } from "react-icons/fa";
 import "./sidebar.css";
@@ -127,6 +128,18 @@ function Sidebar() {
                 <span>Tasks</span>
               </div>
               {activeSection === "tasks" && (
+                <div className="active-indicator"></div>
+              )}
+            </li>
+            <li
+              className={`nav-item ${activeSection === "settings" ? "active" : ""}`}
+              onClick={() => handleNavigation("settings")}
+            >
+              <div className="nav-item-content">
+                <FaCog className="nav-icon" />
+                <span>Settings</span>
+              </div>
+              {activeSection === "settings" && (
                 <div className="active-indicator"></div>
               )}
             </li>
