@@ -38,6 +38,9 @@ function Settings() {
                     const data = await response.json();
                     setUsername(data.username || '');
                     setEmail(data.email || '');
+                    if (data.profile_picture) {
+                        setProfilePic(data.profile_picture);
+                    }
                 }
             } catch (err) {
                 console.error('Error loading user info:', err);
@@ -48,12 +51,51 @@ function Settings() {
 
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
-        setProfileMessage({ type: 'success', text: 'Profile updated successfully!' });
-        setTimeout(() => setProfileMessage({ type: '', text: '' }), 3000);
+        setProfileMessage({ type: '', text: '' });
+
+        try {
+            // Update profile picture if changed
+            if (profilePic) {
+                const picResponse = await fetch(`${API_BASE_URL}/user/picture`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ profilePicture: profilePic }),
+                });
+                if (!picResponse.ok) {
+                    const data = await picResponse.json();
+                    throw new Error(data.error || 'Failed to update profile picture');
+                }
+            }
+
+            // Update username and email
+            const response = await fetch(`${API_BASE_URL}/user/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ username, email }),
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to update profile');
+            }
+
+            setProfileMessage({ type: 'success', text: 'Profile updated successfully!' });
+            setTimeout(() => setProfileMessage({ type: '', text: '' }), 3000);
+        } catch (err) {
+            setProfileMessage({ type: 'error', text: err.message });
+        }
     };
 
     const handlePasswordChange = async (e) => {
         e.preventDefault();
+        setPasswordMessage({ type: '', text: '' });
+
         if (newPassword !== confirmPassword) {
             setPasswordMessage({ type: 'error', text: 'Passwords do not match!' });
             return;
@@ -62,11 +104,30 @@ function Settings() {
             setPasswordMessage({ type: 'error', text: 'Password must be at least 6 characters!' });
             return;
         }
-        setPasswordMessage({ type: 'success', text: 'Password changed successfully!' });
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        setTimeout(() => setPasswordMessage({ type: '', text: '' }), 3000);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/user/password`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ currentPassword, newPassword }),
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to update password');
+            }
+
+            setPasswordMessage({ type: 'success', text: 'Password changed successfully!' });
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+            setTimeout(() => setPasswordMessage({ type: '', text: '' }), 3000);
+        } catch (err) {
+            setPasswordMessage({ type: 'error', text: err.message });
+        }
     };
 
     const handleImageUpload = (e) => {

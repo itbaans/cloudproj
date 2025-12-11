@@ -26,6 +26,7 @@ function Sidebar() {
   const navigate = useNavigate();
   const { token, logout } = useAuth();
   const [username, setUsername] = useState("");
+  const [profilePic, setProfilePic] = useState(null);
 
   const handleLogout = () => {
     logout();
@@ -52,6 +53,9 @@ function Sidebar() {
         const data = await response.json();
 
         setUsername(data.username);
+        if (data.profile_picture) {
+          setProfilePic(data.profile_picture);
+        }
       } catch (err) {
         console.error("Error loading user info:", err);
       }
@@ -70,9 +74,13 @@ function Sidebar() {
 
       <div className="sidebar-content">
         {/* User Profile Section */}
-        <div className="user-profile" onClick={() => navigate("/user")}>
+        <div className="user-profile" onClick={() => navigate("/settings")}>
           <div className="avatar-container">
-            <FaUserCircle className="user-avatar" />
+            {profilePic ? (
+              <img src={profilePic} alt="Profile" className="user-avatar-img" />
+            ) : (
+              <FaUserCircle className="user-avatar" />
+            )}
           </div>
           <div className="user-info">
             <div className="user-name">{username}</div>

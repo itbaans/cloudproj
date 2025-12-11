@@ -7,7 +7,7 @@ const findUserByUserId = async (userId) => {
   await poolConnect;
   const result = await pool.request()
     .input("userId", sql.Int, userId)
-    .query("SELECT username, email, joined_at FROM users WHERE id = @userId");
+    .query("SELECT username, email, joined_at, profile_picture FROM users WHERE id = @userId");
   return result.recordset[0];
 };
 
@@ -129,6 +129,61 @@ const clearGraphMetadata = async (userId) => {
     .query("UPDATE users SET graph_meta_data = NULL WHERE id = @userId");
 };
 
+/**
+ * Get user's password hash for verification
+ */
+const getUserPasswordHash = async (userId) => {
+  await poolConnect;
+  const result = await pool.request()
+    .input("userId", sql.Int, userId)
+    .query("SELECT password_hash FROM users WHERE id = @userId");
+  return result.recordset[0]?.password_hash;
+};
+
+/**
+ * Update username
+ */
+const updateUsername = async (userId, username) => {
+  await poolConnect;
+  await pool.request()
+    .input("userId", sql.Int, userId)
+    .input("username", sql.NVarChar(50), username)
+    .query("UPDATE users SET username = @username WHERE id = @userId");
+};
+
+/**
+ * Update email
+ */
+const updateEmail = async (userId, email) => {
+  await poolConnect;
+  await pool.request()
+    .input("userId", sql.Int, userId)
+    .input("email", sql.NVarChar(100), email)
+    .query("UPDATE users SET email = @email WHERE id = @userId");
+};
+
+/**
+ * Update password
+ */
+const updatePassword = async (userId, hashedPassword) => {
+  await poolConnect;
+  await pool.request()
+    .input("userId", sql.Int, userId)
+    .input("password_hash", sql.NVarChar(sql.MAX), hashedPassword)
+    .query("UPDATE users SET password_hash = @password_hash WHERE id = @userId");
+};
+
+/**
+ * Update profile picture URL
+ */
+const updateProfilePicture = async (userId, pictureUrl) => {
+  await poolConnect;
+  await pool.request()
+    .input("userId", sql.Int, userId)
+    .input("profile_picture", sql.NVarChar(sql.MAX), pictureUrl)
+    .query("UPDATE users SET profile_picture = @profile_picture WHERE id = @userId");
+};
+
 module.exports = {
   findUserByUserId,
   findUserByUsername,
@@ -141,4 +196,9 @@ module.exports = {
   saveGraphMetadata,
   getGraphMetadata,
   clearGraphMetadata,
+  getUserPasswordHash,
+  updateUsername,
+  updateEmail,
+  updatePassword,
+  updateProfilePicture,
 };
