@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import ChatMessage from "./ChatMessage";
-import ConversationList from "./ConversationList";
 import { useChat } from "./ChatContext";
 import botActions from "./BotActions";
 import { API_BASE_URL } from "../../App/config.js";
@@ -13,14 +12,9 @@ const ChatAssistant = () => {
         currentConversationId,
         setCurrentConversationId,
         contextMode,
-        setContextMode,
         currentNoteId,
         currentLocation,
-        conversations,
-        isLoadingConversations,
-        selectConversation,
-        deleteConversation,
-        loadConversations,
+        resetCurrentChat,
         isViewingProtectedNote,
     } = useChat();
 
@@ -28,7 +22,6 @@ const ChatAssistant = () => {
     const [inputMessage, setInputMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [showConversations, setShowConversations] = useState(false);
     const messagesEndRef = useRef(null);
     const token = localStorage.getItem("token");
 
@@ -90,7 +83,6 @@ const ChatAssistant = () => {
 
         try {
             const requestBody = {
-                conversationId: currentConversationId,
                 message: userMessage,
                 contextMode: contextMode,
             };
@@ -115,7 +107,6 @@ const ChatAssistant = () => {
                 // Update conversation ID if it's a new conversation
                 if (!currentConversationId && data.conversationId) {
                     setCurrentConversationId(data.conversationId);
-                    loadConversations(); // Refresh conversation list
                 }
 
                 // Add assistant response to messages
@@ -144,84 +135,48 @@ const ChatAssistant = () => {
         }
     };
 
-    const handleNewChat = () => {
-        setMessages([]);
-        setCurrentConversationId(null);
-        setError(null);
-    };
+    const handleResetChat = async () => {
+        if (!window.confirm("Clear chat history? This will delete all messages in this conversation.")) {
+            return;
+        }
 
-    const handleSelectConversation = (convId) => {
-        selectConversation(convId);
-        setShowConversations(false);
-    };
-
-    const handleDeleteConversation = async (convId) => {
-        await deleteConversation(convId);
+        const success = await resetCurrentChat();
+        if (success) {
+            setMessages([]);
+            setError(null);
+        } else {
+            setError("Failed to reset conversation");
+        }
     };
 
     if (!isChatOpen || isViewingProtectedNote) return null;
 
-    const canToggleContext = currentLocation === 'notes';
-    const contextBadge = contextMode === 'local' ? '📝 Local' : '🌐 Global';
+    const contextBadge = contextMode === 'local' ? '📝 Note Chat' : '🌐 Global Chat';
 
     return (
         <div className="chat-assistant-popup">
             <div className="chat-popup-container">
-                {/* Conversation List Sidebar (collapsible) */}
-                {showConversations && (
-                    <ConversationList
-                        conversations={conversations}
-                        currentConversationId={currentConversationId}
-                        onSelectConversation={handleSelectConversation}
-                        onDeleteConversation={handleDeleteConversation}
-                        onNewConversation={handleNewChat}
-                        isLoading={isLoadingConversations}
-                    />
-                )}
-
                 {/* Main Chat Area */}
                 <div className="chat-main-area">
                     {/* Header */}
                     <div className="chat-header">
                         <div className="chat-header-left">
-                            <button
-                                className="btn-toggle-conversations"
-                                onClick={() => setShowConversations(!showConversations)}
-                                title="Conversations"
-                            >
-                                {showConversations ? '✕' : '💬'}
-                            </button>
                             <div className="chat-title">
-                                <span className="chat-icon">🤖</span>
+                                <span className="chat-icon">💭</span>
                                 <h3>AI Assistant</h3>
                             </div>
+                            {contextMode && (
+                                <span className="context-badge">
+                                    {contextMode === 'local' ? '📝 Note Context' : '🏠 Global Context'}
+                                </span>
+                            )}
                         </div>
                         <div className="chat-header-right">
-                            {canToggleContext && (
-                                <div className="context-mode-toggle">
-                                    <button
-                                        className={`context-btn ${contextMode === 'global' ? 'active' : ''}`}
-                                        onClick={() => setContextMode('global')}
-                                        title="Global context (all notes)"
-                                    >
-                                        🌐
-                                    </button>
-                                    <button
-                                        className={`context-btn ${contextMode === 'local' ? 'active' : ''}`}
-                                        onClick={() => setContextMode('local')}
-                                        title="Local context (current note only)"
-                                    >
-                                        📝
-                                    </button>
-                                </div>
-                            )}
-                            <span className="context-badge">{contextBadge}</span>
                             <button
                                 className="btn-new-chat"
-                                onClick={handleNewChat}
-                                title="New conversation"
-                            >
-                                ➕
+                                onClick={handleResetChat}
+                                title="Reset Chat"
+                            >        🔄
                             </button>
                             <button
                                 className="btn-close-chat"

@@ -17,6 +17,8 @@ const TextEditor = () => {
   const initialRender = useRef(true);
   const [editorContent, setEditorContent] = useState("");
   const [isProtected, setIsProtected] = useState(false);
+  const [notebooks, setNotebooks] = useState([]);
+  const [currentNotebookId, setCurrentNotebookId] = useState(null);
 
   const { token } = useAuth();
   const { selectedNoteId, setSelectedNoteId } = useNote();
@@ -226,7 +228,62 @@ const TextEditor = () => {
   // Update ChatContext when protection status changes
   useEffect(() => {
     setIsViewingProtectedNote(isProtected);
+
+    // Reset when component unmounts or note changes
+    return () => {
+      setIsViewingProtectedNote(false);
+    };
   }, [isProtected, setIsViewingProtectedNote]);
+
+  // Fetch all notebooks for the dropdown
+  useEffect(() => {
+    const fetchNotebooks = async () => {
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/notebooks`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setNotebooks(data.notebooks || []);
+        }
+      } catch (err) {
+        console.error("Error fetching notebooks:", err);
+      }
+    };
+
+    fetchNotebooks();
+  }, [token]);
+
+  // Load current notebook ID when note changes
+  useEffect(() => {
+    const loadNoteDetails = async () => {
+      if (!selectedNoteId || !token) {
+        setCurrentNotebookId(null);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/note/load/${selectedNoteId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setCurrentNotebookId(data.notebook_id || null);
+      } catch (err) {
+        console.error("Error loading note details:", err);
+      }
+    };
+
+    loadNoteDetails();
+  }, [selectedNoteId, token]);
 
 
   useEffect(() => {
@@ -314,6 +371,37 @@ const TextEditor = () => {
     setRefreshNotes((prev) => !prev);
   };
 
+  // Handle notebook change
+  const handleNotebookChange = async (e) => {
+    const newNotebookId = e.target.value === "" ? null : parseInt(e.target.value);
+
+    if (!selectedNoteId) return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/note/notebook/${selectedNoteId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ notebookId: newNotebookId }),
+        }
+      );
+
+      if (response.ok) {
+        setCurrentNotebookId(newNotebookId);
+        setRefreshNotes(!refreshNotes);
+      } else {
+        alert("Failed to move note to notebook");
+      }
+    } catch (err) {
+      console.error("Error moving note:", err);
+      alert("Error moving note to notebook");
+    }
+  };
+
   const toggleProtection = async () => {
     if (!selectedNoteId) return;
 
@@ -381,15 +469,32 @@ const TextEditor = () => {
       <CustomToolbar quill={quillInstance.current} />
       <div className="editor-heading-bar">
         <EditableHeading value={selectedNoteName} onSave={handleSaveNoteName} />
-        {selectedNoteId && (
-          <button
-            className={`protection-toggle-btn ${isProtected ? 'protected' : ''}`}
-            onClick={toggleProtection}
-            title={isProtected ? "Unprotect Note" : "Protect Note"}
-          >
-            {isProtected ? '🔓 Protected' : '🔒 Protect'}
-          </button>
-        )}
+        <div className="editor-actions">
+          {notebooks.length > 0 && (
+            <select
+              className="notebook-selector"
+              value={currentNotebookId || ""}
+              onChange={handleNotebookChange}
+              title="Move to notebook"
+            >
+              <option value="">No Notebook</option>
+              {notebooks.map((notebook) => (
+                <option key={notebook.id} value={notebook.id}>
+                  📖 {notebook.notebook_name}
+                </option>
+              ))}
+            </select>
+          )}
+          {selectedNoteId && (
+            <button
+              className={`protection-toggle-btn ${isProtected ? 'protected' : ''}`}
+              onClick={toggleProtection}
+              title={isProtected ? "Unprotect Note" : "Protect Note"}
+            >
+              {isProtected ? '🔓 Protected' : '🔒 Protect'}
+            </button>
+          )}
+        </div>
       </div>
       <div className="editor-seperator"></div>
       <div ref={editorRef} className="editor-area" />

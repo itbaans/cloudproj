@@ -22,20 +22,13 @@ const sendMessage = async (req, res) => {
     }
 
     try {
-        let currentConversationId = conversationId;
-
-        // If no conversation ID provided, create a new conversation
-        if (!currentConversationId) {
-            const newConversation = await chatModel.createConversation(userId);
-            currentConversationId = newConversation.id;
-            logger.info({ userId, conversationId: currentConversationId }, "Created new conversation");
-        } else {
-            // Verify the conversation belongs to the user
-            const conversation = await chatModel.getConversationHistory(currentConversationId, userId);
-            if (!conversation) {
-                return res.status(404).json({ error: "Conversation not found" });
-            }
-        }
+        // Get or create the appropriate conversation based on context mode
+        const conversation = await chatModel.getOrCreateConversation(
+            userId,
+            contextMode,
+            contextMode === 'local' ? noteId : null
+        );
+        const currentConversationId = conversation.id;
 
         // Save user message to database
         await chatModel.saveMessage(currentConversationId, "user", message);
@@ -164,7 +157,7 @@ const sendMessage = async (req, res) => {
         });
 
     } catch (err) {
-        logger.error({ err, userId, conversationId }, "Error processing chat message");
+        logger.error({ err, userId }, "Error processing chat message");
 
         // Handle specific Gemini API errors
         if (err.message && err.message.includes("API key")) {
@@ -172,6 +165,33 @@ const sendMessage = async (req, res) => {
         }
 
         res.status(500).json({ error: "Failed to process message. Please try again." });
+    }
+};
+
+/**
+ * Reset a conversation (clear all messages)
+ */
+const resetConversation = async (req, res) => {
+    const { conversationId } = req.body;
+    const userId = req.user.userId;
+
+    if (!conversationId) {
+        return res.status(400).json({ error: "Conversation ID is required" });
+    }
+
+    try {
+        const reset = await chatModel.resetConversation(conversationId, userId);
+
+        if (!reset) {
+            return res.status(404).json({ error: "Conversation not found" });
+        }
+
+        logger.info({ userId, conversationId }, "Reset conversation");
+        res.status(200).json({ message: "Conversation reset successfully" });
+
+    } catch (err) {
+        logger.error({ err, userId, conversationId }, "Error resetting conversation");
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 
@@ -275,7 +295,5 @@ const updateTitle = async (req, res) => {
 module.exports = {
     sendMessage,
     getHistory,
-    getAllConversations,
-    deleteConversation,
-    updateTitle,
+    resetConversation,
 };

@@ -18,6 +18,10 @@ const LayoutContent = () => {
       setCurrentLocation('home');
     } else if (location.pathname === '/notes') {
       setCurrentLocation('notes');
+    } else if (location.pathname === '/tasks') {
+      setCurrentLocation('tasks');
+    } else if (location.pathname.startsWith('/notebooks')) {
+      setCurrentLocation('notebooks');
     }
   }, [location.pathname, setCurrentLocation]);
 

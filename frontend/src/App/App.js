@@ -7,6 +7,9 @@ import Login from '../Authentication/Login';
 import SignUp from '../Authentication/SignUp';
 import Screen from './Screen';
 import Dashboard from '../Dashboard/Dashboard';
+import Tasks from '../Tasks/Tasks';
+import Notebooks from '../Notebooks/Notebooks';
+import NotebookNotes from '../Notebooks/NotebookNotes';
 // import UserPage from './UserPage';
 
 import Layout from '../App/AppLayout'; // New layout with Sidebar
@@ -27,6 +30,9 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/notes" element={<Screen />} />
             <Route path="/home" element={<Dashboard />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/notebooks" element={<Notebooks />} />
+            <Route path="/notebooks/:id" element={<NotebookNotes />} />
             {/*<Route path="/user" element={<UserPage />} />*/}
           </Route>
         )}

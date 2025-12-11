@@ -21,6 +21,8 @@ router.put("/name/:noteId", verifyToken, notesController.updateNoteName);
 router.get("/graph", verifyToken, notesController.getNotesGraphData);
 // toggle note protection
 router.post("/protect/:noteId", verifyToken, notesController.toggleNoteProtection);
+// move note to notebook
+router.put("/notebook/:noteId", verifyToken, notesController.moveNoteToNotebook);
 
 module.exports = router;
 

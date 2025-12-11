@@ -29,14 +29,15 @@ const findNoteByNoteID = async (noteId) => {
 };
 
 // Create a new note
-const CreateNote = async (userId) => {
+const CreateNote = async (userId, notebookId = null) => {
   await poolConnect;
   const result = await pool.request()
     .input("userId", sql.Int, userId)
+    .input("notebookId", sql.Int, notebookId)
     .query(`
-      INSERT INTO notes (user_id)
-      OUTPUT inserted.id, inserted.note_name, inserted.updated_at, inserted.created_at
-      VALUES (@userId)
+      INSERT INTO notes (user_id, notebook_id)
+      OUTPUT inserted.id, inserted.note_name, inserted.updated_at, inserted.created_at, inserted.notebook_id
+      VALUES (@userId, @notebookId)
     `);
   return result.recordset[0];
 };
@@ -47,11 +48,10 @@ const LoadHTMLByNoteID = async (noteId, userId) => {
   const result = await pool.request()
     .input("noteId", sql.Int, noteId)
     .input("userId", sql.Int, userId)
-    .query("SELECT content_html, is_protected, encryption_iv FROM notes WHERE id = @noteId AND user_id = @userId");
+    .query("SELECT content_html, is_protected, encryption_iv, notebook_id FROM notes WHERE id = @noteId AND user_id = @userId");
 
+  if (result.recordset.length === 0) return null;
   const note = result.recordset[0];
-
-  if (!note) return null;
 
   // Decrypt if protected
   if (note.is_protected && note.content_html) {
@@ -278,6 +278,22 @@ const toggleNoteProtection = async (noteId, userId, isProtected) => {
   return result.recordset[0];
 };
 
+// Move note to a different notebook
+const moveNoteToNotebook = async (noteId, userId, notebookId) => {
+  await poolConnect;
+  const result = await pool.request()
+    .input("noteId", sql.Int, noteId)
+    .input("userId", sql.Int, userId)
+    .input("notebookId", sql.Int, notebookId)
+    .query(`
+      UPDATE notes
+      SET notebook_id = @notebookId, updated_at = SYSDATETIME()
+      OUTPUT inserted.*
+      WHERE id = @noteId AND user_id = @userId
+    `);
+  return result.recordset[0];
+};
+
 module.exports = {
   findNoteByUserID,
   findAllNotesByUserID,
@@ -291,4 +307,5 @@ module.exports = {
   countFilteredNotes,
   findAllNotesWithContentByUserID,
   toggleNoteProtection,
+  moveNoteToNotebook,
 };

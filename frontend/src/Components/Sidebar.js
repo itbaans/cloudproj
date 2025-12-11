@@ -5,6 +5,8 @@ import {
   FaHome,
   FaStickyNote,
   FaSignOutAlt,
+  FaTasks,
+  FaBook,
 } from "react-icons/fa";
 import { FaScroll } from "react-icons/fa";
 import "./sidebar.css";
@@ -14,7 +16,7 @@ import { API_BASE_URL } from "../App/config.js";
 
 function Sidebar() {
 
-  const {activeSection, setActiveSection} = useSide();
+  const { activeSection, setActiveSection } = useSide();
 
   useEffect(() => {
     localStorage.setItem("activeSection", activeSection);
@@ -101,6 +103,30 @@ function Sidebar() {
                 <span>Notes</span>
               </div>
               {activeSection === "notes" && (
+                <div className="active-indicator"></div>
+              )}
+            </li>
+            <li
+              className={`nav-item ${activeSection === "notebooks" ? "active" : ""}`}
+              onClick={() => handleNavigation("notebooks")}
+            >
+              <div className="nav-item-content">
+                <FaBook className="nav-icon" />
+                <span>Notebooks</span>
+              </div>
+              {activeSection === "notebooks" && (
+                <div className="active-indicator"></div>
+              )}
+            </li>
+            <li
+              className={`nav-item ${activeSection === "tasks" ? "active" : ""}`}
+              onClick={() => handleNavigation("tasks")}
+            >
+              <div className="nav-item-content">
+                <FaTasks className="nav-icon" />
+                <span>Tasks</span>
+              </div>
+              {activeSection === "tasks" && (
                 <div className="active-indicator"></div>
               )}
             </li>

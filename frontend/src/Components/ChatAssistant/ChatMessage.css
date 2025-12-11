@@ -11,6 +11,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -18,17 +19,19 @@
 }
 
 .user-message {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #F0B800;
   color: white;
   align-self: flex-end;
   margin-left: auto;
+  box-shadow: 0 2px 6px rgba(240, 184, 0, 0.2);
 }
 
 .assistant-message {
-  background: #f5f5f7;
+  background: white;
   color: #1d1d1f;
   align-self: flex-start;
   border: 1px solid #e5e5e7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .message-header {
@@ -96,7 +99,7 @@
 }
 
 .message-content blockquote {
-  border-left: 3px solid #667eea;
+  border-left: 3px solid #F0B800;
   padding-left: 12px;
   margin: 8px 0;
   font-style: italic;
@@ -104,12 +107,31 @@
 }
 
 .message-content a {
-  color: #667eea;
+  color: #F0B800;
   text-decoration: none;
+  font-weight: 500;
 }
 
 .message-content a:hover {
+  color: #008000;
   text-decoration: underline;
+}
+
+/* Enhance assistant message with subtle accent */
+.assistant-message::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #F0B800;
+  border-radius: 12px 0 0 12px;
+}
+
+.assistant-message {
+  position: relative;
+  padding-left: 20px;
 }
 
 /* Dark mode support for assistant messages */

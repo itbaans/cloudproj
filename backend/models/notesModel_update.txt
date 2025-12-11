@@ -1,0 +1,19 @@
+// Add to notesModel.js
+
+// Move note to a different notebook
+const moveNoteToNotebook = async (noteId, userId, notebookId) => {
+  await poolConnect;
+  const result = await pool.request()
+    .input("noteId", sql.Int, noteId)
+    .input("userId", sql.Int, userId)
+    .input("notebookId", sql.Int, notebookId)
+    .query(`
+      UPDATE notes
+      SET notebook_id = @notebookId, updated_at = SYSDATETIME()
+      OUTPUT inserted.*
+      WHERE id = @noteId AND user_id = @userId
+    `);
+  return result.recordset[0];
+};
+
+module.exports = {moveNoteToNotebook};

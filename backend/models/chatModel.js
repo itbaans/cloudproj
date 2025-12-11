@@ -150,6 +150,133 @@ async function deleteConversation(conversationId, userId) {
 }
 
 /**
+ * Get or create a conversation based on type (global or local)
+ * For global: one per user
+ * For local: one per user-note pair
+ */
+async function getOrCreateConversation(userId, type, noteId = null) {
+  try {
+    await poolConnect;
+
+    // Build the query based on type
+    let query, inputs;
+
+    if (type === 'global') {
+      // Find global conversation for this user
+      const result = await pool
+        .request()
+        .input("userId", sql.Int, userId)
+        .input("type", sql.NVarChar(20), "global")
+        .query(`
+          SELECT * FROM chat_conversations
+          WHERE user_id = @userId AND conversation_type = @type
+        `);
+
+      if (result.recordset.length > 0) {
+        return result.recordset[0];
+      }
+
+      // Create new global conversation
+      const createResult = await pool
+        .request()
+        .input("userId", sql.Int, userId)
+        .input("type", sql.NVarChar(20), "global")
+        .input("title", sql.NVarChar(255), "Global Chat")
+        .query(`
+          INSERT INTO chat_conversations (user_id, conversation_type, title, created_at, updated_at)
+          OUTPUT INSERTED.*
+          VALUES (@userId, @type, @title, SYSDATETIME(), SYSDATETIME())
+        `);
+
+      return createResult.recordset[0];
+
+    } else if (type === 'local') {
+      // Find local conversation for this user-note pair
+      const result = await pool
+        .request()
+        .input("userId", sql.Int, userId)
+        .input("noteId", sql.Int, noteId)
+        .input("type", sql.NVarChar(20), "local")
+        .query(`
+          SELECT * FROM chat_conversations
+          WHERE user_id = @userId AND note_id = @noteId AND conversation_type = @type
+        `);
+
+      if (result.recordset.length > 0) {
+        return result.recordset[0];
+      }
+
+      // Create new local conversation for this note
+      const createResult = await pool
+        .request()
+        .input("userId", sql.Int, userId)
+        .input("noteId", sql.Int, noteId)
+        .input("type", sql.NVarChar(20), "local")
+        .input("title", sql.NVarChar(255), "Note Chat")
+        .query(`
+          INSERT INTO chat_conversations (user_id, note_id, conversation_type, title, created_at, updated_at)
+          OUTPUT INSERTED.*
+          VALUES (@userId, @noteId, @type, @title, SYSDATETIME(), SYSDATETIME())
+        `);
+
+      return createResult.recordset[0];
+    }
+
+    throw new Error("Invalid conversation type");
+  } catch (err) {
+    logger.error({ err, userId, type, noteId }, "Error getting or creating conversation");
+    throw err;
+  }
+}
+
+/**
+ * Reset a conversation by deleting all its messages
+ */
+async function resetConversation(conversationId, userId) {
+  try {
+    await poolConnect;
+
+    // Verify the conversation belongs to the user
+    const convResult = await pool
+      .request()
+      .input("conversationId", sql.Int, conversationId)
+      .input("userId", sql.Int, userId)
+      .query(`
+        SELECT * FROM chat_conversations
+        WHERE id = @conversationId AND user_id = @userId
+      `);
+
+    if (convResult.recordset.length === 0) {
+      return false;
+    }
+
+    // Delete all messages in this conversation
+    await pool
+      .request()
+      .input("conversationId", sql.Int, conversationId)
+      .query(`
+        DELETE FROM chat_messages
+        WHERE conversation_id = @conversationId
+      `);
+
+    // Update the conversation's updated_at timestamp
+    await pool
+      .request()
+      .input("conversationId", sql.Int, conversationId)
+      .query(`
+        UPDATE chat_conversations
+        SET updated_at = SYSDATETIME()
+        WHERE id = @conversationId
+      `);
+
+    return true;
+  } catch (err) {
+    logger.error({ err, conversationId, userId }, "Error resetting conversation");
+    throw err;
+  }
+}
+
+/**
  * Get user's notes content for context (to provide to Gemini)
  */
 async function getUserNotesForContext(userId, limit = 10) {
@@ -163,6 +290,7 @@ async function getUserNotesForContext(userId, limit = 10) {
         SELECT TOP (@limit) id, note_name, content_html, updated_at
         FROM notes
         WHERE user_id = @userId
+          AND (is_protected IS NULL OR is_protected = 0)
         ORDER BY updated_at DESC
       `);
 
@@ -240,4 +368,6 @@ module.exports = {
   getUserNotesForContext,
   getSpecificNoteForContext,
   updateConversationTitle,
+  getOrCreateConversation,
+  resetConversation,
 };

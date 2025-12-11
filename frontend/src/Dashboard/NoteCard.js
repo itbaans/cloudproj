@@ -14,7 +14,7 @@ const stripHtml = (html) => {
   return div.textContent || div.innerText || "";
 };
 
-const NoteCard = ({ note = {}, onClick, isAddCard = false, isLoading }) => {
+const NoteCard = ({ note = {}, onClick, isAddCard = false, isLoading, notebookId }) => {
   const { selectedNoteId, setSelectedNoteId, setSelectedNoteName } = useNote();
   const { activeSection, setActiveSection } = useSide();
   const { token } = useAuth();
@@ -29,6 +29,7 @@ const NoteCard = ({ note = {}, onClick, isAddCard = false, isLoading }) => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ notebookId }),
       });
       if (!response.ok) throw new Error("Failed to create new note");
       const newNote = await response.json();
@@ -40,7 +41,8 @@ const NoteCard = ({ note = {}, onClick, isAddCard = false, isLoading }) => {
 
       setSelectedNoteId(normalized.id);
       setSelectedNoteName(normalized.note_name);
-      navigate("/notes");
+      const url = notebookId ? `/notes?notebookId=${notebookId}` : "/notes";
+      navigate(url);
       // localStorage.setItem("activeSection", "notes");
       setActiveSection("notes");
     } catch (err) {
@@ -62,7 +64,8 @@ const NoteCard = ({ note = {}, onClick, isAddCard = false, isLoading }) => {
   const handleNoteLoad = async () => {
     setSelectedNoteId(note.id);
     setSelectedNoteName(note.note_name);
-    navigate("/notes");
+    const url = notebookId ? `/notes?noteId=${note.id}&notebookId=${notebookId}` : "/notes";
+    navigate(url);
     // localStorage.setItem("activeSection", "notes");
     setActiveSection("notes");
   };

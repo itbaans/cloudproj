@@ -112,16 +112,19 @@ const getAllUserNotes = async (req, res) => {
 
 const createNewNote = async (req, res) => {
   const userId = req.user.userId;
+  const { notebookId } = req.body; // Optional notebook ID
+
   try {
-    const createNote = await notesModel.CreateNote(userId);
+    const createNote = await notesModel.CreateNote(userId, notebookId);
 
     const note = {
       id: createNote.id,
       note_name: createNote.note_name,
       updated_at: createNote.updated_at,
       created_at: createNote.created_at,
+      notebook_id: createNote.notebook_id,
     };
-    logger.info({ noteId: note.id, userId }, "Note created");
+    logger.info({ noteId: note.id, userId, notebookId }, "Note created");
     res.status(200).json(note);
   } catch (err) {
     logger.error({ err, userId }, "Error creating new note");
@@ -347,10 +350,10 @@ Rules:
       };
     });
 
-    // Map relationships to actual note IDs
+    // Map relationships to actual note IDs (only from unprotected notes)
     const links = (analysis.relationships || []).map(rel => {
-      const sourceNote = notes[rel.source - 1];
-      const targetNote = notes[rel.target - 1];
+      const sourceNote = unprotectedNotes[rel.source - 1];
+      const targetNote = unprotectedNotes[rel.target - 1];
 
       if (!sourceNote || !targetNote) return null;
 
@@ -397,6 +400,31 @@ Rules:
   }
 };
 
+// Move note to a different notebook
+const moveNoteToNotebook = async (req, res) => {
+  const userId = req.user.userId;
+  const { noteId } = req.params;
+  const { notebookId } = req.body;
+
+  if (!notebookId) {
+    return res.status(400).json({ error: "Notebook ID is required" });
+  }
+
+  try {
+    const updatedNote = await notesModel.moveNoteToNotebook(noteId, userId, notebookId);
+
+    if (!updatedNote) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    logger.info({ noteId, userId, notebookId }, "Note moved to different notebook");
+    res.status(200).json({ note: updatedNote });
+  } catch (err) {
+    logger.error({ err, noteId, userId }, "Error moving note to notebook");
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
 
 module.exports = {
   updateNoteContent,
@@ -408,4 +436,5 @@ module.exports = {
   updateNoteName,
   getNotesGraphData,
   toggleNoteProtection,
+  moveNoteToNotebook,
 };

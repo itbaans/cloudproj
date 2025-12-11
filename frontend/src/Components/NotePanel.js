@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   FaRegStickyNote,
   FaSortAlphaDown,
@@ -50,6 +51,7 @@ const sortNotes = (notes, sortOption) => {
 };
 
 function NotePanel() {
+  const location = useLocation();
   const [notes, setNotes] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("latest");
@@ -64,15 +66,23 @@ function NotePanel() {
 
   const [loading, setLoading] = useState(true); // NEW
 
+  // Get notebookId from URL if present
+  const searchParams = new URLSearchParams(location.search);
+  const notebookId = searchParams.get('notebookId');
+
   useEffect(() => {
     const fetchNotes = async () => {
 
-      if (!notes.length) 
+      if (!notes.length)
         setLoading(true);
 
       try {
+        // If we have a notebookId, fetch notes for that notebook only
+        const url = notebookId
+          ? `${API_BASE_URL}/notebooks/${notebookId}/notes`
+          : `${API_BASE_URL}/note/all`;
 
-        const response = await fetch(`${API_BASE_URL}/note/all`, {
+        const response = await fetch(url, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -83,10 +93,13 @@ function NotePanel() {
         if (!response.ok) throw new Error("Failed to fetch notes");
 
         const data = await response.json();
-        setNotes(data);
 
-        if (!hasSelectedInitialNote && data.length > 0 && !selectedNoteId) {
-          const sortedData = sortNotes(data, sortOption);
+        // Extract notes array based on response structure
+        const notesArray = notebookId ? data.notebook.notes : data;
+        setNotes(notesArray);
+
+        if (!hasSelectedInitialNote && notesArray.length > 0 && !selectedNoteId) {
+          const sortedData = sortNotes(notesArray, sortOption);
           const firstNote = sortedData[0];
           setSelectedNoteId(firstNote.id);
           setSelectedNoteName(firstNote.note_name);
@@ -107,6 +120,7 @@ function NotePanel() {
     setSelectedNoteName,
     refreshNotes,
     sortOption,
+    notebookId,
   ]);
 
   const handleNewNote = async () => {
