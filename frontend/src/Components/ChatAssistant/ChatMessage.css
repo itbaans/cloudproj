@@ -27,11 +27,11 @@
 }
 
 .assistant-message {
-  background: white;
-  color: #1d1d1f;
+  background: var(--bg-card);
+  color: var(--text-primary);
   align-self: flex-start;
-  border: 1px solid #e5e5e7;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .message-header {

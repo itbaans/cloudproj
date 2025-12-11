@@ -23,18 +23,18 @@
     display: flex;
     width: 550px;
     height: 500px;
-    background: white;
+    background: var(--bg-card);
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
 }
 
 .chat-main-area {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: white;
+    background: var(--bg-card);
 }
 
 /* Header */
@@ -169,7 +169,7 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    background: #fafafa;
+    background: var(--bg-secondary);
 }
 
 .chat-messages::-webkit-scrollbar {
@@ -209,12 +209,12 @@
 .chat-empty-state h4 {
     margin: 0 0 8px 0;
     font-size: 20px;
-    color: #1d1d1f;
+    color: var(--text-primary);
 }
 
 .chat-empty-state p {
     margin: 0 0 24px 0;
-    color: #6e6e73;
+    color: var(--text-secondary);
     font-size: 14px;
     max-width: 300px;
 }
@@ -228,7 +228,7 @@
 }
 
 .suggestion-chip {
-    background: white;
+    background: var(--bg-card);
     border: 1px solid #F0B800;
     padding: 12px 20px;
     border-radius: 20px;
@@ -251,7 +251,7 @@
     display: flex;
     gap: 6px;
     padding: 12px 16px;
-    background: #f5f5f7;
+    background: var(--bg-hover);
     border-radius: 12px;
     width: fit-content;
     margin-bottom: 16px;
@@ -307,19 +307,21 @@
     display: flex;
     gap: 12px;
     padding: 16px;
-    background: white;
-    border-top: 1px solid #e5e5e7;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-color);
 }
 
 .chat-input {
     flex: 1;
     padding: 12px 16px;
-    border: 1px solid #e5e5e7;
+    border: 1px solid var(--border-color);
     border-radius: 20px;
     font-size: 14px;
     outline: none;
     transition: all 0.2s ease;
     font-family: inherit;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 .chat-input:focus {
@@ -328,7 +330,7 @@
 }
 
 .chat-input:disabled {
-    background: #f5f5f7;
+    background: var(--bg-hover);
     cursor: not-allowed;
 }
 

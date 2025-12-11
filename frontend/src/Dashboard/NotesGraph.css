@@ -3,10 +3,10 @@
     width: 100%;
     height: calc(100vh - 250px);
     min-height: 500px;
-    background: #fafafa;
+    background: var(--bg-secondary);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
 }
 
 .graph-empty-state {
@@ -17,7 +17,7 @@
     height: calc(100vh - 250px);
     min-height: 500px;
     text-align: center;
-    background: #fafafa;
+    background: var(--bg-secondary);
     border-radius: 12px;
     padding: 40px;
 }
@@ -31,13 +31,13 @@
 .graph-empty-state h3 {
     margin: 0 0 10px 0;
     font-size: 24px;
-    color: #1d1d1f;
+    color: var(--text-primary);
 }
 
 .graph-empty-state p {
     margin: 0;
     font-size: 16px;
-    color: #6e6e73;
+    color: var(--text-secondary);
 }
 
 /* Graph Controls */
@@ -49,15 +49,15 @@
 }
 
 .refresh-graph-btn {
-    background: white;
-    border: 1px solid #d0d0d0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
     padding: 10px 16px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-    color: #1d1d1f;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
@@ -65,9 +65,9 @@
 }
 
 .refresh-graph-btn:hover:not(:disabled) {
-    background: #f5f5f5;
+    background: var(--bg-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-md);
 }
 
 .refresh-graph-btn:disabled {
@@ -83,18 +83,19 @@
     position: absolute;
     top: 20px;
     right: 20px;
-    background: white;
+    background: var(--bg-card);
     padding: 16px;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-md);
     min-width: 150px;
+    border: 1px solid var(--border-color);
 }
 
 .graph-legend h4 {
     margin: 0 0 12px 0;
     font-size: 14px;
     font-weight: 600;
-    color: #1d1d1f;
+    color: var(--text-primary);
 }
 
 .legend-item {
@@ -103,7 +104,7 @@
     gap: 8px;
     margin-bottom: 8px;
     font-size: 13px;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .legend-color {

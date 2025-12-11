@@ -102,7 +102,9 @@ const NotesGraph = ({ graphData, onRegenerate, isLoading }) => {
                     ctx.font = `${fontSize}px Sans-Serif`;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillStyle = '#333';
+                    // Check if dark mode is active
+                    const isDarkMode = document.body.classList.contains('dark-mode');
+                    ctx.fillStyle = isDarkMode ? '#ffffff' : '#333333';
                     ctx.fillText(label, node.x, node.y + nodeSize + 10 / globalScale);
                 }}
                 linkColor={link => `rgba(150, 150, 150, ${link.strength || 0.3})`}
