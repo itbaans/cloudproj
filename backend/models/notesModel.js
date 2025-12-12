@@ -67,13 +67,13 @@ const LoadHTMLByNoteID = async (noteId, userId) => {
         authTag,
         userId
       );
-      return { content_html: decrypted, is_protected: true };
+      return { content_html: decrypted, is_protected: true, notebook_id: note.notebook_id };
     } catch (err) {
       throw new Error("Failed to decrypt protected note");
     }
   }
 
-  return { content_html: note.content_html, is_protected: note.is_protected || false };
+  return { content_html: note.content_html, is_protected: note.is_protected || false, notebook_id: note.notebook_id };
 };
 
 // Save HTML content in a note

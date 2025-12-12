@@ -425,6 +425,89 @@ const moveNoteToNotebook = async (req, res) => {
   }
 };
 
+/**
+ * Divide a note into multiple notes under a new notebook
+ * Deletes the original note after creating the new ones
+ */
+const divideNote = async (req, res) => {
+  const userId = req.user.userId;
+  const { originalNoteId, notebookName, sections } = req.body;
+
+  if (!originalNoteId) {
+    return res.status(400).json({ error: "Original note ID is required" });
+  }
+
+  if (!notebookName || notebookName.trim().length === 0) {
+    return res.status(400).json({ error: "Notebook name is required" });
+  }
+
+  if (!sections || !Array.isArray(sections) || sections.length === 0) {
+    return res.status(400).json({ error: "At least one section is required" });
+  }
+
+  try {
+    // Verify original note exists and belongs to user
+    const originalNote = await notesModel.findNoteByUserID(userId, originalNoteId);
+    if (!originalNote) {
+      return res.status(404).json({ error: "Original note not found" });
+    }
+
+    // Create a new notebook
+    const notebooksModel = require("../models/notebooksModel");
+    const newNotebook = await notebooksModel.createNotebook(userId, notebookName.trim());
+
+    // Create notes for each section
+    const createdNotes = [];
+    for (const section of sections) {
+      if (!section.title || !section.content) {
+        continue; // Skip invalid sections
+      }
+
+      // Create the note in the new notebook
+      const newNote = await notesModel.CreateNote(userId, newNotebook.id);
+
+      // Update the note name
+      await notesModel.SaveNewNameInNoteID(section.title, newNote.id, userId);
+
+      // Save the content
+      await notesModel.SaveHTMLInNoteID(section.content, newNote.id, userId);
+
+      createdNotes.push({
+        id: newNote.id,
+        title: section.title,
+      });
+    }
+
+    // Delete the original note
+    await notesModel.DeleteNote(originalNoteId, userId);
+
+    // Clear graph cache since notes changed
+    const userModel = require("../models/userModel");
+    await userModel.clearGraphMetadata(userId);
+
+    logger.info({
+      userId,
+      originalNoteId,
+      notebookId: newNotebook.id,
+      notebookName: newNotebook.notebook_name,
+      notesCreated: createdNotes.length,
+    }, "Note divided successfully");
+
+    res.status(200).json({
+      message: "Note divided successfully",
+      notebook: {
+        id: newNotebook.id,
+        name: newNotebook.notebook_name,
+      },
+      notes: createdNotes,
+    });
+
+  } catch (err) {
+    logger.error({ err, userId, originalNoteId }, "Error dividing note");
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
 
 module.exports = {
   updateNoteContent,
@@ -437,4 +520,5 @@ module.exports = {
   getNotesGraphData,
   toggleNoteProtection,
   moveNoteToNotebook,
+  divideNote,
 };

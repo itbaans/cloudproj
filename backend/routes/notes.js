@@ -23,6 +23,9 @@ router.get("/graph", verifyToken, notesController.getNotesGraphData);
 router.post("/protect/:noteId", verifyToken, notesController.toggleNoteProtection);
 // move note to notebook
 router.put("/notebook/:noteId", verifyToken, notesController.moveNoteToNotebook);
+// divide note into multiple notes
+router.post("/divide", verifyToken, notesController.divideNote);
 
 module.exports = router;
+
 

@@ -4,7 +4,8 @@ import "quill/dist/quill.snow.css";
 import CustomToolbar from "./CustomToolbar";
 import { useAuth } from "../Authentication/AuthContext";
 import { useNote } from "../Components/NoteContext";
-import { useChat } from "../Components/ChatAssistant/ChatContext";
+import { useToast } from "../Components/Toast";
+import { useConfirm } from "../Components/ConfirmModal";
 import { API_BASE_URL } from "../App/config";
 import SettingsModule from "./SettingsModule";
 import EditableHeading from "./EditableHeading";
@@ -19,19 +20,24 @@ const TextEditor = () => {
   const [isProtected, setIsProtected] = useState(false);
   const [notebooks, setNotebooks] = useState([]);
   const [currentNotebookId, setCurrentNotebookId] = useState(null);
+  const [isHighlighting, setIsHighlighting] = useState(false);
+  const [isDividing, setIsDividing] = useState(false);
+
 
   const { token } = useAuth();
   const { selectedNoteId, setSelectedNoteId } = useNote();
   const { selectedNoteName, setSelectedNoteName } = useNote();
   const selectedNoteIdRef = useRef(selectedNoteId);
   const { refreshNotes, setRefreshNotes } = useNote();
-  const { setCurrentNoteId, setIsViewingProtectedNote } = useChat();
+  const toast = useToast();
+  const { confirm } = useConfirm();
   const autosave = useRef(false);
 
-  // Update ChatContext with current note ID
+  // Expose current note ID to window for bot actions
   useEffect(() => {
-    setCurrentNoteId(selectedNoteId);
-  }, [selectedNoteId, setCurrentNoteId]);
+    window.currentNoteId = selectedNoteId;
+  }, [selectedNoteId]);
+
 
   const Font = Quill.import("formats/font");
   Font.whitelist = [
@@ -225,16 +231,6 @@ const TextEditor = () => {
     loadProtectionStatus();
   }, [selectedNoteId, token]);
 
-  // Update ChatContext when protection status changes
-  useEffect(() => {
-    setIsViewingProtectedNote(isProtected);
-
-    // Reset when component unmounts or note changes
-    return () => {
-      setIsViewingProtectedNote(false);
-    };
-  }, [isProtected, setIsViewingProtectedNote]);
-
   // Fetch all notebooks for the dropdown
   useEffect(() => {
     const fetchNotebooks = async () => {
@@ -394,11 +390,11 @@ const TextEditor = () => {
         setCurrentNotebookId(newNotebookId);
         setRefreshNotes(!refreshNotes);
       } else {
-        alert("Failed to move note to notebook");
+        toast.error("Failed to move note to notebook");
       }
     } catch (err) {
       console.error("Error moving note:", err);
-      alert("Error moving note to notebook");
+      toast.error("Error moving note to notebook");
     }
   };
 
@@ -409,7 +405,13 @@ const TextEditor = () => {
       ? "Unprotect this note? It will be included in AI features again."
       : "Protect this note? Content will be encrypted and excluded from AI features.";
 
-    if (!window.confirm(confirmMsg)) return;
+    const confirmed = await confirm({
+      title: isProtected ? 'Unprotect Note?' : 'Protect Note?',
+      message: confirmMsg,
+      confirmText: isProtected ? 'Unprotect' : 'Protect',
+      type: 'warning'
+    });
+    if (!confirmed) return;
 
     try {
       const response = await fetch(
@@ -427,13 +429,106 @@ const TextEditor = () => {
       if (response.ok) {
         setIsProtected(!isProtected);
         setRefreshNotes(!refreshNotes);
-        alert(`Note ${!isProtected ? 'protected' : 'unprotected'} successfully!`);
+        toast.success(`Note ${!isProtected ? 'protected' : 'unprotected'} successfully!`);
       } else {
-        alert("Failed to toggle protection");
+        toast.error("Failed to toggle protection");
       }
     } catch (err) {
       console.error("Error toggling protection:", err);
-      alert("Error toggling protection");
+      toast.error("Error toggling protection");
+    }
+  };
+
+  // AI Action: Highlight key points
+  const handleHighlight = async () => {
+    if (!selectedNoteId || isProtected || isHighlighting) return;
+
+    setIsHighlighting(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/note-actions/highlight/${selectedNoteId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.highlights && data.highlights.length > 0) {
+        const quill = quillInstance.current;
+        if (!quill) return;
+
+        const content = quill.getText();
+        let highlightCount = 0;
+
+        for (const item of data.highlights) {
+          const index = content.indexOf(item.text);
+          if (index !== -1) {
+            quill.formatText(index, item.text.length, {
+              background: item.color || '#ffeb3b'
+            });
+            highlightCount++;
+          }
+        }
+
+        toast.success(`✨ Highlighted ${highlightCount} key points!`);
+      } else {
+        toast.warning(data.error || "Could not find key points to highlight");
+      }
+    } catch (err) {
+      console.error("Error highlighting:", err);
+      toast.error("Error analyzing note for highlights");
+    } finally {
+      setIsHighlighting(false);
+    }
+  };
+
+  // AI Action: Divide note into multiple notes
+  const handleDivide = async () => {
+    if (!selectedNoteId || isProtected || isDividing) return;
+
+    const confirmed = await confirm({
+      title: 'Divide Note?',
+      message: 'Divide this note into multiple notes? The original note will be deleted.',
+      confirmText: 'Divide',
+      type: 'warning'
+    });
+    if (!confirmed) return;
+
+    setIsDividing(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/note-actions/divide/${selectedNoteId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(`📑 Note divided into ${data.notes.length} notes!`);
+
+        // Trigger refresh and clear selection
+        setSelectedNoteId(null);
+        setRefreshNotes(!refreshNotes);
+        window.dispatchEvent(new CustomEvent('notes-updated'));
+      } else {
+        toast.error(data.error || "Failed to divide note");
+      }
+    } catch (err) {
+      console.error("Error dividing note:", err);
+      toast.error("Error dividing note");
+    } finally {
+      setIsDividing(false);
     }
   };
 
@@ -493,6 +588,24 @@ const TextEditor = () => {
             >
               {isProtected ? '🔓 Protected' : '🔒 Protect'}
             </button>
+          )}
+          {selectedNoteId && !isProtected && (
+            <select
+              className="magic-actions-dropdown"
+              value=""
+              onChange={(e) => {
+                const action = e.target.value;
+                if (action === 'highlight') handleHighlight();
+                else if (action === 'divide') handleDivide();
+                e.target.value = '';
+              }}
+              disabled={isHighlighting || isDividing}
+              title="AI-powered actions for this note"
+            >
+              <option value="">{isHighlighting || isDividing ? '⏳ Processing...' : '✨ Magic Actions'}</option>
+              <option value="highlight">🔆 Highlight Key Points</option>
+              <option value="divide">📑 Divide into Notes</option>
+            </select>
           )}
         </div>
       </div>

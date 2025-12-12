@@ -34,9 +34,9 @@ const logger = require("./utils/logger");
 const authRoutes = require("./routes/auth");
 const noteRoutes = require("./routes/notes");
 const profileRoutes = require("./routes/profile");
-const chatRoutes = require("./routes/chat");
 const tasksRoutes = require("./routes/tasks");
 const notebooksRoutes = require("./routes/notebooks");
+const noteActionsRoutes = require("./routes/noteActions");
 
 // Initialize app
 const app = express();
@@ -47,9 +47,10 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/note", noteRoutes);
 app.use("/user", profileRoutes);
-app.use("/chat", chatRoutes);
 app.use("/tasks", tasksRoutes);
 app.use("/notebooks", notebooksRoutes);
+app.use("/note-actions", noteActionsRoutes);
+
 
 // Server port
 const PORT = process.env.PORT || 5000;

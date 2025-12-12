@@ -53,9 +53,20 @@ const deleteTask = async (taskId, userId) => {
     return result.recordset[0];
 };
 
+// Delete all tasks for a user
+const deleteAllTasks = async (userId) => {
+    await poolConnect;
+    const result = await pool.request()
+        .input("userId", sql.Int, userId)
+        .query("DELETE FROM tasks WHERE user_id = @userId");
+    return result.rowsAffected[0];
+};
+
 module.exports = {
     getAllTasks,
     createTask,
     updateTaskStatus,
     deleteTask,
+    deleteAllTasks,
 };
+

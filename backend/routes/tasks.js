@@ -7,6 +7,8 @@ const verifyToken = require("../middlewares/verifyToken");
 router.get("/", verifyToken, tasksController.getTasks);
 router.post("/", verifyToken, tasksController.createTask);
 router.patch("/:id", verifyToken, tasksController.toggleTaskStatus);
+router.delete("/all", verifyToken, tasksController.deleteAllTasks);
 router.delete("/:id", verifyToken, tasksController.deleteTask);
 
 module.exports = router;
+

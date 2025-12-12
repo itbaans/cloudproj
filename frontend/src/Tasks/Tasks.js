@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { API_BASE_URL } from "../App/config.js";
+import { useToast } from "../Components/Toast";
+import { useConfirm } from "../Components/ConfirmModal";
 import "./Tasks.css";
 
 const Tasks = () => {
@@ -8,6 +10,8 @@ const Tasks = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const token = localStorage.getItem("token");
+    const toast = useToast();
+    const { confirm } = useConfirm();
 
     // Fetch tasks on mount
     const fetchTasks = useCallback(async () => {
@@ -59,12 +63,13 @@ const Tasks = () => {
             if (response.ok) {
                 setTasks((prev) => [data.task, ...prev]);
                 setNewTaskText("");
+                toast.success("Task added!");
             } else {
-                setError(data.error || "Failed to create task");
+                toast.error(data.error || "Failed to create task");
             }
         } catch (err) {
             console.error("Error creating task:", err);
-            setError("Failed to create task");
+            toast.error("Failed to create task");
         } finally {
             setIsLoading(false);
         }
@@ -91,17 +96,23 @@ const Tasks = () => {
                     )
                 );
             } else {
-                setError(data.error || "Failed to update task");
+                toast.error(data.error || "Failed to update task");
             }
         } catch (err) {
             console.error("Error updating task:", err);
-            setError("Failed to update task");
+            toast.error("Failed to update task");
         }
     };
 
     // Delete task
     const handleDeleteTask = async (taskId) => {
-        if (!window.confirm("Delete this task?")) return;
+        const confirmed = await confirm({
+            title: 'Delete Task?',
+            message: 'Are you sure you want to delete this task?',
+            confirmText: 'Delete',
+            type: 'danger'
+        });
+        if (!confirmed) return;
 
         try {
             const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
@@ -113,13 +124,48 @@ const Tasks = () => {
 
             if (response.ok) {
                 setTasks((prev) => prev.filter((task) => task.id !== taskId));
+                toast.success("Task deleted");
             } else {
                 const data = await response.json();
-                setError(data.error || "Failed to delete task");
+                toast.error(data.error || "Failed to delete task");
             }
         } catch (err) {
             console.error("Error deleting task:", err);
-            setError("Failed to delete task");
+            toast.error("Failed to delete task");
+        }
+    };
+
+    // Delete all tasks
+    const handleDeleteAllTasks = async () => {
+        if (tasks.length === 0) return;
+
+        const confirmed = await confirm({
+            title: 'Delete All Tasks?',
+            message: `Are you sure you want to delete all ${tasks.length} tasks? This cannot be undone.`,
+            confirmText: 'Delete All',
+            type: 'danger'
+        });
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/tasks/all`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setTasks([]);
+                toast.success(data.message || "All tasks deleted");
+            } else {
+                const data = await response.json();
+                toast.error(data.error || "Failed to delete tasks");
+            }
+        } catch (err) {
+            console.error("Error deleting all tasks:", err);
+            toast.error("Failed to delete tasks");
         }
     };
 
@@ -130,10 +176,19 @@ const Tasks = () => {
         <div className="tasks-container">
             <div className="tasks-header">
                 <h1 className="tasks-heading fade-in">Your Tasks</h1>
-                <div className="tasks-count">
+                <div className="tasks-header-actions">
                     <span className="count-badge">
                         {completedCount} / {totalCount} completed
                     </span>
+                    {tasks.length > 0 && (
+                        <button
+                            className="delete-all-btn"
+                            onClick={handleDeleteAllTasks}
+                            title="Delete all tasks"
+                        >
+                            🗑️ Delete All
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -209,3 +264,4 @@ const Tasks = () => {
 };
 
 export default Tasks;
+

@@ -123,6 +123,27 @@ function NotePanel() {
     notebookId,
   ]);
 
+  // Handle events from bot actions (e.g., note divided)
+  useEffect(() => {
+    const handleNoteDeleted = () => {
+      setSelectedNoteId(null);
+      setSelectedNoteName('');
+      setHasSelectedInitialNote(false);
+    };
+
+    const handleNotesUpdated = () => {
+      setRefreshNotes(prev => !prev);
+    };
+
+    window.addEventListener('note-deleted', handleNoteDeleted);
+    window.addEventListener('notes-updated', handleNotesUpdated);
+
+    return () => {
+      window.removeEventListener('note-deleted', handleNoteDeleted);
+      window.removeEventListener('notes-updated', handleNotesUpdated);
+    };
+  }, [setSelectedNoteId, setSelectedNoteName, setRefreshNotes]);
+
   const handleNewNote = async () => {
     if (isCreatingNote) return;
     setIsCreatingNote(true);

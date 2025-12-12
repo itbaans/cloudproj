@@ -1,3 +1,16 @@
 Ok so all this works but here are few changes that i want to make:
 
-First right now i cant select my conver
+First right now only the current conversation with AI shows, like i cant jump to different conversations that i have before with chat
+also i want 2 type of chat assistant:
+chat assistant with global context, and chat assistant with local context
+global assistant have the context of all notes and the current chat history while local one has access to the local chat that the user is on as context and the conversation history
+
+if user is on home tab, the assistant will be of gloval mode,
+but if user is on notes tab, chat assitant can be toggle between local and global
+
+also right now i dont like how the chat UI looks because it doesnt allign with rest of App UI theme
+also i dont want the seperate window to popup while bluring the background, it should like popup on the bottom right i have add image for reference
+
+also i want to add some functionality that could allow the bot to take some action, for example one thing i was thinking about was 
+auto highlighting important points in the text by using the text highlighting option in tool bar, this is just one feature but setup the code such that its easier to add more 
+features that allow the bot to take action within the app.

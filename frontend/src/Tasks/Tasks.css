@@ -25,9 +25,10 @@
     color: var(--text-primary);
 }
 
-.tasks-count {
+.tasks-header-actions {
     display: flex;
     align-items: center;
+    gap: 12px;
 }
 
 .count-badge {
@@ -37,6 +38,23 @@
     font-size: 14px;
     font-weight: 500;
     color: var(--text-secondary);
+}
+
+.delete-all-btn {
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid #f44336;
+    border-radius: 8px;
+    color: #f44336;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.delete-all-btn:hover {
+    background: #f44336;
+    color: white;
 }
 
 /* Add Task Form */

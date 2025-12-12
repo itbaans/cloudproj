@@ -58,9 +58,13 @@ const toggleTaskStatus = async (req, res) => {
 const deleteTask = async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { id } = req.params;
+        const taskId = parseInt(req.params.id, 10);
 
-        const deletedTask = await tasksModel.deleteTask(id, userId);
+        if (isNaN(taskId)) {
+            return res.status(400).json({ error: "Invalid task ID" });
+        }
+
+        const deletedTask = await tasksModel.deleteTask(taskId, userId);
 
         if (!deletedTask) {
             return res.status(404).json({ error: "Task not found" });
@@ -73,9 +77,23 @@ const deleteTask = async (req, res) => {
     }
 };
 
+// Delete all tasks for a user
+const deleteAllTasks = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const deletedCount = await tasksModel.deleteAllTasks(userId);
+        res.status(200).json({ message: `Deleted ${deletedCount} task(s)`, count: deletedCount });
+    } catch (error) {
+        console.error("Error deleting all tasks:", error);
+        res.status(500).json({ error: "Failed to delete tasks" });
+    }
+};
+
 module.exports = {
     getTasks,
     createTask,
     toggleTaskStatus,
     deleteTask,
+    deleteAllTasks,
 };
+
