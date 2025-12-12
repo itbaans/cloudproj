@@ -1,8 +1,9 @@
 // utils/api.js
 import axios from "axios";
+import { API_BASE_URL } from "../App/config";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: API_BASE_URL,
   withCredentials: true, // send cookies like refreshToken
 });
 
@@ -28,7 +29,7 @@ api.interceptors.response.use(
 
       try {
         const res = await axios.post(
-          "http://localhost:5000/auth/refresh",
+          `${API_BASE_URL}/auth/refresh`,
           {},
           { withCredentials: true }
         );

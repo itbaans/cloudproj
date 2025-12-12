@@ -73,10 +73,6 @@
   margin-left: 5px;
 }
 
-*/ .size-arrow-container.active .size-dropdown-arrow {
-  transform: rotate(180deg);
-}
-
 .size-dropdown-menu {
   display: none;
   position: absolute;
