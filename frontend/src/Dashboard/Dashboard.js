@@ -7,7 +7,6 @@ import NotesGraph from "./NotesGraph";
 import EmptyState from "./EmptyState";
 import Pagination from "./Pagination";
 import { API_BASE_URL } from "../App/config.js";
-import { useSide } from "../Components/SidebarContext";
 import "./styles.css";
 
 const Dashboard = ({
@@ -79,6 +78,7 @@ const Dashboard = ({
     } catch (err) {
       console.error("Error fetching notes", err);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, sortBy, sortOrder, currentPage, limit]);
 
   const fetchGraphData = useCallback(async (force = false) => {
@@ -117,6 +117,7 @@ const Dashboard = ({
     if (viewMode === 'graph' && !graphData) {
       fetchGraphData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode]); // Removed fetchGraphData dependency to prevent re-fetching
 
   const handleSearchChange = useCallback((e) => {

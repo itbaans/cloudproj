@@ -12,7 +12,6 @@ import "./NotePanel.css";
 import { API_BASE_URL } from "../App/config";
 import { useAuth } from "../Authentication/AuthContext";
 import { useNote } from "./NoteContext";
-import { useSide } from "./SidebarContext";
 // Format date as "x minutes/hours/days ago"
 const formatDate = (date) => {
   const parsedDate = new Date(date);
@@ -113,6 +112,7 @@ function NotePanel() {
     };
 
     fetchNotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     token,
     hasSelectedInitialNote,

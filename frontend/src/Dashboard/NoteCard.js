@@ -15,8 +15,8 @@ const stripHtml = (html) => {
 };
 
 const NoteCard = ({ note = {}, onClick, isAddCard = false, isLoading, notebookId }) => {
-  const { selectedNoteId, setSelectedNoteId, setSelectedNoteName } = useNote();
-  const { activeSection, setActiveSection } = useSide();
+  const { setSelectedNoteId, setSelectedNoteName } = useNote();
+  const { setActiveSection } = useSide();
   const { token } = useAuth();
 
   const navigate = useNavigate();

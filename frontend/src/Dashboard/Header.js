@@ -41,10 +41,12 @@ const Header = ({ userName, viewMode, setViewMode }) => {
     "Nice to have you back,"
   ];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const greeting = useMemo(() => {
     const time = getTimeOfDay();
     const pool = [...generalGreetings, ...(time === "day" ? dayGreetings : nightGreetings)];
     return pool[Math.floor(Math.random() * pool.length)];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleExtractTasks = async () => {

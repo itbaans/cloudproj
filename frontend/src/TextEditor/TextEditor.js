@@ -9,7 +9,7 @@ import { useConfirm } from "../Components/ConfirmModal";
 import { API_BASE_URL } from "../App/config";
 import SettingsModule from "./SettingsModule";
 import EditableHeading from "./EditableHeading";
-import { FaBook, FaLock, FaLockOpen, FaSpinner, FaMagic, FaHighlighter, FaCopy } from "react-icons/fa";
+import { FaLock, FaLockOpen } from "react-icons/fa";
 import "./TextEditor.css";
 
 const TextEditor = () => {
@@ -543,8 +543,8 @@ const TextEditor = () => {
       }
       handleSave();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [editorContent],
-    [autosave.current],
   );
 
   // Show message when no note is selected
