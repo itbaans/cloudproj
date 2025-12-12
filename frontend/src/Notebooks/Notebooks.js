@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../App/config.js";
+import { FaBook, FaCheck, FaTimes, FaEdit, FaTrash, FaBookOpen, FaExclamationTriangle } from "react-icons/fa";
 import "./Notebooks.css";
 
 const Notebooks = () => {
@@ -160,9 +161,9 @@ const Notebooks = () => {
             {/* Error Display */}
             {error && (
                 <div className="notebooks-error">
-                    <span>⚠️ {error}</span>
+                    <span><FaExclamationTriangle /> {error}</span>
                     <button onClick={() => setError(null)} className="error-close">
-                        ✕
+                        <FaTimes />
                     </button>
                 </div>
             )}
@@ -195,16 +196,16 @@ const Notebooks = () => {
                                             className="save-btn"
                                             onClick={() => handleSaveEdit(notebook.id)}
                                         >
-                                            ✓
+                                            <FaCheck />
                                         </button>
                                         <button className="cancel-btn" onClick={() => setEditingId(null)}>
-                                            ✕
+                                            <FaTimes />
                                         </button>
                                     </div>
                                 </div>
                             ) : (
                                 <>
-                                    <div className="notebook-icon">📖</div>
+                                    <div className="notebook-icon"><FaBook /></div>
                                     <h3 className="notebook-title">{notebook.notebook_name}</h3>
                                     <p className="notebook-note-count">
                                         {notebook.note_count} {notebook.note_count === 1 ? "note" : "notes"}
@@ -215,7 +216,7 @@ const Notebooks = () => {
                                             onClick={() => handleStartEdit(notebook)}
                                             title="Rename notebook"
                                         >
-                                            ✏️
+                                            <FaEdit />
                                         </button>
                                         {notebook.notebook_name !== "Uncategorized" && (
                                             <button
@@ -223,7 +224,7 @@ const Notebooks = () => {
                                                 onClick={() => handleDeleteNotebook(notebook.id, notebook.notebook_name)}
                                                 title="Delete notebook"
                                             >
-                                                🗑️
+                                                <FaTrash />
                                             </button>
                                         )}
                                     </div>
@@ -234,7 +235,7 @@ const Notebooks = () => {
                 </div>
             ) : (
                 <div className="notebooks-empty-state">
-                    <div className="empty-state-icon">📚</div>
+                    <div className="empty-state-icon"><FaBookOpen /></div>
                     <h3 className="empty-state-title">No notebooks yet</h3>
                     <p className="empty-state-text">
                         Create your first notebook to organize your notes!

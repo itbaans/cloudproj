@@ -1,6 +1,6 @@
 import React from "react";
 import "./styles.css";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaLock } from "react-icons/fa";
 import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { useNote } from "../Components/NoteContext.js";
@@ -83,7 +83,7 @@ const NoteCard = ({ note = {}, onClick, isAddCard = false, isLoading, notebookId
       <h3 className="note-title">{note.note_name}</h3>
       {isProtected ? (
         <div className="note-protected-content">
-          <div className="protected-icon">🔒</div>
+          <div className="protected-icon"><FaLock /></div>
           <p className="protected-text">Protected Note - Click to view</p>
         </div>
       ) : (

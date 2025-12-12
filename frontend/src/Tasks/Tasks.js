@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { API_BASE_URL } from "../App/config.js";
 import { useToast } from "../Components/Toast";
 import { useConfirm } from "../Components/ConfirmModal";
+import { FaTrash, FaExclamationTriangle, FaTimes, FaCheck } from "react-icons/fa";
 import "./Tasks.css";
 
 const Tasks = () => {
@@ -186,7 +187,7 @@ const Tasks = () => {
                             onClick={handleDeleteAllTasks}
                             title="Delete all tasks"
                         >
-                            🗑️ Delete All
+                            <FaTrash /> Delete All
                         </button>
                     )}
                 </div>
@@ -212,12 +213,11 @@ const Tasks = () => {
                 </button>
             </form>
 
-            {/* Error Display */}
             {error && (
                 <div className="tasks-error">
-                    <span>⚠️ {error}</span>
+                    <span><FaExclamationTriangle /> {error}</span>
                     <button onClick={() => setError(null)} className="error-close">
-                        ✕
+                        <FaTimes />
                     </button>
                 </div>
             )}
@@ -245,14 +245,14 @@ const Tasks = () => {
                                 onClick={() => handleDeleteTask(task.id)}
                                 title="Delete task"
                             >
-                                🗑️
+                                <FaTrash />
                             </button>
                         </div>
                     ))}
                 </div>
             ) : (
                 <div className="tasks-empty-state">
-                    <div className="empty-state-icon">✓</div>
+                    <div className="empty-state-icon"><FaCheck /></div>
                     <h3 className="empty-state-title">No tasks yet</h3>
                     <p className="empty-state-text">
                         Add your first task above to get started!

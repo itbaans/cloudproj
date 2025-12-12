@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { FaExclamationTriangle, FaQuestionCircle, FaInfoCircle } from 'react-icons/fa';
 import './ConfirmModal.css';
 
 const ConfirmContext = createContext();
@@ -52,9 +53,9 @@ export const ConfirmProvider = ({ children }) => {
                     <div className="confirm-modal" onClick={e => e.stopPropagation()}>
                         <div className={`confirm-modal-header confirm-${confirmState.type}`}>
                             <span className="confirm-modal-icon">
-                                {confirmState.type === 'danger' && '⚠'}
-                                {confirmState.type === 'warning' && '❓'}
-                                {confirmState.type === 'info' && 'ℹ'}
+                                {confirmState.type === 'danger' && <FaExclamationTriangle />}
+                                {confirmState.type === 'warning' && <FaQuestionCircle />}
+                                {confirmState.type === 'info' && <FaInfoCircle />}
                             </span>
                             <h3 className="confirm-modal-title">{confirmState.title}</h3>
                         </div>

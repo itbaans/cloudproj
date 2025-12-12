@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { FaCheck, FaTimes, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 import './Toast.css';
 
 const ToastContext = createContext();
@@ -35,10 +36,10 @@ export const ToastProvider = ({ children }) => {
                 {toasts.map(toast => (
                     <div key={toast.id} className={`toast toast-${toast.type}`}>
                         <span className="toast-icon">
-                            {toast.type === 'success' && '✓'}
-                            {toast.type === 'error' && '✕'}
-                            {toast.type === 'warning' && '⚠'}
-                            {toast.type === 'info' && 'ℹ'}
+                            {toast.type === 'success' && <FaCheck />}
+                            {toast.type === 'error' && <FaTimes />}
+                            {toast.type === 'warning' && <FaExclamationTriangle />}
+                            {toast.type === 'info' && <FaInfoCircle />}
                         </span>
                         <span className="toast-message">{toast.message}</span>
                     </div>

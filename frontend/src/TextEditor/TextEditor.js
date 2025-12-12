@@ -9,6 +9,7 @@ import { useConfirm } from "../Components/ConfirmModal";
 import { API_BASE_URL } from "../App/config";
 import SettingsModule from "./SettingsModule";
 import EditableHeading from "./EditableHeading";
+import { FaBook, FaLock, FaLockOpen, FaSpinner, FaMagic, FaHighlighter, FaCopy } from "react-icons/fa";
 import "./TextEditor.css";
 
 const TextEditor = () => {
@@ -575,7 +576,7 @@ const TextEditor = () => {
               <option value="">No Notebook</option>
               {notebooks.map((notebook) => (
                 <option key={notebook.id} value={notebook.id}>
-                  📖 {notebook.notebook_name}
+                  {notebook.notebook_name}
                 </option>
               ))}
             </select>
@@ -586,7 +587,7 @@ const TextEditor = () => {
               onClick={toggleProtection}
               title={isProtected ? "Unprotect Note" : "Protect Note"}
             >
-              {isProtected ? '🔓 Protected' : '🔒 Protect'}
+              {isProtected ? <><FaLockOpen /> Protected</> : <><FaLock /> Protect</>}
             </button>
           )}
           {selectedNoteId && !isProtected && (
@@ -602,9 +603,9 @@ const TextEditor = () => {
               disabled={isHighlighting || isDividing}
               title="AI-powered actions for this note"
             >
-              <option value="">{isHighlighting || isDividing ? '⏳ Processing...' : '✨ Magic Actions'}</option>
-              <option value="highlight">🔆 Highlight Key Points</option>
-              <option value="divide">📑 Divide into Notes</option>
+              <option value="">{isHighlighting || isDividing ? 'Processing...' : 'Magic Actions'}</option>
+              <option value="highlight">Highlight Key Points</option>
+              <option value="divide">Divide into Notes</option>
             </select>
           )}
         </div>

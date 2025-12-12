@@ -9,6 +9,16 @@
     box-shadow: var(--shadow-md);
 }
 
+/* Override default tooltip styling from react-force-graph */
+.graph-container .graph-tooltip,
+.graph-container [class*="tooltip"],
+.graph-container>div>div[style*="position: absolute"] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
 .graph-empty-state {
     display: flex;
     flex-direction: column;
@@ -25,7 +35,8 @@
 .graph-empty-icon {
     font-size: 80px;
     margin-bottom: 20px;
-    opacity: 0.5;
+    opacity: 0.4;
+    color: var(--text-secondary);
 }
 
 .graph-empty-state h3 {
@@ -61,7 +72,7 @@
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .refresh-graph-btn:hover:not(:disabled) {
@@ -79,40 +90,64 @@
     transform: translateY(0);
 }
 
+/* Spinning animation for refresh icon */
+.refresh-graph-btn .spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Legend */
 .graph-legend {
     position: absolute;
     top: 20px;
     right: 20px;
     background: var(--bg-card);
     padding: 16px;
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: var(--shadow-md);
-    min-width: 150px;
+    min-width: 140px;
+    max-width: 180px;
     border: 1px solid var(--border-color);
+    backdrop-filter: blur(8px);
 }
 
 .graph-legend h4 {
     margin: 0 0 12px 0;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    color: var(--text-primary);
+    color: #FFBF00;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     margin-bottom: 8px;
     font-size: 13px;
     color: var(--text-primary);
 }
 
+.legend-item:last-child {
+    margin-bottom: 0;
+}
+
 .legend-color {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    border: 1px solid #fff;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+    box-shadow: 0 0 8px currentColor;
 }
 
 .legend-icon {
@@ -132,10 +167,16 @@
     }
 
     .graph-legend h4 {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     .legend-item {
         font-size: 11px;
+        gap: 8px;
+    }
+
+    .legend-color {
+        width: 12px;
+        height: 12px;
     }
 }
